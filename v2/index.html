@@ -140,6 +140,7 @@
     const imgs = {
       heroes: {},
       fx: { dust: [], impact: [], orb: [] },
+      bird: [],
       env: {},
     };
     let assetsLoaded = false;
@@ -189,6 +190,9 @@
       }
       for (let i = 0; i < 8; i++) {
         tasks.push(loadImg(`forge-fx/frames/orb-0${i}.png`).then((img) => { imgs.fx.orb[i] = img; }));
+      }
+      for (let i = 0; i < 4; i++) {
+        tasks.push(loadImg(`forge-bird/bird-${i}.png?v=1`).then((img) => { imgs.bird[i] = img; }));
       }
       const envPaths = {
         bg_angkor: "../assets/anims/bg_angkor.png",
@@ -353,9 +357,9 @@
         obstacles.push({
           type: "garuda",
           x: W + 40,
-          y: high ? GROUND_Y - 120 : GROUND_Y - 72,
-          w: 32 * 3,
-          h: 24 * 3,
+          y: high ? GROUND_Y - 142 : GROUND_Y - 92,
+          w: 56 * 2,
+          h: 48 * 2,
           animTime: Math.random() * 0.5,
         });
       } else if (r < 0.66) {
@@ -647,8 +651,8 @@
         if (o.type === "pillar") ctx.drawImage(imgs.env.obs_pillar, Math.round(o.x), Math.round(o.y), o.w, o.h);
         else if (o.type === "naga") ctx.drawImage(imgs.env.obs_naga, Math.round(o.x), Math.round(o.y), o.w, o.h);
         else {
-          const f = Math.floor(o.animTime * 8) % 4;
-          ctx.drawImage(imgs.env.fly_garuda, f * 32, 0, 32, 24, Math.round(o.x), Math.round(o.y), o.w, o.h);
+          const f = Math.floor(o.animTime * 9) % 4;
+          ctx.drawImage(imgs.bird[f], Math.round(o.x), Math.round(o.y), o.w, o.h);
         }
       }
 
