@@ -279,119 +279,137 @@ sprite("ground_tile", { w: 64, h: 48 }, (c) => {
   }
 })
 
-// 9. Parallax Sky + Sun (480x270)
-sprite("bg_sky", { w: 480, h: 270 }, (c) => {
-  c.grad(0, 0, 480, 210, "nmaAu", "v", 0.7)
-  c.rect(0, 210, 480, 60, "u")
+// 9. Parallax Sky + Sun (960x540 High-Detail)
+sprite("bg_sky", { w: 960, h: 540 }, (c) => {
+  c.grad(0, 0, 960, 420, "nmaAu", "v", 0.75)
+  c.rect(0, 420, 960, 120, "u")
+  // Soft sunrise clouds
+  const clouds = [[120, 95, 110], [340, 68, 140], [580, 110, 95], [810, 145, 120]]
+  for (const [cx, cy, cw] of clouds) {
+    c.ellipse(cx, cy, cw, 10, "a")
+    c.ellipse(cx + 10, cy - 5, Math.round(cw * 0.7), 8, "A")
+    c.ellipse(cx + 15, cy - 8, Math.round(cw * 0.4), 5, "u")
+  }
   // Glowing sun
-  c.circ(390, 58, 26, "A")
-  c.circ(390, 58, 19, "Y")
-  c.circ(390, 58, 13, "w")
+  c.circ(780, 112, 54, "A")
+  c.circ(780, 112, 40, "Y")
+  c.circ(780, 112, 26, "w")
 })
 
-// 10. Parallax Distant Angkor Wat (480x140, seamless, detailed 5-tower prangs + galleries)
-sprite("bg_temples", { w: 480, h: 140 }, (c) => {
-  // Helper for detailed Angkor Wat lotus-bud prang silhouette
-  const prang = (cx, baseY, h, hw, mainCol, rimCol) => {
-    const tiers = Math.max(5, Math.floor(h / 7))
+// 10. Parallax Distant Angkor Wat (960x280, seamless, High-Detail 5-tower prangs + reflection)
+sprite("bg_temples", { w: 960, h: 280 }, (c) => {
+  const prang = (cx, baseY, h, hw, mainCol, midCol, rimCol) => {
+    const tiers = Math.max(8, Math.floor(h / 9))
     for (let i = 0; i < tiers; i++) {
       const t = i / tiers
       const th = Math.ceil(h / tiers) + 1
       const y = baseY - Math.round(t * h) - th
       const bulge = Math.sin(t * Math.PI * 0.85) * 0.22
-      const w = Math.max(2, Math.round(hw * (Math.pow(1 - t, 0.72) + bulge * (1 - t))))
+      const w = Math.max(3, Math.round(hw * (Math.pow(1 - t, 0.72) + bulge * (1 - t))))
       c.rect(cx - w, y, w * 2, th, mainCol)
-      c.hline(cx - w - 1, y + th - 1, w * 2 + 2, mainCol)
-      c.vline(cx + w - 1, y, th, rimCol) // warm sunlit rim
+      c.hline(cx - w - 2, y + th - 1, w * 2 + 4, mainCol)
+      c.vline(cx, y, th, midCol)
+      c.vline(cx + w - 1, y, th, rimCol)
+      c.vline(cx + w - 2, y, th, rimCol)
     }
-    c.vline(cx, baseY - h - 5, 5, rimCol)
+    c.vline(cx, baseY - h - 9, 9, rimCol)
+    c.px(cx, baseY - h - 10, "w")
   }
 
   // Rolling distant jungle hills
-  c.poly([0, 140, 0, 114, 70, 102, 150, 116, 250, 104, 340, 118, 430, 100, 480, 112, 480, 140], "h")
+  c.poly([0, 280, 0, 224, 140, 200, 300, 230, 500, 204, 680, 234, 860, 198, 960, 220, 960, 280], "h")
 
-  // Angkor Wat outer gallery & colonnade (left-center)
-  c.rect(48, 104, 214, 36, "H")
-  c.hline(48, 104, 214, "A") // warm sunrise rim on roof
-  for (let x = 56; x <= 254; x += 8) {
-    c.vline(x, 110, 14, "t")
+  // Angkor Wat outer gallery & colonnade
+  c.rect(96, 204, 428, 76, "H")
+  c.hline(96, 204, 428, "A")
+  c.hline(96, 205, 428, "u")
+  for (let x = 112; x <= 508; x += 14) {
+    c.rect(x, 216, 4, 28, "t")
   }
   // Upper terrace & 5 iconic Angkor Wat prangs
-  c.rect(86, 90, 138, 16, "H")
-  c.hline(86, 90, 138, "A")
-  prang(66, 104, 36, 9, "H", "A")
-  prang(244, 104, 36, 9, "H", "A")
-  prang(112, 90, 48, 12, "H", "A")
-  prang(198, 90, 48, 12, "H", "A")
-  prang(155, 90, 64, 15, "H", "u")
+  c.rect(172, 176, 276, 30, "H")
+  c.hline(172, 176, 276, "A")
+  prang(132, 204, 72, 18, "H", "t", "A")
+  prang(488, 204, 72, 18, "H", "t", "A")
+  prang(224, 176, 98, 24, "H", "t", "A")
+  prang(396, 176, 98, 24, "H", "t", "A")
+  prang(310, 176, 130, 30, "H", "t", "u")
   // Central entrance gopura pediment
-  c.poly([141, 104, 155, 92, 169, 104], "t")
-  c.rect(147, 104, 16, 20, "t")
+  c.poly([282, 204, 310, 180, 338, 204], "t")
+  c.line(310, 180, 338, 204, "A", 2)
+  c.rect(294, 204, 32, 40, "t")
 
   // Secondary distant shrine on right
-  c.rect(348, 110, 82, 30, "h")
-  prang(389, 110, 44, 11, "h", "A")
+  c.rect(696, 218, 164, 62, "h")
+  c.hline(696, 218, 164, "A")
+  prang(778, 218, 88, 22, "h", "t", "A")
 })
 
-// 11. Parallax Midground Palms & Ruins (480x100, seamless)
-sprite("bg_jungle", { w: 480, h: 100 }, (c) => {
-  c.poly([0, 100, 0, 74, 90, 68, 180, 78, 270, 64, 370, 76, 480, 70, 480, 100], "T")
-  // Palm trees
-  const palms = [42, 165, 295, 415]
+// 11. Parallax Midground Palms & Ruins (960x200, seamless)
+sprite("bg_jungle", { w: 960, h: 200 }, (c) => {
+  c.poly([0, 200, 0, 148, 180, 136, 360, 156, 540, 128, 740, 152, 960, 140, 960, 200], "T")
+  const palms = [84, 330, 590, 830]
   for (const px of palms) {
-    c.line(px, 95, px + 3, 28, "t", 3)
-    const tx = px + 3
-    const ty = 28
-    for (const [dx, dy] of [[-18, -4], [-20, 5], [-12, 12], [18, -4], [20, 5], [12, 12], [-7, -13], [7, -13]]) {
-      c.line(tx, ty, tx + dx, ty + dy, "d", 2)
+    c.line(px, 190, px + 6, 56, "t", 5)
+    c.line(px + 2, 190, px + 8, 56, "D", 2)
+    const tx = px + 6
+    const ty = 56
+    for (const [dx, dy] of [[-36, -8], [-40, 10], [-24, 24], [36, -8], [40, 10], [24, 24], [-14, -26], [14, -26]]) {
+      c.line(tx, ty, tx + dx, ty + dy, "d", 3)
+      c.line(tx, ty - 2, tx + dx, ty + dy - 2, "g", 2)
     }
   }
 })
 
 // ==================== LEVEL 2: BAYON TWILIGHT & GOLDEN SINGHA ====================
 
-// Level 2 Sky: Deep Twilight Indigo + Crescent Moon + Stars (480x270)
-sprite("bg_sky_lv2", { w: 480, h: 270 }, (c) => {
-  c.grad(0, 0, 480, 220, "knm", "v", 0.75)
-  c.rect(0, 220, 480, 50, "m")
+// Level 2 Sky: Deep Twilight Indigo + Crescent Moon + Stars (960x540)
+sprite("bg_sky_lv2", { w: 960, h: 540 }, (c) => {
+  c.grad(0, 0, 960, 440, "knm", "v", 0.75)
+  c.rect(0, 440, 960, 100, "m")
   // Twinkling stars
-  const stars = [[34, 28], [88, 52], [142, 22], [198, 64], [256, 32], [312, 48], [440, 30], [64, 92], [284, 88]]
+  const stars = [[68, 56], [176, 104], [284, 44], [396, 128], [512, 64], [624, 96], [880, 60], [128, 184], [568, 176], [710, 48], [440, 82]]
   for (const [sx, sy] of stars) {
-    c.px(sx, sy, "w")
-    if (sx % 2 === 0) c.px(sx + 1, sy, "Y")
+    c.rect(sx, sy, 2, 2, "w")
+    if (sx % 2 === 0) c.px(sx + 2, sy, "Y")
   }
   // Glowing Crescent Moon
-  c.circ(395, 52, 20, "Y")
-  c.circ(395, 52, 17, "w")
-  c.circ(403, 47, 16, "n")
+  c.circ(790, 104, 40, "Y")
+  c.circ(790, 104, 34, "w")
+  c.circ(806, 94, 32, "n")
 })
 
-// Level 2 Temples: Bayon Face Towers + Torch Glows (480x140)
-sprite("bg_temples_lv2", { w: 480, h: 140 }, (c) => {
-  c.poly([0, 140, 0, 108, 80, 96, 170, 114, 260, 96, 360, 112, 440, 94, 480, 106, 480, 140], "K")
-  // Three Bayon Face Towers
-  const towers = [[110, 80, 18], [240, 96, 22], [375, 76, 17]]
+// Level 2 Temples: Detailed Bayon Face Towers + Torch Glows (960x280)
+sprite("bg_temples_lv2", { w: 960, h: 280 }, (c) => {
+  c.poly([0, 280, 0, 216, 160, 192, 340, 228, 520, 192, 720, 224, 880, 188, 960, 212, 960, 280], "K")
+  // Three detailed Bayon Face Towers
+  const towers = [[220, 164, 36], [480, 196, 44], [750, 156, 34]]
   for (const [cx, h, hw] of towers) {
-    const baseY = 122
-    c.poly([cx - hw, baseY, cx - Math.round(hw * 0.75), baseY - Math.round(h * 0.65), cx, baseY - h, cx + Math.round(hw * 0.75), baseY - Math.round(h * 0.65), cx + hw, baseY], "n")
-    // Subtle carved face eyes & brow catching moonlight
-    const fy = baseY - Math.round(h * 0.42)
-    c.hline(cx - 7, fy, 5, "h")
-    c.hline(cx + 2, fy, 5, "h")
-    c.hline(cx - 5, fy + 6, 10, "H")
+    const baseY = 244
+    c.poly([cx - hw, baseY, cx - Math.round(hw * 0.72), baseY - Math.round(h * 0.65), cx, baseY - h, cx + Math.round(hw * 0.72), baseY - Math.round(h * 0.65), cx + hw, baseY], "n")
+    // Rim highlight on right edge facing moon
+    c.line(cx, baseY - h, cx + Math.round(hw * 0.72), baseY - Math.round(h * 0.65), "h", 2)
+    // Carved Bayon face (brows, eyes, nose, serene smile)
+    const fy = baseY - Math.round(h * 0.44)
+    c.rect(cx - 14, fy - 4, 10, 2, "k")
+    c.rect(cx + 4, fy - 4, 10, 2, "k")
+    c.rect(cx - 13, fy, 8, 3, "h")
+    c.rect(cx + 5, fy, 8, 3, "h")
+    c.rect(cx - 2, fy + 2, 4, 9, "H")
+    c.hline(cx - 10, fy + 14, 20, "h")
     // Warm torch ember at tower base
-    c.circ(cx - hw + 4, baseY - 4, 4, "o")
-    c.circ(cx - hw + 4, baseY - 4, 2, "Y")
+    c.circ(cx - hw + 10, baseY - 8, 8, "o")
+    c.circ(cx - hw + 10, baseY - 8, 4, "Y")
   }
 })
 
-// Level 2 Midground: Dark Night Palms & Mossy Ruins (480x100)
-sprite("bg_jungle_lv2", { w: 480, h: 100 }, (c) => {
-  c.poly([0, 100, 0, 74, 100, 66, 200, 78, 300, 64, 400, 76, 480, 68, 480, 100], "k")
-  for (const px of [55, 190, 325, 445]) {
-    c.line(px, 95, px + 2, 30, "K", 3)
-    for (const [dx, dy] of [[-17, -4], [-18, 5], [17, -4], [18, 5], [-6, -12], [6, -12]]) {
-      c.line(px + 2, 30, px + 2 + dx, 30 + dy, "D", 2)
+// Level 2 Midground: Dark Night Palms & Mossy Ruins (960x200)
+sprite("bg_jungle_lv2", { w: 960, h: 200 }, (c) => {
+  c.poly([0, 200, 0, 148, 200, 132, 400, 156, 600, 128, 800, 152, 960, 136, 960, 200], "k")
+  for (const px of [110, 380, 650, 890]) {
+    c.line(px, 190, px + 4, 60, "K", 5)
+    for (const [dx, dy] of [[-34, -8], [-36, 10], [34, -8], [36, 10], [-12, -24], [12, -24]]) {
+      c.line(px + 4, 60, px + 4 + dx, 60 + dy, "D", 3)
     }
   }
 })
