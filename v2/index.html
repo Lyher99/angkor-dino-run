@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Angkor Dino Run V2 — AgentSpriteForge Edition</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #120e1c;
+      color: #fff6d6;
+      font-family: "Courier New", Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+      user-select: none;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: min(960px, 100%);
+      margin-bottom: 10px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    h1 {
+      font-size: clamp(16px, 2.4vw, 22px);
+      color: #ffe373;
+      letter-spacing: 1px;
+      text-shadow: 2px 2px 0 #141020;
+    }
+    .badge {
+      font-size: 11px;
+      background: #3b265c;
+      border: 1px solid #ffe373;
+      color: #ffe373;
+      padding: 2px 6px;
+      border-radius: 3px;
+      vertical-align: middle;
+    }
+    .controls-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    button, a.btn {
+      background: #2b2142;
+      color: #ffe373;
+      border: 2px solid #ebb03d;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+    button:hover, a.btn:hover { background: #3e2f5e; }
+    .game-wrap {
+      position: relative;
+      width: min(960px, 100%);
+      aspect-ratio: 16 / 9;
+      border: 3px solid #ebb03d;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+      background: #2d1e40;
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .footer {
+      width: min(960px, 100%);
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: #c4b5d9;
+    }
+    .touch-btns {
+      display: none;
+      width: min(960px, 100%);
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .touch-btns button { flex: 1; padding: 14px; font-size: 16px; }
+    @media (pointer: coarse) { .touch-btns { display: flex; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>ANGKOR DINO RUN <span class="badge">V2 · FORGE</span></h1>
+    <div class="controls-bar">
+      <a class="btn" href="../">V1</a>
+      <button id="levelBtn">LVL 1: ANGKOR WAT</button>
+      <button id="charBtn">CHAR: AUTO</button>
+      <button id="muteBtn">SFX: ON</button>
+      <button id="restartBtn">RESTART</button>
+    </div>
+  </div>
+
+  <div class="game-wrap">
+    <canvas id="game" width="960" height="540"></canvas>
+  </div>
+
+  <div class="touch-btns">
+    <button id="touchDuck">DUCK</button>
+    <button id="touchJump">JUMP</button>
+  </div>
+
+  <div class="footer">
+    <span><b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall</span>
+    <span>Code-drawn PixelSpec + FX via <b>AgentSpriteForge</b> (no image model for V2 sprites)</span>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    const W = 960;
+    const H = 540;
+    const GROUND_Y = 444;
+    const HERO_SCALE = 3; // 32x32 PixelSpec * 3 = 96x96
+
+    const VARIANTS = ["jade_dino", "golden_singha", "white_hanuman", "crimson_garuda"];
+    const FRAME_NAMES = ["run-0", "run-1", "run-2", "run-3", "jump-0", "jump-1", "duck-0", "duck-1"];
+
+    const imgs = {
+      heroes: {},
+      fx: { dust: [], impact: [], orb: [] },
+      env: {},
+    };
+    let assetsLoaded = false;
+
+    function loadImg(src) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.src = src;
+      });
+    }
+
+    async function loadAssets() {
+      const tasks = [];
+      for (const v of VARIANTS) {
+        imgs.heroes[v] = {};
+        for (const fn of FRAME_NAMES) {
+          tasks.push(
+            loadImg(`forge-hero/${v}/frames/${fn}.png`).then((img) => {
+              imgs.heroes[v][fn] = img;
+            })
+          );
+        }
+      }
+      for (let i = 0; i < 7; i++) {
+        tasks.push(loadImg(`forge-fx/frames/dust-0${i}.png`).then((img) => { imgs.fx.dust[i] = img; }));
+      }
+      for (let i = 0; i < 5; i++) {
+        tasks.push(loadImg(`forge-fx/frames/impact-0${i}.png`).then((img) => { imgs.fx.impact[i] = img; }));
+      }
+      for (let i = 0; i < 8; i++) {
+        tasks.push(loadImg(`forge-fx/frames/orb-0${i}.png`).then((img) => { imgs.fx.orb[i] = img; }));
+      }
+      const envPaths = {
+        bg_angkor: "../assets/anims/bg_angkor.png",
+        bg_bayon: "../assets/anims/bg_bayon.png",
+        bg_preah_vihear: "../assets/sprites/bg_preah_vihear_base.png",
+        bg_ta_prohm: "../assets/sprites/bg_ta_prohm_base.png",
+        ground_1: "../assets/sprites/ground_tile.png",
+        ground_2: "../assets/sprites/ground_tile_lv2.png",
+        ground_3: "../assets/sprites/ground_tile_lv3.png",
+        ground_4: "../assets/sprites/ground_tile_lv4.png",
+        obs_pillar: "../assets/sprites/obs_pillar.png",
+        obs_naga: "../assets/sprites/obs_naga.png",
+        fly_garuda: "../assets/anims/fly_garuda.png",
+        fx_petal: "../assets/sprites/petal.png",
+        fx_leaf: "../assets/sprites/leaf.png",
+      };
+      for (const [k, src] of Object.entries(envPaths)) {
+        tasks.push(loadImg(src).then((img) => { imgs.env[k] = img; }));
+      }
+      await Promise.all(tasks);
+      assetsLoaded = true;
+    }
+
+    // Audio-Design Bus + Pitch-Varied SFX
+    let audioCtx = null;
+    let sfxBus = null;
+    let muted = false;
+    function ensureAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) {
+          audioCtx = new AC();
+          sfxBus = audioCtx.createGain();
+          sfxBus.gain.value = 0.85;
+          sfxBus.connect(audioCtx.destination);
+        }
+      }
+      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    }
+    function playTone(freq, endFreq, duration, type = "square", vol = 0.08, jitter = 0.04) {
+      if (muted) return;
+      ensureAudio();
+      if (!audioCtx || !sfxBus) return;
+      const pitchMul = 1 + (Math.random() - 0.5) * 2 * jitter;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq * pitchMul, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq * pitchMul), audioCtx.currentTime + duration);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(sfxBus);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+    const sfx = {
+      jump: () => playTone(260, 560, 0.11, "square", 0.07),
+      orb: () => {
+        playTone(620, 930, 0.09, "triangle", 0.1);
+        setTimeout(() => playTone(930, 1240, 0.12, "triangle", 0.09), 60);
+      },
+      milestone: () => {
+        playTone(523, 659, 0.1, "square", 0.07);
+        setTimeout(() => playTone(659, 1046, 0.16, "square", 0.07), 90);
+      },
+      hit: () => playTone(180, 55, 0.25, "sawtooth", 0.11),
+    };
+
+    const keys = { jump: false, duck: false };
+    let state = "ready";
+    let score = 0;
+    let highScore = Number(localStorage.getItem("angkor_dino_v2_hi") || 0);
+    let speed = 380;
+    let dist = 0;
+    let spawnTimer = 0.8;
+    let lastMilestone = 0;
+    let flashTimer = 0;
+    let trauma = 0;
+    let shakeTime = 0;
+    let hitStopTimer = 0;
+    let combo = 0;
+    let level = 1;
+    let manualLevel = null;
+    let charMode = "auto";
+    let levelBannerTimer = 0;
+    let levelBannerText = "";
+
+    const hero = {
+      x: 112,
+      y: GROUND_Y - 32 * HERO_SCALE,
+      vy: 0,
+      onGround: true,
+      ducking: false,
+      animTime: 0,
+      jumpBuffer: 0,
+      coyote: 0,
+      scaleX: 1,
+      scaleY: 1,
+    };
+
+    let obstacles = [];
+    let orbs = [];
+    let fxAnims = []; // active AgentSpriteForge dust/impact clips
+    let popups = [];
+    const motes = Array.from({ length: 16 }, (_, i) => ({
+      x: (i * 63) % W,
+      y: 60 + ((i * 71) % (GROUND_Y - 100)),
+      speed: 25 + (i % 4) * 14,
+      phase: i * 0.7,
+    }));
+
+    function spawnFx(kind, x, y, scale = 2) {
+      fxAnims.push({ kind, x, y, scale, t: 0, duration: kind === "dust" ? 0.36 : 0.32 });
+    }
+
+    function updateLevelUI() {
+      const btn = document.getElementById("levelBtn");
+      btn.textContent =
+        level === 1 ? "LVL 1: ANGKOR WAT" :
+        level === 2 ? "LVL 2: BAYON NIGHT" :
+        level === 3 ? "LVL 3: PREAH VIHEAR" :
+        "LVL 4: TA PROHM";
+    }
+
+    function resetGame() {
+      score = manualLevel === 4 ? 900 : manualLevel === 3 ? 600 : manualLevel === 2 ? 300 : 0;
+      level = manualLevel ?? 1;
+      speed = level === 4 ? 640 : level === 3 ? 580 : level === 2 ? 500 : 380;
+      dist = 0;
+      spawnTimer = 0.9;
+      lastMilestone = Math.floor(score / 100);
+      flashTimer = 0;
+      trauma = 0;
+      hitStopTimer = 0;
+      combo = 0;
+      levelBannerTimer = level >= 2 ? 2.2 : 0;
+      levelBannerText =
+        level === 4 ? "LEVEL 4: TA PROHM ROOTS!" :
+        level === 3 ? "LEVEL 3: PREAH VIHEAR SKY!" :
+        level === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "";
+      hero.y = GROUND_Y - 32 * HERO_SCALE;
+      hero.vy = 0;
+      hero.onGround = true;
+      hero.ducking = false;
+      hero.animTime = 0;
+      hero.jumpBuffer = 0;
+      hero.scaleX = 1;
+      hero.scaleY = 1;
+      obstacles = [];
+      orbs = [];
+      fxAnims = [];
+      popups = [];
+      state = "playing";
+      updateLevelUI();
+    }
+
+    function spawnObstacle() {
+      const r = Math.random();
+      if (score > 80 && r < 0.32) {
+        const high = Math.random() < 0.6;
+        obstacles.push({
+          type: "garuda",
+          x: W + 40,
+          y: high ? GROUND_Y - 120 : GROUND_Y - 72,
+          w: 32 * 3,
+          h: 24 * 3,
+          animTime: Math.random() * 0.5,
+        });
+      } else if (r < 0.66) {
+        obstacles.push({
+          type: "pillar",
+          x: W + 40,
+          y: GROUND_Y - 28 * 3,
+          w: 24 * 3,
+          h: 38 * 3,
+        });
+      } else {
+        obstacles.push({
+          type: "naga",
+          x: W + 40,
+          y: GROUND_Y - 19 * 3,
+          w: 36 * 3,
+          h: 32 * 3,
+        });
+      }
+      if (Math.random() < 0.5) {
+        orbs.push({
+          x: W + 220 + Math.random() * 120,
+          y: GROUND_Y - (Math.random() < 0.5 ? 78 : 148),
+          size: 48 * 1.5,
+          t: Math.random(),
+        });
+      }
+    }
+
+    function getHeroHitbox() {
+      if (hero.ducking && hero.onGround) {
+        return { x: hero.x + 22, y: GROUND_Y - 46, w: 54, h: 42 };
+      }
+      return { x: hero.x + 26, y: hero.y + 24, w: 44, h: 68 };
+    }
+
+    function boxesOverlap(a, b) {
+      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    function triggerJump() {
+      if (state === "ready" || state === "gameover") {
+        resetGame();
+        return;
+      }
+      hero.jumpBuffer = 0.12;
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) {
+        e.preventDefault();
+        if (!keys.jump) triggerJump();
+        keys.jump = true;
+      }
+      if (["ArrowDown", "KeyS"].includes(e.code)) {
+        e.preventDefault();
+        keys.duck = true;
+      }
+    });
+    window.addEventListener("keyup", (e) => {
+      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) keys.jump = false;
+      if (["ArrowDown", "KeyS"].includes(e.code)) keys.duck = false;
+    });
+
+    canvas.addEventListener("pointerdown", () => triggerJump());
+    document.getElementById("restartBtn").addEventListener("click", () => resetGame());
+    document.getElementById("levelBtn").addEventListener("click", () => {
+      manualLevel = level === 1 ? 2 : level === 2 ? 3 : level === 3 ? 4 : 1;
+      level = manualLevel;
+      levelBannerTimer = 2.0;
+      levelBannerText =
+        level === 4 ? "LEVEL 4: TA PROHM ROOTS!" :
+        level === 3 ? "LEVEL 3: PREAH VIHEAR SKY!" :
+        level === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "LEVEL 1: ANGKOR WAT!";
+      updateLevelUI();
+      if (state === "ready") render();
+    });
+    document.getElementById("charBtn").addEventListener("click", (e) => {
+      const order = ["auto", ...VARIANTS];
+      const next = order[(order.indexOf(charMode) + 1) % order.length];
+      charMode = next;
+      e.target.textContent = "CHAR: " + next.replace("_", " ").toUpperCase();
+    });
+    document.getElementById("muteBtn").addEventListener("click", (e) => {
+      muted = !muted;
+      e.target.textContent = muted ? "SFX: OFF" : "SFX: ON";
+    });
+    document.getElementById("touchJump").addEventListener("pointerdown", (e) => {
+      e.preventDefault(); triggerJump(); keys.jump = true;
+    });
+    document.getElementById("touchJump").addEventListener("pointerup", () => { keys.jump = false; });
+    document.getElementById("touchDuck").addEventListener("pointerdown", (e) => {
+      e.preventDefault(); keys.duck = true;
+    });
+    document.getElementById("touchDuck").addEventListener("pointerup", () => { keys.duck = false; });
+
+    function update(dt) {
+      if (flashTimer > 0) flashTimer -= dt;
+      if (trauma > 0) {
+        trauma = Math.max(0, trauma - 1.6 * dt);
+        shakeTime += dt * 32;
+      }
+      if (levelBannerTimer > 0) levelBannerTimer -= dt;
+      if (hitStopTimer > 0) { hitStopTimer -= dt; return; }
+
+      hero.scaleX += (1 - hero.scaleX) * Math.min(1, dt * 16);
+      hero.scaleY += (1 - hero.scaleY) * Math.min(1, dt * 16);
+
+      for (const m of motes) {
+        m.x -= (m.speed + (state === "playing" ? speed * 0.15 : 0)) * dt;
+        m.phase += dt * 3;
+        if (m.x < -8) m.x = W + 8;
+      }
+
+      if (state !== "playing") {
+        hero.animTime += dt;
+        return;
+      }
+
+      speed = Math.min(880, 380 + score * 0.42);
+      dist += speed * dt;
+      score += dt * 14;
+
+      if (manualLevel === null && level === 1 && score >= 300) {
+        level = 2; levelBannerTimer = 2.4; levelBannerText = "LEVEL 2: BAYON TWILIGHT!";
+        flashTimer = 0.2; trauma = Math.min(1, trauma + 0.35); sfx.milestone(); updateLevelUI();
+      } else if (manualLevel === null && level === 2 && score >= 600) {
+        level = 3; levelBannerTimer = 2.6; levelBannerText = "LEVEL 3: PREAH VIHEAR SKY!";
+        flashTimer = 0.25; trauma = Math.min(1, trauma + 0.4); sfx.milestone(); updateLevelUI();
+      } else if (manualLevel === null && level === 3 && score >= 900) {
+        level = 4; levelBannerTimer = 2.6; levelBannerText = "LEVEL 4: TA PROHM ROOTS!";
+        flashTimer = 0.25; trauma = Math.min(1, trauma + 0.45); sfx.milestone(); updateLevelUI();
+      }
+
+      const curMilestone = Math.floor(score / 100);
+      if (curMilestone > lastMilestone && curMilestone > 0) {
+        lastMilestone = curMilestone;
+        sfx.milestone();
+      }
+
+      hero.ducking = keys.duck;
+      if (hero.onGround) hero.coyote = 0.08;
+      else hero.coyote = Math.max(0, hero.coyote - dt);
+      if (hero.jumpBuffer > 0) hero.jumpBuffer -= dt;
+
+      if (hero.jumpBuffer > 0 && hero.coyote > 0) {
+        hero.vy = -750;
+        hero.onGround = false;
+        hero.coyote = 0;
+        hero.jumpBuffer = 0;
+        hero.scaleX = 0.84;
+        hero.scaleY = 1.18;
+        sfx.jump();
+        spawnFx("dust", hero.x + 12, GROUND_Y - 76, 2);
+      }
+
+      let grav = 2300;
+      if (hero.vy < 0 && !keys.jump) grav = 3800;
+      if (keys.duck && !hero.onGround) grav = 5000;
+      hero.vy += grav * dt;
+      hero.y += hero.vy * dt;
+
+      if (hero.y >= GROUND_Y - 32 * HERO_SCALE) {
+        if (!hero.onGround) {
+          hero.scaleX = 1.2;
+          hero.scaleY = 0.82;
+          spawnFx("dust", hero.x + 14, GROUND_Y - 76, 2);
+        }
+        hero.y = GROUND_Y - 32 * HERO_SCALE;
+        hero.vy = 0;
+        hero.onGround = true;
+      }
+
+      hero.animTime += dt * (speed / 380);
+
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        spawnObstacle();
+        const minGap = Math.max(0.68, 1.45 - (speed - 380) / 720);
+        spawnTimer = minGap + Math.random() * 0.65;
+      }
+
+      const hBox = getHeroHitbox();
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const o = obstacles[i];
+        o.x -= (o.type === "garuda" ? speed * 1.15 : speed) * dt;
+        if (o.animTime !== undefined) o.animTime += dt;
+        const oBox = { x: o.x + 14, y: o.y + 10, w: o.w - 28, h: o.h - 14 };
+        if (boxesOverlap(hBox, oBox)) {
+          state = "gameover";
+          flashTimer = 0.25;
+          trauma = 0.85;
+          hitStopTimer = 0.08;
+          sfx.hit();
+          spawnFx("impact", hBox.x + 10, hBox.y + 10, 2);
+          if (Math.floor(score) > highScore) {
+            highScore = Math.floor(score);
+            localStorage.setItem("angkor_dino_v2_hi", String(highScore));
+          }
+          break;
+        }
+        if (o.x + o.w < -40) obstacles.splice(i, 1);
+      }
+
+      for (let i = orbs.length - 1; i >= 0; i--) {
+        const ob = orbs[i];
+        ob.x -= speed * dt;
+        ob.t += dt;
+        if (boxesOverlap(hBox, { x: ob.x + 10, y: ob.y + 10, w: ob.size - 20, h: ob.size - 20 })) {
+          combo = Math.min(4, combo + 1);
+          const pts = 50 * combo;
+          score += pts;
+          trauma = Math.min(1, trauma + 0.18);
+          sfx.orb();
+          spawnFx("impact", ob.x, ob.y, 1.8);
+          popups.push({ x: ob.x + ob.size / 2, y: ob.y, text: combo > 1 ? `+${pts} x${combo}` : `+${pts}`, life: 0.85 });
+          orbs.splice(i, 1);
+          continue;
+        }
+        if (ob.x + ob.size < -40) {
+          combo = 0;
+          orbs.splice(i, 1);
+        }
+      }
+
+      for (let i = fxAnims.length - 1; i >= 0; i--) {
+        fxAnims[i].t += dt;
+        if (fxAnims[i].t >= fxAnims[i].duration) fxAnims.splice(i, 1);
+      }
+      for (let i = popups.length - 1; i >= 0; i--) {
+        popups[i].y -= 48 * dt;
+        popups[i].life -= dt;
+        if (popups[i].life <= 0) popups.splice(i, 1);
+      }
+    }
+
+    function render() {
+      if (!assetsLoaded) {
+        ctx.fillStyle = "#141020";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#ffe373";
+        ctx.font = "bold 24px Courier New";
+        ctx.textAlign = "center";
+        ctx.fillText("Loading V2 AgentSpriteForge Assets...", W / 2, H / 2);
+        return;
+      }
+
+      ctx.save();
+      if (trauma > 0) {
+        const shake = trauma * trauma;
+        ctx.translate(Math.round(14 * shake * Math.sin(shakeTime * 1.7)), Math.round(10 * shake * Math.sin(shakeTime * 2.3)));
+      }
+
+      // 1. Background
+      const bgFrame = Math.floor(performance.now() / 167) % 6;
+      if (level === 4) ctx.drawImage(imgs.env.bg_ta_prohm, 0, 0, W, H);
+      else if (level === 3) ctx.drawImage(imgs.env.bg_preah_vihear, 0, 0, W, H);
+      else if (level === 2) ctx.drawImage(imgs.env.bg_bayon, bgFrame * 480, 0, 480, 270, 0, 0, W, H);
+      else ctx.drawImage(imgs.env.bg_angkor, bgFrame * 480, 0, 480, 270, 0, 0, W, H);
+
+      ctx.fillStyle = level === 2 ? "rgba(10, 8, 22, 0.16)" : "rgba(20, 14, 30, 0.08)";
+      ctx.fillRect(0, 0, W, GROUND_Y);
+
+      for (let i = 0; i < motes.length; i++) {
+        const m = motes[i];
+        const my = m.y + Math.sin(m.phase) * 8;
+        if (level === 4) ctx.drawImage(imgs.env.fx_leaf, Math.round(m.x), Math.round(my), 12, 12);
+        else if (level === 3) ctx.drawImage(imgs.env.fx_petal, Math.round(m.x), Math.round(my), 12, 12);
+        else {
+          ctx.fillStyle = "#ffe373";
+          ctx.fillRect(Math.round(m.x), Math.round(my), 3, 3);
+        }
+      }
+
+      // 2. Ground
+      const gTileW = 128;
+      const gOff = Math.floor(dist) % gTileW;
+      const gImg = imgs.env["ground_" + level];
+      for (let x = -gOff; x < W; x += gTileW) ctx.drawImage(gImg, x, GROUND_Y, gTileW, 96);
+
+      // 3. Collectible AgentSpriteForge Orbs
+      for (const ob of orbs) {
+        const f = Math.floor(ob.t * 16) % 8;
+        ctx.drawImage(imgs.fx.orb[f], Math.round(ob.x), Math.round(ob.y), ob.size, ob.size);
+      }
+
+      // 4. Obstacles
+      for (const o of obstacles) {
+        if (o.type === "pillar") ctx.drawImage(imgs.env.obs_pillar, Math.round(o.x), Math.round(o.y), o.w, o.h);
+        else if (o.type === "naga") ctx.drawImage(imgs.env.obs_naga, Math.round(o.x), Math.round(o.y), o.w, o.h);
+        else {
+          const f = Math.floor(o.animTime * 8) % 4;
+          ctx.drawImage(imgs.env.fly_garuda, f * 32, 0, 32, 24, Math.round(o.x), Math.round(o.y), o.w, o.h);
+        }
+      }
+
+      // 5. AgentSpriteForge PixelSpec Hero (32x32 @3x = 96x96)
+      const activeVariant = charMode !== "auto" ? charMode : VARIANTS[level - 1];
+      let frameKey = "run-0";
+      if (!hero.onGround) frameKey = hero.vy < 0 ? "jump-0" : "jump-1";
+      else if (hero.ducking && state === "playing") frameKey = "duck-" + (Math.floor(hero.animTime * 10) % 2);
+      else frameKey = state === "ready" ? "run-0" : "run-" + (Math.floor(hero.animTime * 10) % 4);
+
+      const hImg = imgs.heroes[activeVariant][frameKey];
+      ctx.save();
+      const px = hero.x + (32 * HERO_SCALE) / 2;
+      const py = GROUND_Y;
+      ctx.translate(px, py);
+      ctx.scale(hero.scaleX, hero.scaleY);
+      ctx.translate(-px, -py);
+      ctx.drawImage(hImg, Math.round(hero.x), Math.round(hero.y), 32 * HERO_SCALE, 32 * HERO_SCALE);
+      ctx.restore();
+
+      // 6. AgentSpriteForge FX Clips (dust & impact)
+      for (const fx of fxAnims) {
+        const arr = imgs.fx[fx.kind];
+        const idx = Math.min(arr.length - 1, Math.floor((fx.t / fx.duration) * arr.length));
+        ctx.drawImage(arr[idx], Math.round(fx.x), Math.round(fx.y), 48 * fx.scale, 48 * fx.scale);
+      }
+
+      // 7. Popups & HUD
+      ctx.textAlign = "center";
+      ctx.font = "bold 20px Courier New";
+      for (const pop of popups) {
+        ctx.fillStyle = "#141020";
+        ctx.fillText(pop.text, Math.round(pop.x) + 2, Math.round(pop.y) + 2);
+        ctx.fillStyle = "#ffe373";
+        ctx.fillText(pop.text, Math.round(pop.x), Math.round(pop.y));
+      }
+
+      ctx.textAlign = "right";
+      ctx.font = "bold 26px Courier New";
+      ctx.fillStyle = "#141020";
+      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 26, 40);
+      ctx.fillStyle = "#fff6d6";
+      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 28, 38);
+
+      if (levelBannerTimer > 0 && state === "playing") {
+        ctx.fillStyle = "rgba(20, 16, 32, 0.78)";
+        ctx.fillRect(W / 2 - 240, 56, 480, 48);
+        ctx.strokeStyle = "#ffe373";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(W / 2 - 240, 56, 480, 48);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffe373";
+        ctx.font = "bold 22px Courier New";
+        ctx.fillText(levelBannerText, W / 2, 87);
+      }
+      if (state === "ready") {
+        ctx.fillStyle = "rgba(20, 16, 32, 0.65)";
+        ctx.fillRect(W / 2 - 270, 150, 540, 114);
+        ctx.strokeStyle = "#ebb03d";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(W / 2 - 270, 150, 540, 114);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffe373";
+        ctx.font = "bold 28px Courier New";
+        ctx.fillText("ANGKOR DINO RUN V2", W / 2, 198);
+        ctx.fillStyle = "#fff6d6";
+        ctx.font = "19px Courier New";
+        ctx.fillText("Press SPACE / UP or Click to Start", W / 2, 236);
+      } else if (state === "gameover") {
+        ctx.fillStyle = "rgba(20, 16, 32, 0.75)";
+        ctx.fillRect(W / 2 - 240, 148, 480, 120);
+        ctx.strokeStyle = "#eb5963";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(W / 2 - 240, 148, 480, 120);
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ff9ec0";
+        ctx.font = "bold 30px Courier New";
+        ctx.fillText("GAME OVER", W / 2, 196);
+        ctx.fillStyle = "#fff6d6";
+        ctx.font = "20px Courier New";
+        ctx.fillText("Press SPACE or Click to Retry", W / 2, 236);
+      }
+
+      if (flashTimer > 0) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${flashTimer * 2})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+      ctx.restore();
+    }
+
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    loadAssets().then(() => requestAnimationFrame(loop));
+  </script>
+</body>
+</html>

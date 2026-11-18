@@ -1,0 +1,180 @@
+{
+  "schema": "generate2dsprite.animation_clips.v2",
+  "frames": [
+    {
+      "name": "impact-00",
+      "file": "frames/impact-00.png"
+    },
+    {
+      "name": "impact-01",
+      "file": "frames/impact-01.png"
+    },
+    {
+      "name": "impact-02",
+      "file": "frames/impact-02.png"
+    },
+    {
+      "name": "impact-03",
+      "file": "frames/impact-03.png"
+    },
+    {
+      "name": "impact-04",
+      "file": "frames/impact-04.png"
+    },
+    {
+      "name": "dust-00",
+      "file": "frames/dust-00.png"
+    },
+    {
+      "name": "dust-01",
+      "file": "frames/dust-01.png"
+    },
+    {
+      "name": "dust-02",
+      "file": "frames/dust-02.png"
+    },
+    {
+      "name": "dust-03",
+      "file": "frames/dust-03.png"
+    },
+    {
+      "name": "dust-04",
+      "file": "frames/dust-04.png"
+    },
+    {
+      "name": "dust-05",
+      "file": "frames/dust-05.png"
+    },
+    {
+      "name": "dust-06",
+      "file": "frames/dust-06.png"
+    },
+    {
+      "name": "orb-00",
+      "file": "frames/orb-00.png"
+    },
+    {
+      "name": "orb-01",
+      "file": "frames/orb-01.png"
+    },
+    {
+      "name": "orb-02",
+      "file": "frames/orb-02.png"
+    },
+    {
+      "name": "orb-03",
+      "file": "frames/orb-03.png"
+    },
+    {
+      "name": "orb-04",
+      "file": "frames/orb-04.png"
+    },
+    {
+      "name": "orb-05",
+      "file": "frames/orb-05.png"
+    },
+    {
+      "name": "orb-06",
+      "file": "frames/orb-06.png"
+    },
+    {
+      "name": "orb-07",
+      "file": "frames/orb-07.png"
+    }
+  ],
+  "anchor_px": [
+    24.0,
+    24.0
+  ],
+  "clips": {
+    "impact": {
+      "frames": [
+        "impact-00",
+        "impact-01",
+        "impact-02",
+        "impact-03",
+        "impact-04"
+      ],
+      "duration_ms": [
+        53,
+        54,
+        53,
+        53,
+        107
+      ],
+      "loop": false,
+      "loop_policy": "oneshot",
+      "role": "fx",
+      "events": [
+        {
+          "at": 0,
+          "name": "hit",
+          "data": {
+            "impactMs": 0
+          }
+        }
+      ]
+    },
+    "dust": {
+      "frames": [
+        "dust-00",
+        "dust-01",
+        "dust-02",
+        "dust-03",
+        "dust-04",
+        "dust-05",
+        "dust-06"
+      ],
+      "duration_ms": [
+        51,
+        52,
+        51,
+        52,
+        51,
+        52,
+        51
+      ],
+      "loop": false,
+      "loop_policy": "oneshot",
+      "role": "fx",
+      "events": [
+        {
+          "at": 0,
+          "name": "hit",
+          "data": {
+            "impactMs": 0
+          }
+        }
+      ]
+    },
+    "orb": {
+      "frames": [
+        "orb-00",
+        "orb-01",
+        "orb-02",
+        "orb-03",
+        "orb-04",
+        "orb-05",
+        "orb-06",
+        "orb-07"
+      ],
+      "duration_ms": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "loop": true,
+      "loop_policy": "cycle",
+      "role": "fx"
+    }
+  },
+  "sampling": "nearest",
+  "pixel_art": true,
+  "art_source": "code",
+  "placeholder": false
+}

@@ -1,0 +1,1148 @@
+{
+  "schema": "codeart2d.codeart_meta.v1",
+  "art_source": "code",
+  "placeholder": false,
+  "disclosure": "code-drawn, no image model",
+  "generator": "render_pixelspec.py",
+  "spec_sha256": "d817373837acd54857e545341a6d11beefe1f85d389503804c563c1c066b9514",
+  "renderer": {
+    "name": "codeart_core.render_pixelspec",
+    "version": "1.1"
+  },
+  "palette": {
+    "colors": {
+      "k": "#140e24",
+      "D": "#1b5946",
+      "d": "#2c8c61",
+      "g": "#52c478",
+      "G": "#9bf099",
+      "O": "#7a4218",
+      "y": "#ebaa38",
+      "Y": "#ffe570",
+      "w": "#fff9db",
+      "R": "#69182c",
+      "r": "#c42b43",
+      "p": "#ff6978"
+    },
+    "variants": {
+      "jade_dino": {},
+      "golden_singha": {
+        "D": "#8a4d19",
+        "d": "#c77d28",
+        "g": "#f2b444",
+        "G": "#ffe382"
+      },
+      "white_hanuman": {
+        "D": "#5e6485",
+        "d": "#969cb8",
+        "g": "#dce0f2",
+        "G": "#ffffff"
+      },
+      "crimson_garuda": {
+        "D": "#5c1427",
+        "d": "#961e38",
+        "g": "#d4354e",
+        "G": "#ff7380"
+      }
+    }
+  },
+  "outputs": [
+    {
+      "path": "jade_dino/frames/run-0.png",
+      "sha256": "dfb6eb250c3628fd85622a4bc2e14ea7f94972ca6cd4930510ac8ca7ab5fde87",
+      "bytes": 567
+    },
+    {
+      "path": "jade_dino/frames/run-1.png",
+      "sha256": "34c552489b867507cb320ce1643023a9182d5bb0f1c512abbdb4dd106ec764dd",
+      "bytes": 553
+    },
+    {
+      "path": "jade_dino/frames/run-2.png",
+      "sha256": "74234c0752c58f24b3466ddeff3401c16e8c20d83028d54d790bca2d25e15e2d",
+      "bytes": 568
+    },
+    {
+      "path": "jade_dino/frames/run-3.png",
+      "sha256": "753ede2cf366e8d4e67311f2edda78398ae2a5204c2e889d50bc83c176f36e37",
+      "bytes": 548
+    },
+    {
+      "path": "jade_dino/frames/jump-0.png",
+      "sha256": "4bc1896373985e679370b43da4b17bd4272a9a5f3cb852d6d3c366e65f2349a4",
+      "bytes": 557
+    },
+    {
+      "path": "jade_dino/frames/jump-1.png",
+      "sha256": "f3bc965a4fd179c4eb7bed4749403d9217644153916919db3e22d98f243c7050",
+      "bytes": 550
+    },
+    {
+      "path": "jade_dino/frames/duck-0.png",
+      "sha256": "877c419d7d492396f6aee0cbca901d880536d988471229e34701f98f20ef18d6",
+      "bytes": 460
+    },
+    {
+      "path": "jade_dino/frames/duck-1.png",
+      "sha256": "2c3214624d96af954ff3c8507c86a654d23ff6e1254c99214bb33f36d3db7ed1",
+      "bytes": 391
+    },
+    {
+      "path": "golden_singha/frames/run-0.png",
+      "sha256": "f62dff9292ea9b23b2bd9b276c3449dfa5fad1c58ed05a73b8b8ca7e9cb03276",
+      "bytes": 579
+    },
+    {
+      "path": "golden_singha/frames/run-1.png",
+      "sha256": "cb47f4226db68177027d3fb2a0a6821642319f901ca7d3bf28414c65bc6a8222",
+      "bytes": 554
+    },
+    {
+      "path": "golden_singha/frames/run-2.png",
+      "sha256": "aec1d36d0e7eda78fc70f828dad2a69106c23c2b66488651b19b7ca40ac186b1",
+      "bytes": 580
+    },
+    {
+      "path": "golden_singha/frames/run-3.png",
+      "sha256": "40549bf427fe192b08bb7fe202b17d5127baf1f2d53af772761d93995a065d52",
+      "bytes": 553
+    },
+    {
+      "path": "golden_singha/frames/jump-0.png",
+      "sha256": "88cb29ea2e322f1c5a798d027b288e1e6042a9c595333edcec53fee2534e35af",
+      "bytes": 570
+    },
+    {
+      "path": "golden_singha/frames/jump-1.png",
+      "sha256": "7d0aaf614f05e28f0dd85652143d8c085ca2c3f63ef94fb8f0edebe0eabc8bc1",
+      "bytes": 559
+    },
+    {
+      "path": "golden_singha/frames/duck-0.png",
+      "sha256": "0c76ba2307ffc36b024a95b584c18524e421e8b629e503564e267a44e38a1df0",
+      "bytes": 438
+    },
+    {
+      "path": "golden_singha/frames/duck-1.png",
+      "sha256": "af5bed525c3ca0d6a858c81b89c3cc14599f75b7161d38d7714c0e17398a80e9",
+      "bytes": 392
+    },
+    {
+      "path": "white_hanuman/frames/run-0.png",
+      "sha256": "902cb85589c43b416af3ec120d3a26aebf64cc76301c0f18660640d59c389240",
+      "bytes": 591
+    },
+    {
+      "path": "white_hanuman/frames/run-1.png",
+      "sha256": "9b912e32c98c4e0aac4c706a87ef9cf11116c0bb231b53bdfcfe2544ec067eda",
+      "bytes": 553
+    },
+    {
+      "path": "white_hanuman/frames/run-2.png",
+      "sha256": "d445b3f4ea6c228c6bc7e91939e69e86b0163426a6da143ce765a5baa9aacdf8",
+      "bytes": 595
+    },
+    {
+      "path": "white_hanuman/frames/run-3.png",
+      "sha256": "3c3f310123b2dca4c7a421ad7fec7a730cefb49166d62539569dacba58c86095",
+      "bytes": 556
+    },
+    {
+      "path": "white_hanuman/frames/jump-0.png",
+      "sha256": "294b163941acf10029e065a063b585858473fe3819dbfd3ba87d1dbc566164a2",
+      "bytes": 562
+    },
+    {
+      "path": "white_hanuman/frames/jump-1.png",
+      "sha256": "a4029889dbb129fca9711f4ec0e463bd987981d29f07e293144b03538900f874",
+      "bytes": 565
+    },
+    {
+      "path": "white_hanuman/frames/duck-0.png",
+      "sha256": "090e1e5cc21aa37dc49edea83e94e8b29472dc1fe4295988cd376e3d437a5a7f",
+      "bytes": 449
+    },
+    {
+      "path": "white_hanuman/frames/duck-1.png",
+      "sha256": "1d545269596f72fb92b8cfafb9e7d7f90aa910b773cf3c1b4d01df6d7f9cebb9",
+      "bytes": 387
+    },
+    {
+      "path": "crimson_garuda/frames/run-0.png",
+      "sha256": "568c2187df69c26e9b8eda6f4fea89f0fd0549dcc41447d220024713902d2f62",
+      "bytes": 581
+    },
+    {
+      "path": "crimson_garuda/frames/run-1.png",
+      "sha256": "ecae812a89beab0fecb4516e4ae3228a5a9fed3a187d64912da6ccde408692cf",
+      "bytes": 556
+    },
+    {
+      "path": "crimson_garuda/frames/run-2.png",
+      "sha256": "7a90ceba3849f9067bdd86c9922b561f7c19130ce9e450767fca7a1c30f117e3",
+      "bytes": 569
+    },
+    {
+      "path": "crimson_garuda/frames/run-3.png",
+      "sha256": "8a4b81033cc8e894e54e5384bd767494f58e979fea25616a250b6194abf73bdb",
+      "bytes": 560
+    },
+    {
+      "path": "crimson_garuda/frames/jump-0.png",
+      "sha256": "2eec25b0cfa06e9b3c69699535ae2d04dd105670a4c7487fad5faa498a757e35",
+      "bytes": 563
+    },
+    {
+      "path": "crimson_garuda/frames/jump-1.png",
+      "sha256": "5c19398f3c79daa59135c7d2715aa7c763c4c1cc11a770099c7e614707c9530b",
+      "bytes": 552
+    },
+    {
+      "path": "crimson_garuda/frames/duck-0.png",
+      "sha256": "d3c6d6bb6957de5546ecca9cb9daeb619c6b39a5c1dbd03ba7d4ab523e62aa94",
+      "bytes": 439
+    },
+    {
+      "path": "crimson_garuda/frames/duck-1.png",
+      "sha256": "4f6369c210c3ee9742e30e9ee13f06a62de4be181b6e21ab9e5072cbae71de36",
+      "bytes": 392
+    },
+    {
+      "path": "jade_dino/clips.json",
+      "sha256": "27a06bdc77e5834bbf966cec02f57afb1832bcbcbb0f588313fd78a8b2f33299",
+      "bytes": 1144
+    },
+    {
+      "path": "golden_singha/clips.json",
+      "sha256": "27a06bdc77e5834bbf966cec02f57afb1832bcbcbb0f588313fd78a8b2f33299",
+      "bytes": 1144
+    },
+    {
+      "path": "white_hanuman/clips.json",
+      "sha256": "27a06bdc77e5834bbf966cec02f57afb1832bcbcbb0f588313fd78a8b2f33299",
+      "bytes": 1144
+    },
+    {
+      "path": "crimson_garuda/clips.json",
+      "sha256": "27a06bdc77e5834bbf966cec02f57afb1832bcbcbb0f588313fd78a8b2f33299",
+      "bytes": 1144
+    },
+    {
+      "path": "preview-x6.png",
+      "sha256": "85988581a1776c7e189e2a68eb65be10fd882f9303197f62b081c560ba12b501",
+      "bytes": 17234
+    }
+  ],
+  "qa": {
+    "status": "warn",
+    "method": "render_pixelspec.py: every published frame PNG is read back and measured with codeart_core.qa_pixels against the resolved palette of its variant (alpha census, exact palette lookup and, with an outline, 4-neighbour outline gaps and L-corners); each check is the worst frame against its gate in codeart_core.QA_PIXEL_GATES",
+    "notProven": [
+      "Readability, silhouette and appeal at game scale; check them on a review sheet (pixel_qa.py --review).",
+      "Motion, timing and spacing between frames; numbers do not judge animation quality.",
+      "That the art matches the brief and the intent of the spec."
+    ],
+    "checks": [
+      {
+        "id": "partial_alpha",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "off_palette",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "outline_gaps",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "l_corners",
+        "status": "pass",
+        "value": 6,
+        "threshold": 10
+      },
+      {
+        "id": "half_cycle_duplicates",
+        "status": "warn",
+        "value": 1.0,
+        "threshold": 0.95,
+        "detail": {
+          "clips": [
+            {
+              "clip": "run",
+              "frames": 4,
+              "pairs": [
+                [
+                  0,
+                  2,
+                  0.9384
+                ],
+                [
+                  1,
+                  3,
+                  1.0
+                ]
+              ]
+            }
+          ],
+          "variant": "jade_dino"
+        },
+        "failing": [
+          "run 1/3 (IoU 1.00)"
+        ],
+        "note": "half-cycle frames share a silhouette, so the stride rests on leg colours alone: give the near and far legs a clear value contrast, keep the arms or forelegs visible, look at the review sheet, and pass --allow-duplicate-half-cycle only once it reads"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../khmer_hero.pixelspec.json",
+        "sha256": "d817373837acd54857e545341a6d11beefe1f85d389503804c563c1c066b9514",
+        "bytes": 3851
+      }
+    ],
+    "outputs": [
+      {
+        "path": "jade_dino/frames/run-0.png",
+        "sha256": "dfb6eb250c3628fd85622a4bc2e14ea7f94972ca6cd4930510ac8ca7ab5fde87",
+        "bytes": 567
+      },
+      {
+        "path": "jade_dino/frames/run-1.png",
+        "sha256": "34c552489b867507cb320ce1643023a9182d5bb0f1c512abbdb4dd106ec764dd",
+        "bytes": 553
+      },
+      {
+        "path": "jade_dino/frames/run-2.png",
+        "sha256": "74234c0752c58f24b3466ddeff3401c16e8c20d83028d54d790bca2d25e15e2d",
+        "bytes": 568
+      },
+      {
+        "path": "jade_dino/frames/run-3.png",
+        "sha256": "753ede2cf366e8d4e67311f2edda78398ae2a5204c2e889d50bc83c176f36e37",
+        "bytes": 548
+      },
+      {
+        "path": "jade_dino/frames/jump-0.png",
+        "sha256": "4bc1896373985e679370b43da4b17bd4272a9a5f3cb852d6d3c366e65f2349a4",
+        "bytes": 557
+      },
+      {
+        "path": "jade_dino/frames/jump-1.png",
+        "sha256": "f3bc965a4fd179c4eb7bed4749403d9217644153916919db3e22d98f243c7050",
+        "bytes": 550
+      },
+      {
+        "path": "jade_dino/frames/duck-0.png",
+        "sha256": "877c419d7d492396f6aee0cbca901d880536d988471229e34701f98f20ef18d6",
+        "bytes": 460
+      },
+      {
+        "path": "jade_dino/frames/duck-1.png",
+        "sha256": "2c3214624d96af954ff3c8507c86a654d23ff6e1254c99214bb33f36d3db7ed1",
+        "bytes": 391
+      },
+      {
+        "path": "golden_singha/frames/run-0.png",
+        "sha256": "f62dff9292ea9b23b2bd9b276c3449dfa5fad1c58ed05a73b8b8ca7e9cb03276",
+        "bytes": 579
+      },
+      {
+        "path": "golden_singha/frames/run-1.png",
+        "sha256": "cb47f4226db68177027d3fb2a0a6821642319f901ca7d3bf28414c65bc6a8222",
+        "bytes": 554
+      },
+      {
+        "path": "golden_singha/frames/run-2.png",
+        "sha256": "aec1d36d0e7eda78fc70f828dad2a69106c23c2b66488651b19b7ca40ac186b1",
+        "bytes": 580
+      },
+      {
+        "path": "golden_singha/frames/run-3.png",
+        "sha256": "40549bf427fe192b08bb7fe202b17d5127baf1f2d53af772761d93995a065d52",
+        "bytes": 553
+      },
+      {
+        "path": "golden_singha/frames/jump-0.png",
+        "sha256": "88cb29ea2e322f1c5a798d027b288e1e6042a9c595333edcec53fee2534e35af",
+        "bytes": 570
+      },
+      {
+        "path": "golden_singha/frames/jump-1.png",
+        "sha256": "7d0aaf614f05e28f0dd85652143d8c085ca2c3f63ef94fb8f0edebe0eabc8bc1",
+        "bytes": 559
+      },
+      {
+        "path": "golden_singha/frames/duck-0.png",
+        "sha256": "0c76ba2307ffc36b024a95b584c18524e421e8b629e503564e267a44e38a1df0",
+        "bytes": 438
+      },
+      {
+        "path": "golden_singha/frames/duck-1.png",
+        "sha256": "af5bed525c3ca0d6a858c81b89c3cc14599f75b7161d38d7714c0e17398a80e9",
+        "bytes": 392
+      },
+      {
+        "path": "white_hanuman/frames/run-0.png",
+        "sha256": "902cb85589c43b416af3ec120d3a26aebf64cc76301c0f18660640d59c389240",
+        "bytes": 591
+      },
+      {
+        "path": "white_hanuman/frames/run-1.png",
+        "sha256": "9b912e32c98c4e0aac4c706a87ef9cf11116c0bb231b53bdfcfe2544ec067eda",
+        "bytes": 553
+      },
+      {
+        "path": "white_hanuman/frames/run-2.png",
+        "sha256": "d445b3f4ea6c228c6bc7e91939e69e86b0163426a6da143ce765a5baa9aacdf8",
+        "bytes": 595
+      },
+      {
+        "path": "white_hanuman/frames/run-3.png",
+        "sha256": "3c3f310123b2dca4c7a421ad7fec7a730cefb49166d62539569dacba58c86095",
+        "bytes": 556
+      },
+      {
+        "path": "white_hanuman/frames/jump-0.png",
+        "sha256": "294b163941acf10029e065a063b585858473fe3819dbfd3ba87d1dbc566164a2",
+        "bytes": 562
+      },
+      {
+        "path": "white_hanuman/frames/jump-1.png",
+        "sha256": "a4029889dbb129fca9711f4ec0e463bd987981d29f07e293144b03538900f874",
+        "bytes": 565
+      },
+      {
+        "path": "white_hanuman/frames/duck-0.png",
+        "sha256": "090e1e5cc21aa37dc49edea83e94e8b29472dc1fe4295988cd376e3d437a5a7f",
+        "bytes": 449
+      },
+      {
+        "path": "white_hanuman/frames/duck-1.png",
+        "sha256": "1d545269596f72fb92b8cfafb9e7d7f90aa910b773cf3c1b4d01df6d7f9cebb9",
+        "bytes": 387
+      },
+      {
+        "path": "crimson_garuda/frames/run-0.png",
+        "sha256": "568c2187df69c26e9b8eda6f4fea89f0fd0549dcc41447d220024713902d2f62",
+        "bytes": 581
+      },
+      {
+        "path": "crimson_garuda/frames/run-1.png",
+        "sha256": "ecae812a89beab0fecb4516e4ae3228a5a9fed3a187d64912da6ccde408692cf",
+        "bytes": 556
+      },
+      {
+        "path": "crimson_garuda/frames/run-2.png",
+        "sha256": "7a90ceba3849f9067bdd86c9922b561f7c19130ce9e450767fca7a1c30f117e3",
+        "bytes": 569
+      },
+      {
+        "path": "crimson_garuda/frames/run-3.png",
+        "sha256": "8a4b81033cc8e894e54e5384bd767494f58e979fea25616a250b6194abf73bdb",
+        "bytes": 560
+      },
+      {
+        "path": "crimson_garuda/frames/jump-0.png",
+        "sha256": "2eec25b0cfa06e9b3c69699535ae2d04dd105670a4c7487fad5faa498a757e35",
+        "bytes": 563
+      },
+      {
+        "path": "crimson_garuda/frames/jump-1.png",
+        "sha256": "5c19398f3c79daa59135c7d2715aa7c763c4c1cc11a770099c7e614707c9530b",
+        "bytes": 552
+      },
+      {
+        "path": "crimson_garuda/frames/duck-0.png",
+        "sha256": "d3c6d6bb6957de5546ecca9cb9daeb619c6b39a5c1dbd03ba7d4ab523e62aa94",
+        "bytes": 439
+      },
+      {
+        "path": "crimson_garuda/frames/duck-1.png",
+        "sha256": "4f6369c210c3ee9742e30e9ee13f06a62de4be181b6e21ab9e5072cbae71de36",
+        "bytes": 392
+      }
+    ],
+    "tool": {
+      "name": "render_pixelspec.py",
+      "version": "0.6.0"
+    },
+    "frames": [
+      {
+        "file": "jade_dino/frames/run-0.png",
+        "variant": "jade_dino",
+        "frame": "run-0",
+        "visible": 284,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 30,
+        "l_corners": 4,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "jade_dino/frames/run-1.png",
+        "variant": "jade_dino",
+        "frame": "run-1",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "jade_dino/frames/run-2.png",
+        "variant": "jade_dino",
+        "frame": "run-2",
+        "visible": 282,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 31,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "jade_dino/frames/run-3.png",
+        "variant": "jade_dino",
+        "frame": "run-3",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "jade_dino/frames/jump-0.png",
+        "variant": "jade_dino",
+        "frame": "jump-0",
+        "visible": 279,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 33,
+        "l_corners": 5,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          6,
+          24,
+          31
+        ]
+      },
+      {
+        "file": "jade_dino/frames/jump-1.png",
+        "variant": "jade_dino",
+        "frame": "jump-1",
+        "visible": 281,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 28,
+        "l_corners": 6,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "jade_dino/frames/duck-0.png",
+        "variant": "jade_dino",
+        "frame": "duck-0",
+        "visible": 210,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 0,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          16,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "jade_dino/frames/duck-1.png",
+        "variant": "jade_dino",
+        "frame": "duck-1",
+        "visible": 201,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 1,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          17,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/run-0.png",
+        "variant": "golden_singha",
+        "frame": "run-0",
+        "visible": 284,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 30,
+        "l_corners": 4,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/run-1.png",
+        "variant": "golden_singha",
+        "frame": "run-1",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/run-2.png",
+        "variant": "golden_singha",
+        "frame": "run-2",
+        "visible": 282,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 31,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/run-3.png",
+        "variant": "golden_singha",
+        "frame": "run-3",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/jump-0.png",
+        "variant": "golden_singha",
+        "frame": "jump-0",
+        "visible": 279,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 33,
+        "l_corners": 5,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          6,
+          24,
+          31
+        ]
+      },
+      {
+        "file": "golden_singha/frames/jump-1.png",
+        "variant": "golden_singha",
+        "frame": "jump-1",
+        "visible": 281,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 28,
+        "l_corners": 6,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/duck-0.png",
+        "variant": "golden_singha",
+        "frame": "duck-0",
+        "visible": 210,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 0,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          16,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "golden_singha/frames/duck-1.png",
+        "variant": "golden_singha",
+        "frame": "duck-1",
+        "visible": 201,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 1,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          17,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/run-0.png",
+        "variant": "white_hanuman",
+        "frame": "run-0",
+        "visible": 284,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 30,
+        "l_corners": 4,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/run-1.png",
+        "variant": "white_hanuman",
+        "frame": "run-1",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/run-2.png",
+        "variant": "white_hanuman",
+        "frame": "run-2",
+        "visible": 282,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 31,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/run-3.png",
+        "variant": "white_hanuman",
+        "frame": "run-3",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/jump-0.png",
+        "variant": "white_hanuman",
+        "frame": "jump-0",
+        "visible": 279,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 33,
+        "l_corners": 5,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          6,
+          24,
+          31
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/jump-1.png",
+        "variant": "white_hanuman",
+        "frame": "jump-1",
+        "visible": 281,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 28,
+        "l_corners": 6,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/duck-0.png",
+        "variant": "white_hanuman",
+        "frame": "duck-0",
+        "visible": 210,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 0,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          16,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "white_hanuman/frames/duck-1.png",
+        "variant": "white_hanuman",
+        "frame": "duck-1",
+        "visible": 201,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 1,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          17,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/run-0.png",
+        "variant": "crimson_garuda",
+        "frame": "run-0",
+        "visible": 284,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 30,
+        "l_corners": 4,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/run-1.png",
+        "variant": "crimson_garuda",
+        "frame": "run-1",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/run-2.png",
+        "variant": "crimson_garuda",
+        "frame": "run-2",
+        "visible": 282,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 31,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/run-3.png",
+        "variant": "crimson_garuda",
+        "frame": "run-3",
+        "visible": 273,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 29,
+        "l_corners": 3,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          8,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/jump-0.png",
+        "variant": "crimson_garuda",
+        "frame": "jump-0",
+        "visible": 279,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 33,
+        "l_corners": 5,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          6,
+          24,
+          31
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/jump-1.png",
+        "variant": "crimson_garuda",
+        "frame": "jump-1",
+        "visible": 281,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 28,
+        "l_corners": 6,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          7,
+          24,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/duck-0.png",
+        "variant": "crimson_garuda",
+        "frame": "duck-0",
+        "visible": 210,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 0,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          16,
+          27,
+          32
+        ]
+      },
+      {
+        "file": "crimson_garuda/frames/duck-1.png",
+        "variant": "crimson_garuda",
+        "frame": "duck-1",
+        "visible": 201,
+        "partial_alpha": 0,
+        "off_palette": 0,
+        "colors": 12,
+        "orphans": 27,
+        "l_corners": 1,
+        "outline_gaps": 0,
+        "bbox": [
+          0,
+          17,
+          27,
+          32
+        ]
+      }
+    ]
+  },
+  "pixelspec": {
+    "name": "khmer_hero",
+    "schema": "codeart2d.pixelspec.v1",
+    "canvas": [
+      32,
+      32
+    ],
+    "anchor_px": [
+      16,
+      31
+    ],
+    "outline": "solid",
+    "variants": {
+      "jade_dino": "jade_dino",
+      "golden_singha": "golden_singha",
+      "white_hanuman": "white_hanuman",
+      "crimson_garuda": "crimson_garuda"
+    },
+    "frames": [
+      {
+        "index": 0,
+        "name": "run-0",
+        "file": "frames/run-0.png"
+      },
+      {
+        "index": 1,
+        "name": "run-1",
+        "file": "frames/run-1.png"
+      },
+      {
+        "index": 2,
+        "name": "run-2",
+        "file": "frames/run-2.png"
+      },
+      {
+        "index": 3,
+        "name": "run-3",
+        "file": "frames/run-3.png"
+      },
+      {
+        "index": 4,
+        "name": "jump-0",
+        "file": "frames/jump-0.png"
+      },
+      {
+        "index": 5,
+        "name": "jump-1",
+        "file": "frames/jump-1.png"
+      },
+      {
+        "index": 6,
+        "name": "duck-0",
+        "file": "frames/duck-0.png"
+      },
+      {
+        "index": 7,
+        "name": "duck-1",
+        "file": "frames/duck-1.png"
+      }
+    ],
+    "clips": {
+      "manifest_schema": "generate2dsprite.animation_clips.v2",
+      "manifests": {
+        "jade_dino": "jade_dino/clips.json",
+        "golden_singha": "golden_singha/clips.json",
+        "white_hanuman": "white_hanuman/clips.json",
+        "crimson_garuda": "crimson_garuda/clips.json"
+      },
+      "bundles": {
+        "jade_dino": "jade_dino/bundle",
+        "golden_singha": "golden_singha/bundle",
+        "white_hanuman": "white_hanuman/bundle",
+        "crimson_garuda": "crimson_garuda/bundle"
+      },
+      "per_clip": {
+        "run": {
+          "frames": 4,
+          "merged_empty_tail": 0
+        },
+        "jump": {
+          "frames": 2,
+          "merged_empty_tail": 0
+        },
+        "duck": {
+          "frames": 2,
+          "merged_empty_tail": 0
+        }
+      }
+    },
+    "preview": {
+      "file": "preview-x6.png",
+      "scale": 6,
+      "layout": "rows are variants, columns are distinct frames"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": "codeart2d.fx.v1",
+  "canvas": [48, 48],
+  "origin": [24, 24],
+  "palette": {
+    "white": "#fff9db",
+    "gold": "#ffe570",
+    "ember": "#ebaa38",
+    "pink": "#ff6978",
+    "dust-hi": "#e3c091",
+    "dust-mid": "#ba946e",
+    "dust-lo": "#6e5543",
+    "ink": "#140e24"
+  },
+  "routes": ["pixel"],
+  "effects": [
+    {
+      "id": "impact",
+      "durationMs": 320,
+      "impactMs": 0,
+      "seed": 11,
+      "ramps": {"hit": ["white", "gold", "ember", "pink"]},
+      "primitives": [
+        {"type": "ring", "ramp": "hit", "radius": [3, 18], "width": [3, 1], "lifeMs": 280},
+        {"type": "flash", "ramp": "hit", "radius": 3, "rays": 4, "rayLength": 10, "lifeMs": 140},
+        {"type": "sparks", "ramp": "hit", "count": 10, "spread": 360, "speed": 55, "lifeMs": 240, "length": 3}
+      ]
+    },
+    {
+      "id": "dust",
+      "durationMs": 360,
+      "impactMs": 0,
+      "seed": 3,
+      "primitives": [
+        {"type": "dust", "colors": ["dust-hi", "dust-mid", "dust-lo"], "origin": [24, 40], "count": 7, "spread": 20, "rise": 9, "drift": 6, "radius": [1.5, 3.0], "lifeMs": 340}
+      ]
+    },
+    {
+      "id": "orb",
+      "durationMs": 400,
+      "impactMs": 0,
+      "seed": 7,
+      "loop": true,
+      "outline": "ink",
+      "primitives": [
+        {"type": "projectile", "colors": ["white", "gold", "pink", "ember"], "angle": 0, "radius": 4, "trail": 10, "orbiters": 3}
+      ]
+    }
+  ]
+}
+

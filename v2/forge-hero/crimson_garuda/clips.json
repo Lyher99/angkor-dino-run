@@ -1,0 +1,73 @@
+{
+  "schema": "generate2dsprite.animation_clips.v2",
+  "frames": [
+    {
+      "name": "run-0",
+      "file": "frames/run-0.png"
+    },
+    {
+      "name": "run-1",
+      "file": "frames/run-1.png"
+    },
+    {
+      "name": "run-2",
+      "file": "frames/run-2.png"
+    },
+    {
+      "name": "run-3",
+      "file": "frames/run-3.png"
+    },
+    {
+      "name": "jump-0",
+      "file": "frames/jump-0.png"
+    },
+    {
+      "name": "jump-1",
+      "file": "frames/jump-1.png"
+    },
+    {
+      "name": "duck-0",
+      "file": "frames/duck-0.png"
+    },
+    {
+      "name": "duck-1",
+      "file": "frames/duck-1.png"
+    }
+  ],
+  "anchor_px": [
+    16,
+    31
+  ],
+  "clips": {
+    "run": {
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "duration_ms": 100,
+      "loop": true
+    },
+    "jump": {
+      "frames": [
+        4,
+        5
+      ],
+      "duration_ms": 200,
+      "loop": false
+    },
+    "duck": {
+      "frames": [
+        6,
+        7
+      ],
+      "duration_ms": 110,
+      "loop": true
+    }
+  },
+  "art_source": "code",
+  "placeholder": false,
+  "pixel_art": true,
+  "sampling": "nearest"
+}

@@ -1,0 +1,777 @@
+{
+  "schema": "codeart2d.fx_report.v1",
+  "route": "pixel",
+  "canvas": [
+    48,
+    48
+  ],
+  "origin": [
+    24.0,
+    24.0
+  ],
+  "zoom": 1,
+  "palette": [
+    "#140e24",
+    "#6e5543",
+    "#ba946e",
+    "#e3c091",
+    "#ebaa38",
+    "#ff6978",
+    "#ffe570",
+    "#fff9db"
+  ],
+  "effects": {
+    "impact": {
+      "durationMs": 320,
+      "impactMs": 0,
+      "loop": false,
+      "frames": [
+        {
+          "id": "impact-00",
+          "start_ms": 0,
+          "duration_ms": 53,
+          "sample_ms": 26.5,
+          "qa": {
+            "visible": 158,
+            "partial_alpha": 0,
+            "colors": 2,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              16,
+              16,
+              32,
+              32
+            ]
+          },
+          "margin_px": 16,
+          "file": "frames/impact-00.png"
+        },
+        {
+          "id": "impact-01",
+          "start_ms": 53,
+          "duration_ms": 54,
+          "sample_ms": 80.0,
+          "qa": {
+            "visible": 242,
+            "partial_alpha": 0,
+            "colors": 2,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              10,
+              10,
+              38,
+              38
+            ]
+          },
+          "margin_px": 10,
+          "file": "frames/impact-01.png"
+        },
+        {
+          "id": "impact-02",
+          "start_ms": 107,
+          "duration_ms": 53,
+          "sample_ms": 133.5,
+          "qa": {
+            "visible": 235,
+            "partial_alpha": 0,
+            "colors": 3,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              7,
+              7,
+              41,
+              41
+            ]
+          },
+          "margin_px": 7,
+          "file": "frames/impact-02.png"
+        },
+        {
+          "id": "impact-03",
+          "start_ms": 160,
+          "duration_ms": 53,
+          "sample_ms": 186.5,
+          "qa": {
+            "visible": 190,
+            "partial_alpha": 0,
+            "colors": 2,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              6,
+              6,
+              42,
+              42
+            ]
+          },
+          "margin_px": 6,
+          "file": "frames/impact-03.png"
+        },
+        {
+          "id": "impact-04",
+          "start_ms": 213,
+          "duration_ms": 107,
+          "sample_ms": 240.0,
+          "qa": {
+            "visible": 156,
+            "partial_alpha": 0,
+            "colors": 1,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              5,
+              5,
+              43,
+              43
+            ]
+          },
+          "margin_px": 5,
+          "file": "frames/impact-04.png"
+        }
+      ],
+      "duration_ms": [
+        53,
+        54,
+        53,
+        53,
+        107
+      ],
+      "hit_frame": 0,
+      "dropped_tail_frames": 1,
+      "events": [
+        {
+          "at": 0,
+          "name": "hit",
+          "data": {
+            "impactMs": 0
+          }
+        }
+      ],
+      "seam": null,
+      "hit_on_60hz_tick": true
+    },
+    "dust": {
+      "durationMs": 360,
+      "impactMs": 0,
+      "loop": false,
+      "frames": [
+        {
+          "id": "dust-00",
+          "start_ms": 0,
+          "duration_ms": 51,
+          "sample_ms": 25.5,
+          "qa": {
+            "visible": 20,
+            "partial_alpha": 0,
+            "colors": 1,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              15,
+              37,
+              29,
+              41
+            ]
+          },
+          "margin_px": 7,
+          "file": "frames/dust-00.png"
+        },
+        {
+          "id": "dust-01",
+          "start_ms": 51,
+          "duration_ms": 52,
+          "sample_ms": 77.0,
+          "qa": {
+            "visible": 58,
+            "partial_alpha": 0,
+            "colors": 1,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              11,
+              33,
+              32,
+              41
+            ]
+          },
+          "margin_px": 7,
+          "file": "frames/dust-01.png"
+        },
+        {
+          "id": "dust-02",
+          "start_ms": 103,
+          "duration_ms": 51,
+          "sample_ms": 128.5,
+          "qa": {
+            "visible": 71,
+            "partial_alpha": 0,
+            "colors": 2,
+            "off_palette": 0,
+            "orphans": 1,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              9,
+              30,
+              35,
+              38
+            ]
+          },
+          "margin_px": 9,
+          "file": "frames/dust-02.png"
+        },
+        {
+          "id": "dust-03",
+          "start_ms": 154,
+          "duration_ms": 52,
+          "sample_ms": 180.0,
+          "qa": {
+            "visible": 85,
+            "partial_alpha": 0,
+            "colors": 2,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              8,
+              29,
+              37,
+              37
+            ]
+          },
+          "margin_px": 8,
+          "file": "frames/dust-03.png"
+        },
+        {
+          "id": "dust-04",
+          "start_ms": 206,
+          "duration_ms": 51,
+          "sample_ms": 231.5,
+          "qa": {
+            "visible": 99,
+            "partial_alpha": 0,
+            "colors": 2,
+            "off_palette": 0,
+            "orphans": 1,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              7,
+              28,
+              38,
+              37
+            ]
+          },
+          "margin_px": 7,
+          "file": "frames/dust-04.png"
+        },
+        {
+          "id": "dust-05",
+          "start_ms": 257,
+          "duration_ms": 52,
+          "sample_ms": 283.0,
+          "qa": {
+            "visible": 79,
+            "partial_alpha": 0,
+            "colors": 1,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              7,
+              28,
+              39,
+              37
+            ]
+          },
+          "margin_px": 7,
+          "file": "frames/dust-05.png"
+        },
+        {
+          "id": "dust-06",
+          "start_ms": 309,
+          "duration_ms": 51,
+          "sample_ms": 334.5,
+          "qa": {
+            "visible": 28,
+            "partial_alpha": 0,
+            "colors": 1,
+            "off_palette": 0,
+            "orphans": 0,
+            "l_corners": null,
+            "outline_gaps": null,
+            "bbox": [
+              33,
+              28,
+              39,
+              34
+            ]
+          },
+          "margin_px": 9,
+          "file": "frames/dust-06.png"
+        }
+      ],
+      "duration_ms": [
+        51,
+        52,
+        51,
+        52,
+        51,
+        52,
+        51
+      ],
+      "hit_frame": 0,
+      "dropped_tail_frames": 0,
+      "events": [
+        {
+          "at": 0,
+          "name": "hit",
+          "data": {
+            "impactMs": 0
+          }
+        }
+      ],
+      "seam": null,
+      "hit_on_60hz_tick": true
+    },
+    "orb": {
+      "durationMs": 400,
+      "impactMs": 0,
+      "loop": true,
+      "frames": [
+        {
+          "id": "orb-00",
+          "start_ms": 0,
+          "duration_ms": 50,
+          "sample_ms": 25.0,
+          "qa": {
+            "visible": 165,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 14,
+            "l_corners": 7,
+            "outline_gaps": 0,
+            "bbox": [
+              14,
+              15,
+              33,
+              31
+            ]
+          },
+          "margin_px": 14,
+          "file": "frames/orb-00.png"
+        },
+        {
+          "id": "orb-01",
+          "start_ms": 50,
+          "duration_ms": 50,
+          "sample_ms": 75.0,
+          "qa": {
+            "visible": 180,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 8,
+            "l_corners": 2,
+            "outline_gaps": 0,
+            "bbox": [
+              14,
+              16,
+              31,
+              34
+            ]
+          },
+          "margin_px": 14,
+          "file": "frames/orb-01.png"
+        },
+        {
+          "id": "orb-02",
+          "start_ms": 100,
+          "duration_ms": 50,
+          "sample_ms": 125.0,
+          "qa": {
+            "visible": 180,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 8,
+            "l_corners": 0,
+            "outline_gaps": 0,
+            "bbox": [
+              15,
+              16,
+              34,
+              34
+            ]
+          },
+          "margin_px": 14,
+          "file": "frames/orb-02.png"
+        },
+        {
+          "id": "orb-03",
+          "start_ms": 150,
+          "duration_ms": 50,
+          "sample_ms": 175.0,
+          "qa": {
+            "visible": 160,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 13,
+            "l_corners": 6,
+            "outline_gaps": 0,
+            "bbox": [
+              15,
+              15,
+              32,
+              31
+            ]
+          },
+          "margin_px": 15,
+          "file": "frames/orb-03.png"
+        },
+        {
+          "id": "orb-04",
+          "start_ms": 200,
+          "duration_ms": 50,
+          "sample_ms": 225.0,
+          "qa": {
+            "visible": 157,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 11,
+            "l_corners": 4,
+            "outline_gaps": 0,
+            "bbox": [
+              14,
+              18,
+              32,
+              33
+            ]
+          },
+          "margin_px": 14,
+          "file": "frames/orb-04.png"
+        },
+        {
+          "id": "orb-05",
+          "start_ms": 250,
+          "duration_ms": 50,
+          "sample_ms": 275.0,
+          "qa": {
+            "visible": 140,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 11,
+            "l_corners": 3,
+            "outline_gaps": 0,
+            "bbox": [
+              14,
+              16,
+              32,
+              31
+            ]
+          },
+          "margin_px": 14,
+          "file": "frames/orb-05.png"
+        },
+        {
+          "id": "orb-06",
+          "start_ms": 300,
+          "duration_ms": 50,
+          "sample_ms": 325.0,
+          "qa": {
+            "visible": 129,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 15,
+            "l_corners": 3,
+            "outline_gaps": 0,
+            "bbox": [
+              15,
+              16,
+              30,
+              31
+            ]
+          },
+          "margin_px": 15,
+          "file": "frames/orb-06.png"
+        },
+        {
+          "id": "orb-07",
+          "start_ms": 350,
+          "duration_ms": 50,
+          "sample_ms": 375.0,
+          "qa": {
+            "visible": 155,
+            "partial_alpha": 0,
+            "colors": 4,
+            "off_palette": 0,
+            "orphans": 11,
+            "l_corners": 5,
+            "outline_gaps": 0,
+            "bbox": [
+              15,
+              18,
+              33,
+              33
+            ]
+          },
+          "margin_px": 15,
+          "file": "frames/orb-07.png"
+        }
+      ],
+      "duration_ms": [
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50
+      ],
+      "hit_frame": null,
+      "dropped_tail_frames": 0,
+      "events": [],
+      "seam": {
+        "frames": 8,
+        "seam": 3.385851,
+        "adjacent_median": 3.395725,
+        "adjacent_p95": 3.905035,
+        "adjacent_max": 3.924045,
+        "seam_over_median": 0.997092,
+        "seam_over_p95": 0.867048,
+        "method": "premultiplied RGBA mean absolute difference (0-255); seam = last -> first"
+      },
+      "hit_on_60hz_tick": true
+    }
+  },
+  "arcs": [],
+  "margin_failures": [],
+  "build_clips": {
+    "returncode": 0,
+    "output": "compiled-clips/animation-clips.json"
+  },
+  "runtime": null,
+  "review": {
+    "impact": "review/impact.png",
+    "dust": "review/dust.png",
+    "orb": "review/orb.png"
+  },
+  "qa": {
+    "status": "pass",
+    "method": "fx_build: frames cut at impactMs and sampled mid-frame; codeart_core.qa_pixels per frame against the spec palette (pixel route); slash head progress at each frame; forge_core.seam_report on loops; transparent margin; optional build_animation_clips and fx_verify.mjs runs",
+    "notProven": [
+      "Readability and impact at game scale and in motion: look at review/*.png and play the clips.",
+      "That the effect suits the move it accompanies; the checks prove timing and palette only."
+    ],
+    "checks": [
+      {
+        "id": "partial_alpha",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "off_palette",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "outline_gaps",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "l_corners",
+        "status": "pass",
+        "value": 7,
+        "threshold": 10
+      },
+      {
+        "id": "seam:orb",
+        "status": "pass",
+        "value": 0.9971,
+        "threshold": [
+          0.8,
+          1.25
+        ]
+      },
+      {
+        "id": "margins",
+        "status": "pass",
+        "value": 0,
+        "threshold": 1
+      },
+      {
+        "id": "timing",
+        "status": "pass",
+        "value": {
+          "impact": 320,
+          "dust": 360,
+          "orb": 400
+        },
+        "threshold": {
+          "impact": 320,
+          "dust": 360,
+          "orb": 400
+        }
+      },
+      {
+        "id": "build_clips",
+        "status": "pass",
+        "value": 0,
+        "threshold": 0
+      },
+      {
+        "id": "runtime_verify",
+        "status": "skipped",
+        "value": null,
+        "threshold": "pass"
+      }
+    ],
+    "inputs": [
+      {
+        "path": "../khmer_fx.fx.json",
+        "sha256": "847029da609f2fad28815e9127c574454b851ceab4e38605aef9dac28f887a88",
+        "bytes": 1427
+      }
+    ],
+    "outputs": [
+      {
+        "path": "frames/impact-00.png",
+        "sha256": "5d3e2715f14886500cbbf3f9a004b9cd49064add577761c7dd091ebab81ef893",
+        "bytes": 256
+      },
+      {
+        "path": "frames/impact-01.png",
+        "sha256": "9c4c0a167363c91d39103db92986e8101812c69b587e7b7ffebde337b9745355",
+        "bytes": 323
+      },
+      {
+        "path": "frames/impact-02.png",
+        "sha256": "f6106ea0dcf830429d0542bf4b0de4a316d6e6a79ad09f4e2118e03fa7fedda2",
+        "bytes": 347
+      },
+      {
+        "path": "frames/impact-03.png",
+        "sha256": "e0075c2583201c250effcb6643b340f93cfc6d5fb10480f23c5cdafdea25518a",
+        "bytes": 298
+      },
+      {
+        "path": "frames/impact-04.png",
+        "sha256": "69ee67b5df15bcd989ff78bf4142d25d8178328d98bfba9bfe4866f641130729",
+        "bytes": 243
+      },
+      {
+        "path": "frames/dust-00.png",
+        "sha256": "80bc26f33b4d46e64ebc18f60bdf7d2669b68c6d63d08f0c64bd9307571ae218",
+        "bytes": 138
+      },
+      {
+        "path": "frames/dust-01.png",
+        "sha256": "e49f648859b9c1f21e77e33498bcc7bbf23591d68834da4bff4a2e292fdb2365",
+        "bytes": 176
+      },
+      {
+        "path": "frames/dust-02.png",
+        "sha256": "d527c776fee189aaf28349fe3e1e938ab638d7a0976b4de36ab343d1570f2cdd",
+        "bytes": 197
+      },
+      {
+        "path": "frames/dust-03.png",
+        "sha256": "a10442041ab9217c12d2a6d8e585d6179dce87e4a8767142ba695ea8738090e1",
+        "bytes": 187
+      },
+      {
+        "path": "frames/dust-04.png",
+        "sha256": "4b7a7d9171c62e5716670124c4406805c7f715f33a5f3466012ba00920083c20",
+        "bytes": 204
+      },
+      {
+        "path": "frames/dust-05.png",
+        "sha256": "c866f34d1f2c1fe2d45a7a3d4313f508b32e80e9a436b3a400dd92e7536d9863",
+        "bytes": 175
+      },
+      {
+        "path": "frames/dust-06.png",
+        "sha256": "5ddd023f7072b5ddbdc007a9e127c115add15c9c00fbf606b80069bf549b9ec0",
+        "bytes": 137
+      },
+      {
+        "path": "frames/orb-00.png",
+        "sha256": "04e3eca052f5be42d6b485be18541a3ed45aeaf7a3e6239b59395c2f6273ee06",
+        "bytes": 314
+      },
+      {
+        "path": "frames/orb-01.png",
+        "sha256": "de603e4271d5e6b59ac3d3e2e16ffcc50ee7edeeb2a88285ec58cb01d7f413ac",
+        "bytes": 302
+      },
+      {
+        "path": "frames/orb-02.png",
+        "sha256": "e54a4aed19919dfa8fb3006927390ebf1e6887801ef1ceb3b445b41eae88d546",
+        "bytes": 278
+      },
+      {
+        "path": "frames/orb-03.png",
+        "sha256": "a438290b8dce452df9f522af60966610f415ef2b7e0d7142550bea2af8b2ed11",
+        "bytes": 302
+      },
+      {
+        "path": "frames/orb-04.png",
+        "sha256": "6f19eedb4e2a77f4d5d7776274ad9f99f9a3f33e028f6b91a52b41bae279b416",
+        "bytes": 290
+      },
+      {
+        "path": "frames/orb-05.png",
+        "sha256": "ce639e9b703635f2de06bd1aec9d0891db86a210a3b6d911c47bf92e8d750c18",
+        "bytes": 253
+      },
+      {
+        "path": "frames/orb-06.png",
+        "sha256": "aad02d013df2540631ae8bf3025a589c42dc0311e34dee34fa13e15d0a0f8135",
+        "bytes": 257
+      },
+      {
+        "path": "frames/orb-07.png",
+        "sha256": "ba79a23429762030d8c9646a43b15a4a3da13cd7a0c64706e0a9e5778d755523",
+        "bytes": 285
+      },
+      {
+        "path": "clips.json",
+        "sha256": "dda695baf32d4c29a0bfa71f6ce58faac3f6520dd193659cdebaf011b4f65215",
+        "bytes": 3057
+      }
+    ],
+    "tool": {
+      "name": "codeart2d/fx_build.py",
+      "version": "0.6.0"
+    }
+  }
+}
