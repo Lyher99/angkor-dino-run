@@ -126,8 +126,8 @@
     const GROUND_Y = 444; // top of ground_tile
     const S = 2; // unified 2x pixel scale (480x270 -> 960x540)
 
-    // Asset manifest (concept-ref pixel sprites + animated Angkor/Bayon BGs)
-    const V = "?v=6";
+    // Asset manifest (concept-ref + SpriteCast resurrect64 + pxl animations)
+    const V = "?v=7";
     const ASSET_PATHS = {
       dino_run: "assets/anims/dino_run.png" + V,
       dino_duck: "assets/anims/dino_duck.png" + V,
@@ -135,14 +135,21 @@
       singha_run: "assets/anims/singha_run.png" + V,
       singha_duck: "assets/anims/singha_duck.png" + V,
       singha_jump: "assets/anims/singha_jump.png" + V,
+      hanuman_run: "assets/anims/hanuman_run.png" + V,
+      hanuman_duck: "assets/anims/hanuman_duck.png" + V,
+      hanuman_jump: "assets/anims/hanuman_jump.png" + V,
       fly_garuda: "assets/anims/fly_garuda.png" + V,
       item_lotus: "assets/anims/item_lotus.png" + V,
       obs_pillar: "assets/sprites/obs_pillar.png" + V,
       obs_naga: "assets/sprites/obs_naga.png" + V,
       ground_tile: "assets/sprites/ground_tile.png" + V,
       ground_tile_lv2: "assets/sprites/ground_tile_lv2.png" + V,
+      ground_tile_lv3: "assets/sprites/ground_tile_lv3.png" + V,
       bg_angkor: "assets/anims/bg_angkor.png" + V,
       bg_bayon: "assets/anims/bg_bayon.png" + V,
+      bg_preah_vihear: "assets/sprites/bg_preah_vihear_base.png" + V,
+      fx_petal: "assets/sprites/petal.png" + V,
+      fx_spark: "assets/sprites/spark.png" + V,
     };
 
     const imgs = {};
@@ -245,20 +252,25 @@
 
     function updateLevelUI() {
       const btn = document.getElementById("levelBtn");
-      btn.textContent = level === 1 ? "LVL 1: ANGKOR WAT" : "LVL 2: BAYON NIGHT";
+      btn.textContent =
+        level === 1 ? "LVL 1: ANGKOR WAT" :
+        level === 2 ? "LVL 2: BAYON NIGHT" :
+        "LVL 3: PREAH VIHEAR";
     }
 
     function resetGame() {
-      score = manualLevel === 2 ? 300 : 0;
+      score = manualLevel === 3 ? 600 : manualLevel === 2 ? 300 : 0;
       level = manualLevel ?? 1;
-      speed = level === 2 ? 500 : 370;
+      speed = level === 3 ? 580 : level === 2 ? 500 : 370;
       dist = 0;
       spawnTimer = 0.9;
       lastMilestone = Math.floor(score / 100);
       flashTimer = 0;
       shakeTimer = 0;
-      levelBannerTimer = level === 2 ? 2.0 : 0;
-      levelBannerText = level === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "";
+      levelBannerTimer = level >= 2 ? 2.2 : 0;
+      levelBannerText =
+        level === 3 ? "LEVEL 3: PREAH VIHEAR SKY!" :
+        level === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "";
       dino.y = GROUND_Y - 52 * S;
       dino.vy = 0;
       dino.onGround = true;
@@ -368,15 +380,21 @@
     canvas.addEventListener("pointerdown", () => triggerJump());
     document.getElementById("restartBtn").addEventListener("click", () => resetGame());
     document.getElementById("levelBtn").addEventListener("click", () => {
-      manualLevel = level === 1 ? 2 : 1;
+      manualLevel = level === 1 ? 2 : level === 2 ? 3 : 1;
       level = manualLevel;
       levelBannerTimer = 2.0;
-      levelBannerText = level === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "LEVEL 1: ANGKOR WAT!";
+      levelBannerText =
+        level === 3 ? "LEVEL 3: PREAH VIHEAR SKY!" :
+        level === 2 ? "LEVEL 2: BAYON TWILIGHT!" :
+        "LEVEL 1: ANGKOR WAT!";
       updateLevelUI();
       if (state === "ready") render();
     });
     document.getElementById("charBtn").addEventListener("click", (e) => {
-      charMode = charMode === "auto" ? "dino" : charMode === "dino" ? "singha" : "auto";
+      charMode =
+        charMode === "auto" ? "dino" :
+        charMode === "dino" ? "singha" :
+        charMode === "singha" ? "hanuman" : "auto";
       e.target.textContent = "CHAR: " + charMode.toUpperCase();
     });
     document.getElementById("muteBtn").addEventListener("click", (e) => {
@@ -416,12 +434,19 @@
       dist += speed * dt;
       score += dt * 14;
 
-      // Auto-advance to Level 2 at 300 points (unless pinned to Level 1)
+      // Auto-advance Levels at 300 and 600 points (unless pinned)
       if (manualLevel === null && level === 1 && score >= 300) {
         level = 2;
         levelBannerTimer = 2.4;
         levelBannerText = "LEVEL 2: BAYON TWILIGHT!";
         flashTimer = 0.2;
+        sfx.milestone();
+        updateLevelUI();
+      } else if (manualLevel === null && level === 2 && score >= 600) {
+        level = 3;
+        levelBannerTimer = 2.6;
+        levelBannerText = "LEVEL 3: PREAH VIHEAR SKY!";
+        flashTimer = 0.25;
         sfx.milestone();
         updateLevelUI();
       }
@@ -555,27 +580,45 @@
         ctx.translate(Math.round((Math.random() - 0.5) * 10), Math.round((Math.random() - 0.5) * 10));
       }
 
-      // 1. Animated 16-bit Pixel-Art Angkor Wat / Bayon Background (6 frames @ 6fps)
+      // 1. Animated 16-bit Pixel-Art Backgrounds (Angkor Wat / Bayon / Preah Vihear)
       const isLv2 = level === 2;
-      const bgImg = isLv2 ? imgs.bg_bayon : imgs.bg_angkor;
+      const isLv3 = level === 3;
       const bgFrame = Math.floor(performance.now() / 167) % 6;
-      ctx.drawImage(bgImg, bgFrame * 480, 0, 480, 270, 0, 0, W, H);
+      if (isLv3) {
+        ctx.drawImage(imgs.bg_preah_vihear, 0, 0, W, H);
+        // Animated waterfall shimmer on distant cliff (x: 150..295, y: 185..280)
+        for (let i = 0; i < 6; i++) {
+          const wy = 190 + ((bgFrame * 14 + i * 16) % 85);
+          const wx = 165 + i * 22;
+          ctx.fillStyle = "rgba(255, 248, 214, 0.55)";
+          ctx.fillRect(wx, wy, 6, 12);
+        }
+      } else {
+        const bgImg = isLv2 ? imgs.bg_bayon : imgs.bg_angkor;
+        ctx.drawImage(bgImg, bgFrame * 480, 0, 480, 270, 0, 0, W, H);
+      }
 
       // Subtle atmospheric scrim so foreground sprites pop cleanly
-      ctx.fillStyle = isLv2 ? "rgba(10, 8, 22, 0.16)" : "rgba(255, 232, 185, 0.08)";
+      ctx.fillStyle = isLv2 ? "rgba(10, 8, 22, 0.16)" : isLv3 ? "rgba(40, 18, 45, 0.08)" : "rgba(255, 232, 185, 0.08)";
       ctx.fillRect(0, 0, W, GROUND_Y);
 
-      // Ambient drifting golden dust motes / fireflies
-      for (const m of motes) {
-        const my = m.y + Math.sin(m.phase) * 6;
-        ctx.fillStyle = isLv2 ? "#ffe373" : "#fff9d6";
-        ctx.fillRect(Math.round(m.x), Math.round(my), 3, 3);
+      // Ambient drifting particles (SpriteCast petal.png / spark.png on Lv3, motes on Lv1/Lv2)
+      for (let i = 0; i < motes.length; i++) {
+        const m = motes[i];
+        const my = m.y + Math.sin(m.phase) * 8;
+        if (isLv3) {
+          const fxImg = i % 3 === 0 ? imgs.fx_spark : imgs.fx_petal;
+          ctx.drawImage(fxImg, Math.round(m.x), Math.round(my), 12, 12);
+        } else {
+          ctx.fillStyle = isLv2 ? "#ffe373" : "#fff9d6";
+          ctx.fillRect(Math.round(m.x), Math.round(my), 3, 3);
+        }
       }
 
       // 2. Ground Tiles (64x48 scaled 2x -> 128x96)
       const gTileW = 128;
       const gOff = Math.floor(dist) % gTileW;
-      const gImg = isLv2 ? imgs.ground_tile_lv2 : imgs.ground_tile;
+      const gImg = isLv3 ? imgs.ground_tile_lv3 : isLv2 ? imgs.ground_tile_lv2 : imgs.ground_tile;
       for (let x = -gOff; x < W; x += gTileW) {
         ctx.drawImage(gImg, x, GROUND_Y, gTileW, 96);
       }
@@ -596,21 +639,32 @@
         }
       }
 
-      // 5. Hero Character (64x52 concept-ref pixel art @2x -> 128x104)
-      const useSingha = charMode === "singha" || (charMode === "auto" && isLv2);
-      const runImg = useSingha ? imgs.singha_run : imgs.dino_run;
-      const duckImg = useSingha ? imgs.singha_duck : imgs.dino_duck;
-      const jumpImg = useSingha ? imgs.singha_jump : imgs.dino_jump;
+      // 5. Hero Character (Dino Lv1, Singha Lv2, Hanuman Lv3)
+      const activeChar =
+        charMode !== "auto" ? charMode :
+        isLv3 ? "hanuman" :
+        isLv2 ? "singha" : "dino";
+
+      const isHanuman = activeChar === "hanuman";
+      const runImg = isHanuman ? imgs.hanuman_run : activeChar === "singha" ? imgs.singha_run : imgs.dino_run;
+      const duckImg = isHanuman ? imgs.hanuman_duck : activeChar === "singha" ? imgs.singha_duck : imgs.dino_duck;
+      const jumpImg = isHanuman ? imgs.hanuman_jump : activeChar === "singha" ? imgs.singha_jump : imgs.dino_jump;
+
+      const fw = 64;
+      const fh = isHanuman ? 64 : 52;
+      const dh = isHanuman ? 44 : 38;
+      const runFrames = isHanuman ? 4 : 6;
+      const yAdj = isHanuman ? -12 * S : 0;
 
       if (!dino.onGround) {
         const f = dino.vy < 0 ? 0 : 1;
-        drawStripFrame(jumpImg, 64, 52, f, dino.x, dino.y, S);
+        drawStripFrame(jumpImg, fw, fh, f, dino.x, dino.y + yAdj, S);
       } else if (dino.ducking && state === "playing") {
         const f = Math.floor(dino.animTime * 10) % 4;
-        drawStripFrame(duckImg, 64, 38, f, dino.x, GROUND_Y - 38 * S, S);
+        drawStripFrame(duckImg, fw, dh, f, dino.x, GROUND_Y - dh * S, S);
       } else {
-        const f = state === "ready" ? 0 : Math.floor(dino.animTime * 10) % 6;
-        drawStripFrame(runImg, 64, 52, f, dino.x, dino.y, S);
+        const f = state === "ready" ? 0 : Math.floor(dino.animTime * 10) % runFrames;
+        drawStripFrame(runImg, fw, fh, f, dino.x, dino.y + yAdj, S);
       }
 
       // 8. Particles & +50 popups
