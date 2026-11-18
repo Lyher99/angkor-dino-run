@@ -127,7 +127,7 @@
     const S = 2; // unified 2x pixel scale (480x270 -> 960x540)
 
     // Asset manifest (4 Levels + 4 Characters + SpriteCast effects + pxl tiles)
-    const V = "?v=8";
+    const V = "?v=9";
     const ASSET_PATHS = {
       dino_run: "assets/anims/dino_run.png" + V,
       dino_duck: "assets/anims/dino_duck.png" + V,
@@ -250,7 +250,7 @@
 
     const dino = {
       x: 112,
-      y: GROUND_Y - 52 * S,
+      y: GROUND_Y - 40 * 3,
       vy: 0,
       onGround: true,
       ducking: false,
@@ -297,7 +297,7 @@
         level === 4 ? "LEVEL 4: TA PROHM ROOTS!" :
         level === 3 ? "LEVEL 3: PREAH VIHEAR SKY!" :
         level === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "";
-      dino.y = GROUND_Y - 52 * S;
+      dino.y = GROUND_Y - 40 * 3;
       dino.vy = 0;
       dino.onGround = true;
       dino.ducking = false;
@@ -536,13 +536,13 @@
       dino.vy += grav * dt;
       dino.y += dino.vy * dt;
 
-      if (dino.y >= GROUND_Y - 52 * S) {
+      if (dino.y >= GROUND_Y - 40 * 3) {
         if (!dino.onGround) {
           spawnDust(dino.x + 48, GROUND_Y, 6);
           dino.scaleX = 1.2;
           dino.scaleY = 0.82;
         }
-        dino.y = GROUND_Y - 52 * S;
+        dino.y = GROUND_Y - 40 * 3;
         dino.vy = 0;
         dino.onGround = true;
       }
@@ -715,26 +715,29 @@
         }
       }
 
-      // 5. Hero Character (Dino Lv1, Singha Lv2, Hanuman Lv3, Garuda Lv4) with Squash & Stretch
+      // 5. Hero Character (40x40 hand-crafted pixel art @3x -> 120x120)
       const activeChar =
         charMode !== "auto" ? charMode :
         isLv4 ? "garuda" :
         isLv3 ? "hanuman" :
         isLv2 ? "singha" : "dino";
 
-      const is64 = activeChar === "hanuman" || activeChar === "garuda";
+      const is4 = activeChar === "hanuman" || activeChar === "garuda";
       const runImg = imgs[activeChar + "_run"];
       const duckImg = imgs[activeChar + "_duck"];
       const jumpImg = imgs[activeChar + "_jump"];
 
-      const fw = 64;
-      const fh = is64 ? 64 : 52;
-      const dh = is64 ? 44 : 38;
-      const runFrames = is64 ? 4 : 6;
-      const yAdj = is64 ? -12 * S : 0;
+      const CS = 3;
+      const fw = 40;
+      const fh = 40;
+      const dw = 44;
+      const dh = 28;
+      const runFrames = is4 ? 4 : 6;
+      // Align exact foot row per character onto GROUND_Y
+      const footPad = activeChar === "dino" ? 3 * CS : activeChar === "singha" ? 9 * CS : activeChar === "hanuman" ? 11 * CS : 13 * CS;
 
       ctx.save();
-      const pivotX = dino.x + (fw * S) / 2;
+      const pivotX = dino.x + (fw * CS) / 2;
       const pivotY = GROUND_Y;
       ctx.translate(pivotX, pivotY);
       ctx.scale(dino.scaleX, dino.scaleY);
@@ -742,13 +745,14 @@
 
       if (!dino.onGround) {
         const f = dino.vy < 0 ? 0 : 1;
-        drawStripFrame(jumpImg, fw, fh, f, dino.x, dino.y + yAdj, S);
+        drawStripFrame(jumpImg, fw, fh, f, dino.x, dino.y + footPad, CS);
       } else if (dino.ducking && state === "playing") {
         const f = Math.floor(dino.animTime * 10) % 4;
-        drawStripFrame(duckImg, fw, dh, f, dino.x, GROUND_Y - dh * S, S);
+        const duckPad = activeChar === "dino" ? 13 * CS : activeChar === "singha" ? 13 * CS : activeChar === "hanuman" ? 15 * CS : 16 * CS;
+        drawStripFrame(duckImg, dw, dh, f, dino.x, GROUND_Y - dh * CS + duckPad, CS);
       } else {
         const f = state === "ready" ? 0 : Math.floor(dino.animTime * 10) % runFrames;
-        drawStripFrame(runImg, fw, fh, f, dino.x, dino.y + yAdj, S);
+        drawStripFrame(runImg, fw, fh, f, dino.x, dino.y + footPad, CS);
       }
       ctx.restore();
 

@@ -4,83 +4,83 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "sourceSize": {
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "duration": 83
   },
   "dino_duck_1": {
    "frame": {
-    "x": 64,
+    "x": 44,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "sourceSize": {
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "duration": 83
   },
   "dino_duck_2": {
    "frame": {
-    "x": 128,
+    "x": 88,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "sourceSize": {
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "duration": 83
   },
   "dino_duck_3": {
    "frame": {
-    "x": 192,
+    "x": 132,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "sourceSize": {
-    "w": 64,
-    "h": 38
+    "w": 44,
+    "h": 28
    },
    "duration": 83
   }
@@ -90,8 +90,8 @@
   "image": "dino_duck.png",
   "format": "RGBA8888",
   "size": {
-   "w": 256,
-   "h": 38
+   "w": 176,
+   "h": 28
   },
   "scale": "1",
   "frameTags": [

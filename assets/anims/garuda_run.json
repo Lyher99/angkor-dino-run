@@ -1,0 +1,106 @@
+{
+ "frames": {
+  "garuda_run_0": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 40
+   },
+   "duration": 83
+  },
+  "garuda_run_1": {
+   "frame": {
+    "x": 40,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 40
+   },
+   "duration": 83
+  },
+  "garuda_run_2": {
+   "frame": {
+    "x": 80,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 40
+   },
+   "duration": 83
+  },
+  "garuda_run_3": {
+   "frame": {
+    "x": 120,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 40,
+    "h": 40
+   },
+   "duration": 83
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "garuda_run.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 160,
+   "h": 40
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "garuda_run",
+    "from": 0,
+    "to": 3,
+    "direction": "forward"
+   }
+  ]
+ }
+}
