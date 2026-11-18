@@ -127,7 +127,7 @@
     const S = 2; // unified 2x pixel scale (480x270 -> 960x540)
 
     // Asset manifest (4 Levels + 4 Characters + SpriteCast effects + pxl tiles)
-    const V = "?v=11";
+    const V = "?v=12";
     const ASSET_PATHS = {
       dino_run: "assets/anims/dino_run.png" + V,
       dino_duck: "assets/anims/dino_duck.png" + V,
@@ -728,10 +728,10 @@
       const jumpImg = imgs[activeChar + "_jump"];
 
       const CS = 2;
-      const fw = 56;
-      const fh = 56;
-      const dw = 56;
-      const dh = 38;
+      const fw = 64;
+      const fh = 64;
+      const dw = 64;
+      const dh = 44;
       const runFrames = is4 ? 4 : 6;
       const drawY = dino.y + 40 * 3 - fh * CS;
 
