@@ -132,8 +132,9 @@
     const H = 540;
     const GROUND_Y = 444;
     const HERO_SCALE = 3; // 32x32 PixelSpec * 3 = 96x96
+    const KRAMA_SCALE = 2; // 60x48 Krama Dino * 2 = 120x96
 
-    const VARIANTS = ["jade_dino", "golden_singha", "white_hanuman", "crimson_garuda"];
+    const VARIANTS = ["krama_dino", "golden_singha", "white_hanuman", "crimson_garuda", "jade_dino"];
     const FRAME_NAMES = ["run-0", "run-1", "run-2", "run-3", "jump-0", "jump-1", "duck-0", "duck-1"];
 
     const imgs = {
@@ -155,12 +156,22 @@
       const tasks = [];
       for (const v of VARIANTS) {
         imgs.heroes[v] = {};
-        for (const fn of FRAME_NAMES) {
-          tasks.push(
-            loadImg(`forge-hero/${v}/frames/${fn}.png`).then((img) => {
-              imgs.heroes[v][fn] = img;
-            })
-          );
+        if (v === "krama_dino") {
+          for (const fn of [...FRAME_NAMES, "hit-0"]) {
+            tasks.push(
+              loadImg(`forge-krama-48-locked/${fn}.png?v=1`).then((img) => {
+                imgs.heroes[v][fn] = img;
+              })
+            );
+          }
+        } else {
+          for (const fn of FRAME_NAMES) {
+            tasks.push(
+              loadImg(`forge-hero/${v}/frames/${fn}.png`).then((img) => {
+                imgs.heroes[v][fn] = img;
+              })
+            );
+          }
         }
       }
       for (let i = 0; i < 7; i++) {
@@ -634,21 +645,26 @@
         }
       }
 
-      // 5. AgentSpriteForge PixelSpec Hero (32x32 @3x = 96x96)
+      // 5. Hero (60x48 Krama Dino @2x = 120x96, or 32x32 PixelSpec @3x = 96x96)
       const activeVariant = charMode !== "auto" ? charMode : VARIANTS[level - 1];
       let frameKey = "run-0";
-      if (!hero.onGround) frameKey = hero.vy < 0 ? "jump-0" : "jump-1";
+      if (state === "gameover" && imgs.heroes[activeVariant]["hit-0"]) frameKey = "hit-0";
+      else if (!hero.onGround) frameKey = hero.vy < 0 ? "jump-0" : "jump-1";
       else if (hero.ducking && state === "playing") frameKey = "duck-" + (Math.floor(hero.animTime * 10) % 2);
       else frameKey = state === "ready" ? "run-0" : "run-" + (Math.floor(hero.animTime * 10) % 4);
 
       const hImg = imgs.heroes[activeVariant][frameKey];
+      const isKrama = activeVariant === "krama_dino";
+      const drawW = isKrama ? 60 * KRAMA_SCALE : 32 * HERO_SCALE;
+      const drawH = isKrama ? 48 * KRAMA_SCALE : 32 * HERO_SCALE;
+      const drawX = isKrama ? hero.x - 12 : hero.x;
       ctx.save();
-      const px = hero.x + (32 * HERO_SCALE) / 2;
+      const px = drawX + drawW / 2;
       const py = GROUND_Y;
       ctx.translate(px, py);
       ctx.scale(hero.scaleX, hero.scaleY);
       ctx.translate(-px, -py);
-      ctx.drawImage(hImg, Math.round(hero.x), Math.round(hero.y), 32 * HERO_SCALE, 32 * HERO_SCALE);
+      ctx.drawImage(hImg, Math.round(drawX), Math.round(hero.y), drawW, drawH);
       ctx.restore();
 
       // 6. AgentSpriteForge FX Clips (dust & impact)
@@ -734,3 +750,4 @@
   </script>
 </body>
 </html>
+

@@ -1,0 +1,17 @@
+{
+  "schema": "generate2dsprite.animation_clips.v2",
+  "frames": [
+    "run-0.png",
+    "run-1.png",
+    "run-2.png",
+    "run-3.png"
+  ],
+  "anchor_px": [34, 47],
+  "clips": {
+    "run": {
+      "frames": [0, 1, 2, 3],
+      "duration_ms": 100,
+      "loop_policy": "cycle"
+    }
+  }
+}
