@@ -127,7 +127,7 @@
     const S = 2; // unified 2x pixel scale (480x270 -> 960x540)
 
     // Asset manifest (4 Levels + 4 Characters + SpriteCast effects + pxl tiles)
-    const V = "?v=9";
+    const V = "?v=10";
     const ASSET_PATHS = {
       dino_run: "assets/anims/dino_run.png" + V,
       dino_duck: "assets/anims/dino_duck.png" + V,
@@ -715,7 +715,7 @@
         }
       }
 
-      // 5. Hero Character (40x40 hand-crafted pixel art @3x -> 120x120)
+      // 5. Hero Character (96x96 Arcade Pixel Art @1.3x -> 125x125, feet flush on GROUND_Y)
       const activeChar =
         charMode !== "auto" ? charMode :
         isLv4 ? "garuda" :
@@ -727,14 +727,13 @@
       const duckImg = imgs[activeChar + "_duck"];
       const jumpImg = imgs[activeChar + "_jump"];
 
-      const CS = 3;
-      const fw = 40;
-      const fh = 40;
-      const dw = 44;
-      const dh = 28;
+      const CS = 1.3;
+      const fw = 96;
+      const fh = 96;
+      const dw = 96;
+      const dh = 64;
       const runFrames = is4 ? 4 : 6;
-      // Align exact foot row per character onto GROUND_Y
-      const footPad = activeChar === "dino" ? 3 * CS : activeChar === "singha" ? 9 * CS : activeChar === "hanuman" ? 11 * CS : 13 * CS;
+      const drawY = dino.y + 40 * 3 - fh * CS;
 
       ctx.save();
       const pivotX = dino.x + (fw * CS) / 2;
@@ -745,14 +744,13 @@
 
       if (!dino.onGround) {
         const f = dino.vy < 0 ? 0 : 1;
-        drawStripFrame(jumpImg, fw, fh, f, dino.x, dino.y + footPad, CS);
+        drawStripFrame(jumpImg, fw, fh, f, dino.x, drawY, CS);
       } else if (dino.ducking && state === "playing") {
         const f = Math.floor(dino.animTime * 10) % 4;
-        const duckPad = activeChar === "dino" ? 13 * CS : activeChar === "singha" ? 13 * CS : activeChar === "hanuman" ? 15 * CS : 16 * CS;
-        drawStripFrame(duckImg, dw, dh, f, dino.x, GROUND_Y - dh * CS + duckPad, CS);
+        drawStripFrame(duckImg, dw, dh, f, dino.x, GROUND_Y - dh * CS, CS);
       } else {
         const f = state === "ready" ? 0 : Math.floor(dino.animTime * 10) % runFrames;
-        drawStripFrame(runImg, fw, fh, f, dino.x, dino.y + footPad, CS);
+        drawStripFrame(runImg, fw, fh, f, dino.x, drawY, CS);
       }
       ctx.restore();
 
