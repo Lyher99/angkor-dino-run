@@ -1,0 +1,148 @@
+{
+ "frames": {
+  "singha_run_0": {
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 50
+   },
+   "duration": 100
+  },
+  "singha_run_1": {
+   "frame": {
+    "x": 50,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 50
+   },
+   "duration": 100
+  },
+  "singha_run_2": {
+   "frame": {
+    "x": 100,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 50
+   },
+   "duration": 100
+  },
+  "singha_run_3": {
+   "frame": {
+    "x": 150,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 50
+   },
+   "duration": 100
+  },
+  "singha_run_4": {
+   "frame": {
+    "x": 200,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 50
+   },
+   "duration": 100
+  },
+  "singha_run_5": {
+   "frame": {
+    "x": 250,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 50,
+    "h": 50
+   },
+   "sourceSize": {
+    "w": 50,
+    "h": 50
+   },
+   "duration": 100
+  }
+ },
+ "meta": {
+  "app": "pxl",
+  "image": "singha_run.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 300,
+   "h": 50
+  },
+  "scale": "1",
+  "frameTags": [
+   {
+    "name": "singha_run",
+    "from": 0,
+    "to": 5,
+    "direction": "forward"
+   }
+  ]
+ }
+}
