@@ -127,21 +127,22 @@
     const S = 3; // crisp 3x sprite scale for 36x36 hand-sculpted sprites on 960x540
 
     // Asset manifest (hand-sculpted pxl sprites + 16-bit Angkor/Bayon backgrounds)
+    const V = "?v=4";
     const ASSET_PATHS = {
-      dino_run: "assets/anims/dino_run.png",
-      dino_duck: "assets/anims/dino_duck.png",
-      dino_jump: "assets/anims/dino_jump.png",
-      singha_run: "assets/anims/singha_run.png",
-      singha_duck: "assets/anims/singha_duck.png",
-      singha_jump: "assets/anims/singha_jump.png",
-      fly_garuda: "assets/anims/fly_garuda.png",
-      item_lotus: "assets/anims/item_lotus.png",
-      obs_pillar: "assets/sprites/obs_pillar.png",
-      obs_naga: "assets/sprites/obs_naga.png",
-      ground_tile: "assets/sprites/ground_tile.png",
-      ground_tile_lv2: "assets/sprites/ground_tile_lv2.png",
-      bg_angkor: "assets/sprites/bg_angkor.png",
-      bg_bayon: "assets/sprites/bg_bayon.png",
+      dino_run: "assets/anims/dino_run.png" + V,
+      dino_duck: "assets/anims/dino_duck.png" + V,
+      dino_jump: "assets/anims/dino_jump.png" + V,
+      singha_run: "assets/anims/singha_run.png" + V,
+      singha_duck: "assets/anims/singha_duck.png" + V,
+      singha_jump: "assets/anims/singha_jump.png" + V,
+      fly_garuda: "assets/anims/fly_garuda.png" + V,
+      item_lotus: "assets/anims/item_lotus.png" + V,
+      obs_pillar: "assets/sprites/obs_pillar.png" + V,
+      obs_naga: "assets/sprites/obs_naga.png" + V,
+      ground_tile: "assets/sprites/ground_tile.png" + V,
+      ground_tile_lv2: "assets/sprites/ground_tile_lv2.png" + V,
+      bg_angkor: "assets/sprites/bg_angkor.png" + V,
+      bg_bayon: "assets/sprites/bg_bayon.png" + V,
     };
 
     const imgs = {};
@@ -330,9 +331,9 @@
 
     function getDinoHitbox() {
       if (dino.ducking && dino.onGround) {
-        return { x: dino.x + 18, y: GROUND_Y - 20 * S, w: 34 * S, h: 18 * S };
+        return { x: dino.x + 18, y: GROUND_Y - 14 * S, w: 34 * S, h: 13 * S };
       }
-      return { x: dino.x + 24, y: dino.y + 18, w: 22 * S, h: 28 * S };
+      return { x: dino.x + 24, y: dino.y + 12 * S, w: 20 * S, h: 24 * S };
     }
 
     function boxesOverlap(a, b) {
@@ -480,11 +481,12 @@
         o.x -= (o.type === "garuda" ? speed * 1.15 : speed) * dt;
         if (o.animTime !== undefined) o.animTime += dt;
 
+        const yOff = o.type === "pillar" ? 10 * S : o.type === "naga" ? 13 * S : 0;
         const oBox = {
           x: o.x + 14,
-          y: o.y + 12,
+          y: o.y + yOff + 10,
           w: o.w - 28,
-          h: o.h - 20,
+          h: o.h - yOff - 14,
         };
         if (boxesOverlap(dBox, oBox)) {
           state = "gameover";
