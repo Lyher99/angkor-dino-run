@@ -19,7 +19,7 @@
     "w": 64,
     "h": 52
    },
-   "duration": 100
+   "duration": 83
   },
   "singha_run_1": {
    "frame": {
@@ -40,7 +40,7 @@
     "w": 64,
     "h": 52
    },
-   "duration": 100
+   "duration": 83
   },
   "singha_run_2": {
    "frame": {
@@ -61,7 +61,7 @@
     "w": 64,
     "h": 52
    },
-   "duration": 100
+   "duration": 83
   },
   "singha_run_3": {
    "frame": {
@@ -82,7 +82,7 @@
     "w": 64,
     "h": 52
    },
-   "duration": 100
+   "duration": 83
   },
   "singha_run_4": {
    "frame": {
@@ -103,7 +103,7 @@
     "w": 64,
     "h": 52
    },
-   "duration": 100
+   "duration": 83
   },
   "singha_run_5": {
    "frame": {
@@ -124,7 +124,7 @@
     "w": 64,
     "h": 52
    },
-   "duration": 100
+   "duration": 83
   }
  },
  "meta": {

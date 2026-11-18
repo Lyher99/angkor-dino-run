@@ -19,7 +19,7 @@
     "w": 64,
     "h": 38
    },
-   "duration": 100
+   "duration": 83
   },
   "dino_duck_1": {
    "frame": {
@@ -40,7 +40,7 @@
     "w": 64,
     "h": 38
    },
-   "duration": 100
+   "duration": 83
   },
   "dino_duck_2": {
    "frame": {
@@ -61,7 +61,7 @@
     "w": 64,
     "h": 38
    },
-   "duration": 100
+   "duration": 83
   },
   "dino_duck_3": {
    "frame": {
@@ -82,7 +82,7 @@
     "w": 64,
     "h": 38
    },
-   "duration": 100
+   "duration": 83
   }
  },
  "meta": {

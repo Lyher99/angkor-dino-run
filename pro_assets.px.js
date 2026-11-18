@@ -692,28 +692,99 @@ anim("bg_bayon", { w: 480, h: 270, frames: 6, fps: 6 }, (c) => {
   }
 })
 
-// Royal Khmer Dino (64x52) — Run (6 frames), Jump (2 frames), Duck (64x36, 4 frames)
-anim("dino_run", { w: 64, h: 52, frames: 6, fps: 10 }, (c) => {
-  const bob = [0, -2, -3, -1, -2, -3][c.frame]
-  c.stamp("_dino_ref", 0, bob)
-})
-anim("dino_jump", { w: 64, h: 52, frames: 2, fps: 4 }, (c) => {
-  c.stamp("_dino_ref", 0, c.frame === 0 ? -3 : 0)
-})
-anim("dino_duck", { w: 64, h: 38, frames: 4, fps: 10 }, (c) => {
-  const bob = [0, 1, 0, -1][c.frame]
-  c.stamp("_dino_ref", 0, -14 + bob)
+// Royal Khmer Dino (64x52) — True 6-frame Run, 2-frame Jump, 4-frame Duck
+sprite("_dino_upper", { w: 64, h: 52 }, clip([0, 0, 64, 44], stamp("_dino_ref", 0, 0)))
+sprite("_singha_upper", { w: 64, h: 52 }, clip([0, 0, 64, 42], stamp("_singha_ref", 0, 0)))
+
+function drawDinoLegs(c, bob, aOff, bOff, aLift, bLift) {
+  // Back leg (darker jade)
+  const bx = 22 + bOff
+  const by = 43 + bob - bLift
+  c.rect(bx, by, 6, 7 - bLift, "D")
+  c.rect(bx, by + 6 - bLift, 8, 2, "X")
+  c.px(bx + 8, by + 7 - bLift, "w")
+  // Front leg (brighter emerald)
+  const ax = 41 + aOff
+  const ay = 43 + bob - aLift
+  c.rect(ax, ay, 6, 7 - aLift, "g")
+  c.vline(ax, ay, 7 - aLift, "D")
+  c.rect(ax, ay + 6 - aLift, 9, 2, "G")
+  c.px(ax + 9, ay + 7 - aLift, "w")
+}
+
+function drawSinghaLegs(c, bob, aOff, bOff, aLift, bLift) {
+  // Back hind legs (warm bronze-gold)
+  const bx1 = 23 + bOff, by1 = 41 + bob - bLift
+  c.rect(bx1, by1, 5, 9 - bLift, "o")
+  c.rect(bx1, by1 + 8 - bLift, 7, 2, "O")
+  const bx2 = 34 - bOff, by2 = 41 + bob - aLift
+  c.rect(bx2, by2, 5, 9 - aLift, "y")
+  c.rect(bx2, by2 + 8 - aLift, 7, 2, "O")
+  // Front forelegs
+  const ax1 = 44 + aOff, ay1 = 41 + bob - aLift
+  c.rect(ax1, ay1, 5, 9 - aLift, "y")
+  c.rect(ax1, ay1 + 8 - aLift, 7, 2, "Y")
+  const ax2 = 54 - aOff, ay2 = 41 + bob - bLift
+  c.rect(ax2, ay2, 4, 8 - bLift, "Y")
+  c.rect(ax2, ay2 + 7 - bLift, 6, 2, "w")
+}
+
+anim("dino_run", { w: 64, h: 52, frames: 6, fps: 12 }, (c) => {
+  const bob = [0, -2, -3, 0, -2, -3][c.frame]
+  const aOff = [6, 3, -3, -6, -3, 3][c.frame]
+  const bOff = [-6, -3, 3, 6, 3, -3][c.frame]
+  const aLift = [0, 2, 3, 1, 0, 0][c.frame]
+  const bLift = [1, 0, 0, 0, 2, 3][c.frame]
+  c.stamp("_dino_upper", 0, bob)
+  // Fluttering crimson-gold sash tail
+  const capeY = 21 + bob + [0, -1, -2, 0, 1, 0][c.frame]
+  c.line(8, capeY, 22, 22 + bob, "r", 2)
+  c.px(9, capeY, "Y")
+  drawDinoLegs(c, bob, aOff, bOff, aLift, bLift)
 })
 
-// Golden Khmer Singha (64x52) — Run (6 frames), Jump (2 frames), Duck (64x38, 4 frames)
-anim("singha_run", { w: 64, h: 52, frames: 6, fps: 10 }, (c) => {
-  const bob = [0, -2, -3, -1, -2, -3][c.frame]
-  c.stamp("_singha_ref", 0, bob)
+anim("dino_jump", { w: 64, h: 52, frames: 2, fps: 4 }, (c) => {
+  const f = c.frame
+  c.stamp("_dino_upper", 0, f === 0 ? -3 : 0)
+  drawDinoLegs(c, f === 0 ? -3 : 0, f === 0 ? 4 : -2, f === 0 ? -4 : 2, f === 0 ? 3 : 0, f === 0 ? 2 : 1)
 })
-anim("singha_jump", { w: 64, h: 52, frames: 2, fps: 4 }, (c) => {
-  c.stamp("_singha_ref", 0, c.frame === 0 ? -3 : 0)
-})
-anim("singha_duck", { w: 64, h: 38, frames: 4, fps: 10 }, (c) => {
+
+anim("dino_duck", { w: 64, h: 38, frames: 4, fps: 12 }, (c) => {
   const bob = [0, 1, 0, -1][c.frame]
-  c.stamp("_singha_ref", 0, -14 + bob)
+  const aOff = [5, -2, -5, 2][c.frame]
+  const bOff = [-5, 2, 5, -2][c.frame]
+  c.stamp("_dino_upper", 0, -14 + bob)
+  // Running legs at bottom of duck frame
+  c.rect(22 + bOff, 30, 6, 6, "D")
+  c.rect(22 + bOff, 35, 8, 2, "X")
+  c.rect(41 + aOff, 30, 6, 6, "g")
+  c.rect(41 + aOff, 35, 9, 2, "G")
+})
+
+// Golden Khmer Singha (64x52) — True 6-frame Run, 2-frame Jump, 4-frame Duck
+anim("singha_run", { w: 64, h: 52, frames: 6, fps: 12 }, (c) => {
+  const bob = [0, -2, -3, 0, -2, -3][c.frame]
+  const aOff = [6, 3, -3, -6, -3, 3][c.frame]
+  const bOff = [-6, -3, 3, 6, 3, -3][c.frame]
+  const aLift = [0, 2, 3, 1, 0, 0][c.frame]
+  const bLift = [1, 0, 0, 0, 2, 3][c.frame]
+  c.stamp("_singha_upper", 0, bob)
+  drawSinghaLegs(c, bob, aOff, bOff, aLift, bLift)
+})
+
+anim("singha_jump", { w: 64, h: 52, frames: 2, fps: 4 }, (c) => {
+  const f = c.frame
+  c.stamp("_singha_upper", 0, f === 0 ? -3 : 0)
+  drawSinghaLegs(c, f === 0 ? -3 : 0, f === 0 ? 5 : -2, f === 0 ? -4 : 2, f === 0 ? 3 : 0, f === 0 ? 2 : 1)
+})
+
+anim("singha_duck", { w: 64, h: 38, frames: 4, fps: 12 }, (c) => {
+  const bob = [0, 1, 0, -1][c.frame]
+  const aOff = [5, -2, -5, 2][c.frame]
+  const bOff = [-5, 2, 5, -2][c.frame]
+  c.stamp("_singha_upper", 0, -14 + bob)
+  c.rect(24 + bOff, 30, 5, 6, "o")
+  c.rect(24 + bOff, 35, 7, 2, "O")
+  c.rect(44 + aOff, 30, 5, 6, "y")
+  c.rect(44 + aOff, 35, 7, 2, "Y")
 })
