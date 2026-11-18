@@ -4,125 +4,125 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "sourceSize": {
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "duration": 100
   },
   "singha_run_1": {
    "frame": {
-    "x": 50,
+    "x": 36,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "sourceSize": {
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "duration": 100
   },
   "singha_run_2": {
    "frame": {
-    "x": 100,
+    "x": 72,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "sourceSize": {
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "duration": 100
   },
   "singha_run_3": {
    "frame": {
-    "x": 150,
+    "x": 108,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "sourceSize": {
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "duration": 100
   },
   "singha_run_4": {
    "frame": {
-    "x": 200,
+    "x": 144,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "sourceSize": {
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "duration": 100
   },
   "singha_run_5": {
    "frame": {
-    "x": 250,
+    "x": 180,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "sourceSize": {
-    "w": 50,
-    "h": 50
+    "w": 36,
+    "h": 36
    },
    "duration": 100
   }
@@ -132,8 +132,8 @@
   "image": "singha_run.png",
   "format": "RGBA8888",
   "size": {
-   "w": 300,
-   "h": 50
+   "w": 216,
+   "h": 36
   },
   "scale": "1",
   "frameTags": [

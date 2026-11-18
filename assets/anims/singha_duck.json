@@ -4,83 +4,83 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "sourceSize": {
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "duration": 100
   },
   "singha_duck_1": {
    "frame": {
-    "x": 58,
+    "x": 42,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "sourceSize": {
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "duration": 100
   },
   "singha_duck_2": {
    "frame": {
-    "x": 116,
+    "x": 84,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "sourceSize": {
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "duration": 100
   },
   "singha_duck_3": {
    "frame": {
-    "x": 174,
+    "x": 126,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "sourceSize": {
-    "w": 58,
-    "h": 34
+    "w": 42,
+    "h": 24
    },
    "duration": 100
   }
@@ -90,8 +90,8 @@
   "image": "singha_duck.png",
   "format": "RGBA8888",
   "size": {
-   "w": 232,
-   "h": 34
+   "w": 168,
+   "h": 24
   },
   "scale": "1",
   "frameTags": [

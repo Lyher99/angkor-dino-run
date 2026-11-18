@@ -4,83 +4,83 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "sourceSize": {
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "duration": 125
   },
   "fly_garuda_1": {
    "frame": {
-    "x": 42,
+    "x": 32,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "sourceSize": {
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "duration": 125
   },
   "fly_garuda_2": {
    "frame": {
-    "x": 84,
+    "x": 64,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "sourceSize": {
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "duration": 125
   },
   "fly_garuda_3": {
    "frame": {
-    "x": 126,
+    "x": 96,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "sourceSize": {
-    "w": 42,
-    "h": 34
+    "w": 32,
+    "h": 24
    },
    "duration": 125
   }
@@ -90,8 +90,8 @@
   "image": "fly_garuda.png",
   "format": "RGBA8888",
   "size": {
-   "w": 168,
-   "h": 34
+   "w": 128,
+   "h": 24
   },
   "scale": "1",
   "frameTags": [
