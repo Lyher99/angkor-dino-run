@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>60 FPS Rigged Krama Dino — Test</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #120e1c;
+      color: #fff6d6;
+      font-family: "Courier New", Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+    button, a {
+      background: #2b2142;
+      color: #ffe373;
+      border: 2px solid #ebb03d;
+      padding: 8px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      text-decoration: none;
+    }
+    button.active { background: #ebb03d; color: #141020; }
+    canvas {
+      border: 3px solid #ebb03d;
+      background: #1d1838;
+      width: min(720px, 100%);
+      aspect-ratio: 16 / 9;
+      display: block;
+    }
+    p { margin-top: 10px; font-size: 13px; color: #c4b5d9; }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <a href="./">← Back to V2</a>
+    <button id="btnRun" class="active">RUN (60 FPS)</button>
+    <button id="btnJump">JUMP</button>
+    <button id="btnDuck">DUCK</button>
+    <button id="btnHit">HIT</button>
+    <button id="btnSlow">SLOW-MO: OFF</button>
+  </div>
+  <canvas id="c" width="720" height="405"></canvas>
+  <p>60 FPS Modular Bone Rig — sliced from your Krama Dino reference (0 AI frame wobble)</p>
+
+  <script>
+    const canvas = document.getElementById("c");
+    const ctx = canvas.getContext("2d");
+
+    const PART_NAMES = ["head", "krama", "torso", "tail", "leg_back", "leg_front", "arm_front"];
+    const parts = {};
+    let loaded = 0;
+
+    for (const name of PART_NAMES) {
+      const img = new Image();
+      img.onload = () => {
+        parts[name] = img;
+        loaded++;
+      };
+      img.src = `rig-parts/${name}.png?v=1`;
+    }
+
+    let mode = "run"; // run | jump | duck | hit
+    let slowMo = false;
+    let t = 0;
+    let groundX = 0;
+
+    function setMode(m, btnId) {
+      mode = m;
+      for (const id of ["btnRun", "btnJump", "btnDuck", "btnHit"]) {
+        document.getElementById(id).classList.toggle("active", id === btnId);
+      }
+    }
+    document.getElementById("btnRun").onclick = () => setMode("run", "btnRun");
+    document.getElementById("btnJump").onclick = () => setMode("jump", "btnJump");
+    document.getElementById("btnDuck").onclick = () => setMode("duck", "btnDuck");
+    document.getElementById("btnHit").onclick = () => setMode("hit", "btnHit");
+    document.getElementById("btnSlow").onclick = (e) => {
+      slowMo = !slowMo;
+      e.target.textContent = slowMo ? "SLOW-MO: 0.25x" : "SLOW-MO: OFF";
+      e.target.classList.toggle("active", slowMo);
+    };
+
+    function drawPart(img, x, y, pivotX, pivotY, angleRad = 0, sx = 1, sy = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angleRad);
+      ctx.scale(sx, sy);
+      ctx.drawImage(img, -pivotX, -pivotY);
+      ctx.restore();
+    }
+
+    let last = performance.now();
+    function loop(now) {
+      const rawDt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      const dt = slowMo ? rawDt * 0.25 : rawDt;
+      t += dt;
+      if (mode !== "hit") groundX = (groundX + dt * 320) % 48;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Sky gradient + ground
+      const grad = ctx.createLinearGradient(0, 0, 0, 320);
+      grad.addColorStop(0, "#2d1e40");
+      grad.addColorStop(1, "#f2a463");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 720, 320);
+
+      ctx.fillStyle = "#52c478";
+      ctx.fillRect(0, 320, 720, 6);
+      ctx.fillStyle = "#8a6b52";
+      ctx.fillRect(0, 326, 720, 79);
+      ctx.fillStyle = "#5e463a";
+      for (let x = -groundX; x < 720; x += 48) {
+        ctx.fillRect(x, 326, 2, 79);
+      }
+
+      if (loaded < PART_NAMES.length) {
+        requestAnimationFrame(loop);
+        return;
+      }
+
+      // 60 FPS Kinematic Rig Pose
+      const GROUND_Y = 320;
+      const rootX = 340;
+      let rootY = GROUND_Y - 56;
+      let torsoRot = 0.08;
+      let headRot = -0.04;
+      let kramaRot = 0;
+      let tailRot = 0;
+      let legFrontRot = 0;
+      let legBackRot = 0;
+      let legFrontY = 0;
+      let legBackY = 0;
+      let armRot = 0;
+
+      const phase = t * 11.5; // smooth run cycle
+
+      if (mode === "run") {
+        const bob = Math.abs(Math.sin(phase)) * -9;
+        rootY = GROUND_Y - 56 + bob;
+        torsoRot = 0.08 + Math.sin(phase * 2) * 0.03;
+        headRot = -0.04 + Math.sin(phase * 2 - 0.5) * 0.04;
+        kramaRot = Math.sin(phase * 1.5 - 0.6) * 0.22;
+        tailRot = Math.sin(phase) * 0.14;
+        legFrontRot = Math.sin(phase) * 0.55;
+        legBackRot = -Math.sin(phase) * 0.55;
+        legFrontY = Math.max(0, -Math.cos(phase)) * -10;
+        legBackY = Math.max(0, Math.cos(phase)) * -10;
+        armRot = -Math.sin(phase) * 0.35;
+      } else if (mode === "jump") {
+        const jumpArc = Math.abs(Math.sin(t * 3.2)) * 95;
+        rootY = GROUND_Y - 58 - jumpArc;
+        torsoRot = -0.08;
+        headRot = -0.05;
+        kramaRot = 0.28 + Math.sin(t * 10) * 0.1;
+        tailRot = 0.22;
+        legFrontRot = -0.45;
+        legBackRot = 0.45;
+        armRot = -0.4;
+      } else if (mode === "duck") {
+        const bob = Math.abs(Math.sin(phase * 1.25)) * -4;
+        rootY = GROUND_Y - 36 + bob;
+        torsoRot = 0.48;
+        headRot = -0.36; // keep head looking forward while body leans down!
+        kramaRot = -0.25 + Math.sin(phase * 2) * 0.16;
+        tailRot = -0.25;
+        legFrontRot = Math.sin(phase * 1.25) * 0.65;
+        legBackRot = -Math.sin(phase * 1.25) * 0.65;
+        armRot = 0.3;
+      } else if (mode === "hit") {
+        rootY = GROUND_Y - 62;
+        torsoRot = -0.35 + Math.sin(t * 24) * 0.04;
+        headRot = -0.2;
+        kramaRot = -0.4;
+        legFrontRot = -0.3;
+        legBackRot = 0.2;
+      }
+
+      // Hierarchical Rig Draw Order (back-to-front)
+      ctx.save();
+      ctx.translate(rootX, rootY);
+      ctx.rotate(torsoRot);
+
+      // 1. Tail (attached to back of torso)
+      drawPart(parts.tail, -34, -8, 46, 26, tailRot);
+
+      // 2. Far Leg (leg_back)
+      drawPart(parts.leg_back, -14, 18 + legBackY, 20, 8, legBackRot);
+
+      // 3. Krama Scarf Tail (behind neck)
+      drawPart(parts.krama, -10, -48, 70, 22, kramaRot);
+
+      // 4. Torso + Sampot
+      drawPart(parts.torso, 0, -4, 48, 44, 0);
+
+      // 5. Near Leg (leg_front)
+      drawPart(parts.leg_front, 16, 18 + legFrontY, 18, 8, legFrontRot);
+
+      // 6. Head + Golden Crown (attached to neck)
+      drawPart(parts.head, 12, -46, 36, 76, headRot);
+
+      // 7. Front Arm
+      drawPart(parts.arm_front, 28, -28, 6, 14, armRot);
+
+      ctx.restore();
+      requestAnimationFrame(loop);
+    }
+
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
