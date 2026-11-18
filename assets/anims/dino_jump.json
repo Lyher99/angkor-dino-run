@@ -4,41 +4,41 @@
    "frame": {
     "x": 0,
     "y": 0,
-    "w": 36,
-    "h": 36
+    "w": 64,
+    "h": 52
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 36,
-    "h": 36
+    "w": 64,
+    "h": 52
    },
    "sourceSize": {
-    "w": 36,
-    "h": 36
+    "w": 64,
+    "h": 52
    },
    "duration": 250
   },
   "dino_jump_1": {
    "frame": {
-    "x": 36,
+    "x": 64,
     "y": 0,
-    "w": 36,
-    "h": 36
+    "w": 64,
+    "h": 52
    },
    "rotated": false,
    "trimmed": false,
    "spriteSourceSize": {
     "x": 0,
     "y": 0,
-    "w": 36,
-    "h": 36
+    "w": 64,
+    "h": 52
    },
    "sourceSize": {
-    "w": 36,
-    "h": 36
+    "w": 64,
+    "h": 52
    },
    "duration": 250
   }
@@ -48,8 +48,8 @@
   "image": "dino_jump.png",
   "format": "RGBA8888",
   "size": {
-   "w": 72,
-   "h": 36
+   "w": 128,
+   "h": 52
   },
   "scale": "1",
   "frameTags": [
