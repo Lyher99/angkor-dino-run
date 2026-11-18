@@ -1,0 +1,25 @@
+{
+  "schema": "generate2dsprite.animation_clips.v2",
+  "frames": [
+    "frames/hover-1.png",
+    "frames/hover-2.png",
+    "frames/hover-3.png",
+    "frames/hover-4.png"
+  ],
+  "anchor_px": [
+    32,
+    51
+  ],
+  "clips": {
+    "hover": {
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "duration_ms": 100,
+      "loop_policy": "cycle"
+    }
+  }
+}

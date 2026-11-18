@@ -192,7 +192,7 @@
         tasks.push(loadImg(`forge-fx/frames/orb-0${i}.png`).then((img) => { imgs.fx.orb[i] = img; }));
       }
       for (let i = 0; i < 4; i++) {
-        tasks.push(loadImg(`forge-bird/bird-${i}.png?v=1`).then((img) => { imgs.bird[i] = img; }));
+        tasks.push(loadImg(`forge-bird-ai-48-clips/frames/frame-0${i}.png?v=2`).then((img) => { imgs.bird[i] = img; }));
       }
       const envPaths = {
         bg_angkor: "../assets/anims/bg_angkor.png",
@@ -357,9 +357,9 @@
         obstacles.push({
           type: "garuda",
           x: W + 40,
-          y: high ? GROUND_Y - 142 : GROUND_Y - 92,
-          w: 56 * 2,
-          h: 48 * 2,
+          y: high ? GROUND_Y - 154 : GROUND_Y - 102,
+          w: 64 * 2,
+          h: 56 * 2,
           animTime: Math.random() * 0.5,
         });
       } else if (r < 0.66) {
