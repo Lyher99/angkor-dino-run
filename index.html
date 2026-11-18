@@ -552,12 +552,10 @@
         ctx.translate(Math.round((Math.random() - 0.5) * 10), Math.round((Math.random() - 0.5) * 10));
       }
 
-      // 1. 16-bit Pixel-Art Angkor Wat / Bayon Background (seamless slow parallax)
+      // 1. 16-bit Pixel-Art Angkor Wat / Bayon Background (centered, no seam)
       const isLv2 = level === 2;
       const bgImg = isLv2 ? imgs.bg_bayon : imgs.bg_angkor;
-      const bgOff = Math.floor(dist * 0.1) % W;
-      ctx.drawImage(bgImg, -bgOff, 0, W, H);
-      ctx.drawImage(bgImg, W - bgOff, 0, W, H);
+      ctx.drawImage(bgImg, 0, 0, W, H);
 
       // Subtle atmospheric scrim so foreground sprites pop cleanly
       ctx.fillStyle = isLv2 ? "rgba(10, 8, 22, 0.16)" : "rgba(255, 232, 185, 0.08)";
@@ -584,31 +582,32 @@
         drawStripFrame(imgs.item_lotus, 20, 20, f, l.x, l.y);
       }
 
-      // 4. Obstacles
+      // 4. Obstacles (flush on ground)
       for (const o of obstacles) {
-        if (o.type === "pillar") ctx.drawImage(imgs.obs_pillar, Math.round(o.x), Math.round(o.y), o.w, o.h);
-        else if (o.type === "naga") ctx.drawImage(imgs.obs_naga, Math.round(o.x), Math.round(o.y), o.w, o.h);
+        if (o.type === "pillar") ctx.drawImage(imgs.obs_pillar, Math.round(o.x), Math.round(o.y + 10 * S), o.w, o.h);
+        else if (o.type === "naga") ctx.drawImage(imgs.obs_naga, Math.round(o.x), Math.round(o.y + 13 * S), o.w, o.h);
         else {
           const f = Math.floor(o.animTime * 8) % 4;
           drawStripFrame(imgs.fly_garuda, 32, 24, f, o.x, o.y);
         }
       }
 
-      // 5. Hero Character (Royal Khmer Dino on Lv1, Golden Khmer Singha on Lv2)
+      // 5. Hero Character (Royal Khmer Dino on Lv1, Golden Khmer Singha on Lv2 — feet flush on ground)
       const useSingha = charMode === "singha" || (charMode === "auto" && isLv2);
       const runImg = useSingha ? imgs.singha_run : imgs.dino_run;
       const duckImg = useSingha ? imgs.singha_duck : imgs.dino_duck;
       const jumpImg = useSingha ? imgs.singha_jump : imgs.dino_jump;
+      const footOff = useSingha ? 9 * S : 6 * S;
 
       if (!dino.onGround) {
         const f = dino.vy < 0 ? 0 : 1;
-        drawStripFrame(jumpImg, 36, 36, f, dino.x, dino.y);
+        drawStripFrame(jumpImg, 36, 36, f, dino.x, dino.y + footOff);
       } else if (dino.ducking && state === "playing") {
         const f = Math.floor(dino.animTime * 10) % 4;
-        drawStripFrame(duckImg, 42, 24, f, dino.x, GROUND_Y - 24 * S);
+        drawStripFrame(duckImg, 42, 24, f, dino.x, GROUND_Y - 15 * S);
       } else {
         const f = state === "ready" ? 0 : Math.floor(dino.animTime * 10) % 6;
-        drawStripFrame(runImg, 36, 36, f, dino.x, dino.y);
+        drawStripFrame(runImg, 36, 36, f, dino.x, dino.y + footOff);
       }
 
       // 8. Particles & +50 popups
