@@ -6,89 +6,25 @@
   <title>Angkor Dino Run — Khmer Pixel Runner</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      background: radial-gradient(circle at top, #23173a 0%, #120e1c 70%);
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, #23173a 0%, #120e1c 75%);
       color: #fff6d6;
       font-family: "Courier New", Courier, monospace;
+      user-select: none;
+      touch-action: manipulation;
+    }
+    body {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
       padding: 12px;
-      user-select: none;
-      touch-action: manipulation;
     }
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: min(960px, 100%);
-      margin-bottom: 10px;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    h1 {
-      font-size: clamp(16px, 2.4vw, 22px);
-      color: #ffe373;
-      letter-spacing: 1.5px;
-      text-shadow: 2px 2px 0 #141020, 0 0 10px rgba(235, 176, 61, 0.35);
-    }
-    .controls-bar {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    /* Custom Khmer Pixel-Bevel Buttons */
-    .px-btn {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: linear-gradient(180deg, #3a2b59 0%, #241a3a 100%);
-      color: #ffe373;
-      border: 2px solid #ebb03d;
-      box-shadow: inset 0 2px 0 rgba(255, 241, 168, 0.22), inset 0 -2px 0 rgba(0, 0, 0, 0.45), 0 3px 0 #140d21;
-      padding: 6px 11px;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 4px;
-      outline: none;
-      transition: transform 0.06s ease, filter 0.1s ease;
-    }
-    .px-btn:hover { filter: brightness(1.14); }
-    .px-btn:active {
-      transform: translateY(2px);
-      box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.35), 0 1px 0 #140d21;
-    }
-    .px-btn.active-mode {
-      background: linear-gradient(180deg, #543d82 0%, #362457 100%);
-      border-color: #ffe373;
-    }
-    .px-btn.primary {
-      background: linear-gradient(180deg, #ffe066 0%, #e09619 100%);
-      color: #1c1028;
-      border-color: #fff6c2;
-      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 0 rgba(130, 72, 0, 0.45), 0 4px 0 #7a4504, 0 8px 20px rgba(0, 0, 0, 0.55);
-      font-size: 15px;
-      padding: 10px 26px;
-      letter-spacing: 1px;
-    }
-    .px-btn.primary:active {
-      transform: translateY(3px);
-      box-shadow: inset 0 2px 0 rgba(130, 72, 0, 0.4), 0 1px 0 #7a4504;
-    }
-    .px-icon {
-      width: 15px;
-      height: 15px;
-      flex-shrink: 0;
-      image-rendering: pixelated;
+    body.device-mobile {
+      padding: 0;
     }
 
     .game-wrap {
@@ -97,18 +33,57 @@
       aspect-ratio: 16 / 9;
       border: 3px solid #ebb03d;
       border-radius: 6px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75);
-      background: #2d1e40;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.78);
+      background: #1b122b;
       overflow: hidden;
     }
+    body.device-mobile .game-wrap {
+      width: 100vw;
+      height: 100dvh;
+      max-width: 100vw;
+      aspect-ratio: auto;
+      border: none;
+      border-radius: 0;
+    }
+
     canvas {
       width: 100%;
       height: 100%;
+      display: block;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* In-game top-left quick HUD icon button (Settings / Pause) */
+    .hud-controls {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      z-index: 15;
+    }
+    .icon-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s ease, filter 0.1s ease;
+    }
+    .icon-btn:hover { filter: brightness(1.12); transform: scale(1.05); }
+    .icon-btn:active { transform: scale(0.95); }
+    .icon-btn img {
       display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
 
+    /* Overlays */
     .overlay {
       position: absolute;
       inset: 0;
@@ -116,46 +91,109 @@
       align-items: center;
       justify-content: center;
       padding: 12px;
-      background: rgba(14, 9, 24, 0.74);
-      z-index: 10;
+      background: rgba(14, 9, 24, 0.56);
+      z-index: 20;
     }
     .overlay.active { display: flex; }
 
-    .panel {
-      width: min(820px, 100%);
-      max-height: 100%;
-      overflow-y: auto;
-      background: rgba(24, 17, 40, 0.95);
-      border: 3px solid #ebb03d;
-      border-radius: 8px;
-      padding: 14px 16px;
-      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.85);
-      text-align: center;
+    /* Home Menu */
+    .home-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: min(560px, 100%);
     }
-    .panel-title {
-      font-size: clamp(18px, 2.8vw, 26px);
+    .banner-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(440px, 95%);
+    }
+    .banner-wrap img {
+      width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.65));
+    }
+    .banner-text {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(14px, 2.3vw, 20px);
+      font-weight: bold;
       color: #ffe373;
       letter-spacing: 1.5px;
-      text-shadow: 2px 2px 0 #120b1e;
-      margin-bottom: 4px;
+      text-shadow: 2px 2px 0 #1a0f2e, -1px -1px 0 #1a0f2e;
+      white-space: nowrap;
     }
-    .panel-sub {
+    .status-pill {
+      background: rgba(24, 17, 40, 0.88);
+      border: 2px solid #ebb03d;
+      border-radius: 6px;
+      padding: 5px 14px;
       font-size: 12px;
-      color: #cbbbe0;
-      margin-bottom: 12px;
+      color: #fff6d6;
+      text-align: center;
+    }
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(2, auto);
+      gap: 10px 14px;
+      justify-content: center;
+    }
+    .menu-img-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.1s ease;
+    }
+    .menu-img-btn:hover { filter: brightness(1.12); transform: translateY(-2px); }
+    .menu-img-btn:active { transform: translateY(1px); }
+    .menu-img-btn img {
+      width: clamp(132px, 22vw, 172px);
+      height: auto;
+      display: block;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.65));
     }
 
-    .device-row {
-      display: inline-flex;
+    /* Khmer Stone Modal */
+    .stone-modal {
+      position: relative;
+      width: min(760px, 96%);
+      max-height: 94%;
+      background: #8f7e6a;
+      border: 4px solid #3a2718;
+      box-shadow: inset 0 0 0 3px #d9a73e, 0 18px 50px rgba(0, 0, 0, 0.85);
+      border-radius: 10px;
+      padding: 16px 18px;
+      overflow-y: auto;
+      text-align: center;
+      color: #fff6d6;
+    }
+    .modal-header {
+      display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .modal-title {
+      font-size: clamp(16px, 2.5vw, 22px);
+      font-weight: bold;
+      color: #ffe373;
+      text-shadow: 2px 2px 0 #26180f;
+      letter-spacing: 1px;
+    }
+    .modal-sub {
+      font-size: 12px;
+      color: #2b1d12;
+      font-weight: bold;
       margin-bottom: 12px;
-      background: #1a122b;
-      border: 2px solid #513c78;
-      padding: 4px 6px;
-      border-radius: 6px;
-      font-size: 11px;
-      color: #c4b5d9;
     }
 
     .card-grid {
@@ -164,74 +202,113 @@
       gap: 8px;
       margin-bottom: 14px;
     }
-    @media (max-width: 680px) {
+    @media (max-width: 660px) {
       .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .panel { padding: 10px; }
     }
     .card {
-      background: #231938;
-      border: 2px solid #594382;
-      border-radius: 6px;
+      background: #2b2042;
+      border: 3px solid #5c4685;
+      border-radius: 8px;
       padding: 8px 6px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 5px;
-      transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
+      transition: transform 0.08s ease, border-color 0.1s ease;
     }
-    .card:hover {
-      border-color: #ebb03d;
-      background: #2f224b;
-      transform: translateY(-1px);
-    }
+    .card:hover { border-color: #ebb03d; transform: translateY(-2px); }
     .card.selected {
       border-color: #ffe373;
-      background: #3b2a5e;
-      box-shadow: 0 0 0 2px #ebb03d, 0 0 14px rgba(255, 227, 115, 0.35);
+      background: #422e66;
+      box-shadow: 0 0 0 2px #ebb03d, 0 0 14px rgba(255, 227, 115, 0.45);
     }
     .card-sprite {
-      width: 72px;
-      height: 54px;
+      width: 68px;
+      height: 52px;
       object-fit: contain;
       image-rendering: pixelated;
-      image-rendering: crisp-edges;
     }
     .card-auto-badge {
-      width: 72px;
-      height: 54px;
+      width: 68px;
+      height: 52px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 17px;
+      font-size: 16px;
       font-weight: bold;
       color: #ffe373;
-      background: radial-gradient(circle, #46316e 0%, #24183b 100%);
+      background: radial-gradient(circle, #4e377a 0%, #24183b 100%);
       border: 2px dashed #ebb03d;
       border-radius: 5px;
     }
     .card-map-thumb {
       width: 100%;
-      height: 54px;
+      height: 52px;
       border-radius: 4px;
-      border: 1px solid #6b5299;
+      border: 2px solid #6b5299;
       background-color: #1a1229;
       background-repeat: no-repeat;
       image-rendering: pixelated;
     }
-    .card-name {
-      font-size: 11px;
-      font-weight: bold;
-      color: #ffe373;
-      line-height: 1.2;
+    .card-name { font-size: 11px; font-weight: bold; color: #ffe373; }
+    .card-desc { font-size: 10px; color: #d3c5e8; }
+
+    /* Settings Platform Cards */
+    .settings-row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
-    .card-desc {
-      font-size: 10px;
-      color: #c4b5d9;
-      line-height: 1.2;
+    .platform-card {
+      background: #2b2042;
+      border: 3px solid #5c4685;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .platform-card.selected {
+      border-color: #ffe373;
+      background: #422e66;
+      box-shadow: 0 0 0 2px #ebb03d;
+    }
+    .platform-card img {
+      width: 82px;
+      height: auto;
+      image-rendering: pixelated;
     }
 
-    .panel-actions {
+    .px-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(180deg, #ffe066 0%, #e09619 100%);
+      color: #1c1028;
+      border: 2px solid #fff6c2;
+      box-shadow: 0 3px 0 #7a4504;
+      padding: 8px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .px-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a4504; }
+    .px-btn.secondary {
+      background: linear-gradient(180deg, #3f2f61 0%, #261b3d 100%);
+      color: #ffe373;
+      border-color: #ebb03d;
+      box-shadow: 0 3px 0 #140d21;
+    }
+
+    .modal-actions {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -239,29 +316,46 @@
       flex-wrap: wrap;
     }
 
-    /* Mobile Touch Controls Bar */
-    .touch-btns {
+    /* On-Screen Mobile Buttons (inside .game-wrap, visible when deviceMode === 'mobile' & playing) */
+    .mobile-controls {
       display: none;
-      width: min(960px, 100%);
-      gap: 14px;
-      margin-top: 10px;
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      z-index: 14;
     }
-    body.device-mobile .touch-btns { display: flex; }
-    .touch-pad {
-      flex: 1;
-      padding: 16px 12px;
-      font-size: 16px;
-      border-radius: 8px;
-      min-height: 62px;
+    body.device-mobile .mobile-controls.playing { display: flex; }
+    .touch-btn {
+      pointer-events: auto;
+      width: clamp(92px, 22vw, 136px);
+      height: clamp(64px, 14vw, 84px);
+      background: rgba(34, 22, 56, 0.72);
+      border: 3px solid #ebb03d;
+      border-radius: 12px;
+      color: #ffe373;
+      font-family: inherit;
+      font-size: clamp(13px, 3vw, 16px);
+      font-weight: bold;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
     }
-    .touch-pad.jump-pad {
-      background: linear-gradient(180deg, #4b3575 0%, #2e1e4d 100%);
-      border-color: #ffe373;
+    .touch-btn:active {
+      background: rgba(74, 48, 118, 0.88);
+      transform: scale(0.96);
     }
 
     .footer {
       width: min(960px, 100%);
-      margin-top: 10px;
+      margin-top: 8px;
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
@@ -269,102 +363,134 @@
       font-size: 12px;
       color: #c4b5d9;
     }
+    body.device-mobile .footer { display: none; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>ANGKOR DINO RUN</h1>
-    <div class="controls-bar">
-      <button id="homeBtn" class="px-btn">
-        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 7h2v7h4v-4h2v4h4V7h2L8 1z"/></svg>
-        HOME
-      </button>
-      <button id="mapBtn" class="px-btn">
-        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3l4-2 6 2 4-2v12l-4 2-6-2-4 2V3zm4 0v9l6 2V5L5 3z"/></svg>
-        MAPS
-      </button>
-      <button id="deviceBtn" class="px-btn">
-        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v9H2V2zm4 10h4v2H6v-2z"/></svg>
-        <span id="deviceBtnText">PC</span>
-      </button>
-      <button id="muteBtn" class="px-btn">
-        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6h3l4-4v12l-4-4H2V6zm9-1l3 3-3 3V5z"/></svg>
-        <span id="muteBtnText">SFX: ON</span>
-      </button>
-    </div>
-  </div>
-
   <div class="game-wrap">
     <canvas id="game" width="960" height="540"></canvas>
 
-    <!-- 1. HOME PAGE: Select Device, Character & Play -->
+    <!-- Single Settings Icon in Top-Left (pauses game + opens Settings modal) -->
+    <div class="hud-controls">
+      <button id="hudSettingsBtn" class="icon-btn" title="Settings & Pause">
+        <img id="hudSettingsImg" src="v2/forge-gui/btn_pause.png" width="38" height="38" alt="Settings / Pause" />
+      </button>
+    </div>
+
+    <!-- 1. HOME PAGE (Clean Main Menu with User GUI) -->
     <div id="homeOverlay" class="overlay active">
-      <div class="panel">
-        <div class="panel-title">ANGKOR DINO RUN</div>
-        <div class="panel-sub">Step 1: Choose your Hero (or AUTO to evolve with each map)</div>
-        <div class="device-row">
-          <span>DEVICE:</span>
-          <button id="pickPcBtn" class="px-btn active-mode" style="padding:4px 10px;font-size:11px;">PC (KEYBOARD)</button>
-          <button id="pickMobileBtn" class="px-btn" style="padding:4px 10px;font-size:11px;">MOBILE (TOUCH BUTTONS)</button>
+      <div class="home-box">
+        <div class="banner-wrap">
+          <img src="v2/forge-gui/banner_krama.png" alt="Angkor Dino Run" />
+          <div class="banner-text">ANGKOR DINO RUN</div>
         </div>
+        <div id="homeStatus" class="status-pill"></div>
+        <div class="menu-grid">
+          <button id="menuPlayBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_play.png" alt="PLAY" /></button>
+          <button id="menuMapBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_map.png" alt="MAP" /></button>
+          <button id="menuHeroBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_hero.png" alt="HERO" /></button>
+          <button id="menuSettingsBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_settings.png" alt="SETTINGS" /></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. HERO SELECT MODAL -->
+    <div id="heroOverlay" class="overlay">
+      <div class="stone-modal">
+        <div class="modal-header">
+          <div style="width:36px;"></div>
+          <div class="modal-title">SELECT HERO</div>
+          <button id="heroCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+        </div>
+        <div class="modal-sub">Pick a Hero or AUTO to evolve with each map!</div>
         <div id="charGrid" class="card-grid"></div>
-        <div class="panel-actions">
-          <button id="playBtn" class="px-btn primary">
-            PLAY
-            <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
-          </button>
+        <div class="modal-actions">
+          <button id="heroDoneBtn" class="px-btn">CONFIRM HERO</button>
         </div>
       </div>
     </div>
 
-    <!-- 2. MAP SELECT PAGE: After clicking PLAY -->
+    <!-- 3. MAP SELECT MODAL (Opened after clicking PLAY or MAP) -->
     <div id="mapOverlay" class="overlay">
-      <div class="panel">
-        <div class="panel-title">SELECT REALM</div>
-        <div id="mapSub" class="panel-sub">Step 2: Choose a Map or AUTO to progress through all 4 realms</div>
+      <div class="stone-modal">
+        <div class="modal-header">
+          <button id="mapBackBtn" class="icon-btn"><img src="v2/forge-gui/btn_back.png" width="36" alt="Back" /></button>
+          <div class="modal-title">SELECT REALM</div>
+          <button id="mapCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+        </div>
+        <div id="mapSub" class="modal-sub">Pick a Map or AUTO to progress through all 4 realms!</div>
         <div id="mapGrid" class="card-grid"></div>
-        <div class="panel-actions">
-          <button id="backHomeBtn" class="px-btn">&#8592; CHARACTER</button>
-          <button id="startRunBtn" class="px-btn primary">
-            START RUN
-            <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
-          </button>
+        <div class="modal-actions">
+          <button id="startRunBtn" class="px-btn">START RUN &#9654;</button>
         </div>
       </div>
     </div>
 
-    <!-- 3. GAME OVER OVERLAY -->
+    <!-- 4. SETTINGS / PAUSE MODAL (1 icon opens this & pauses game) -->
+    <div id="settingsOverlay" class="overlay">
+      <div class="stone-modal" style="width:min(520px, 94%);">
+        <div class="modal-header">
+          <div style="width:36px;"></div>
+          <div id="settingsTitle" class="modal-title">SETTINGS</div>
+          <button id="settingsCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+        </div>
+
+        <div class="modal-sub">Choose Device Controls &amp; Audio</div>
+        <div class="settings-row">
+          <div id="pickPcCard" class="platform-card">
+            <img src="v2/forge-gui/card_pc.png" alt="PC" />
+            <div class="card-desc">Keyboard (Space / Arrows)</div>
+          </div>
+          <div id="pickMobileCard" class="platform-card">
+            <img src="v2/forge-gui/card_mobile.png" alt="MOBILE" />
+            <div class="card-desc">On-Screen Touch Buttons</div>
+          </div>
+          <div id="sfxToggleCard" class="platform-card" style="justify-content:center;min-width:110px;">
+            <img id="sfxIconImg" src="v2/forge-gui/icon_sfx_on.png" style="width:46px;" alt="SFX" />
+            <div id="sfxLabel" class="card-name">SFX: ON</div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="resumeBtn" class="px-btn" style="display:none;">RESUME &#9654;</button>
+          <button id="settingsRestartBtn" class="icon-btn" style="display:none;" title="Restart"><img src="v2/forge-gui/btn_restart.png" width="42" alt="Restart" /></button>
+          <button id="settingsHomeBtn" class="icon-btn" title="Home"><img src="v2/forge-gui/btn_home.png" width="42" alt="Home" /></button>
+          <button id="settingsDoneBtn" class="px-btn secondary">DONE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. GAME OVER MODAL -->
     <div id="gameoverOverlay" class="overlay">
-      <div class="panel" style="width:min(480px, 100%)">
-        <div class="panel-title" style="color:#ff9ec0;">GAME OVER</div>
-        <div id="gameoverStats" class="panel-sub" style="font-size:14px;color:#fff6d6;margin-bottom:16px;"></div>
-        <div class="panel-actions">
-          <button id="retryBtn" class="px-btn primary">
-            RETRY
-            <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
-          </button>
-          <button id="goMapBtn" class="px-btn">CHANGE MAP</button>
-          <button id="goHomeBtn" class="px-btn">HERO SELECT</button>
+      <div class="stone-modal" style="width:min(460px, 92%);">
+        <div class="modal-header" style="justify-content:center;">
+          <div class="modal-title" style="color:#ff9ec0;">GAME OVER</div>
+        </div>
+        <div id="gameoverStats" class="modal-sub" style="font-size:15px;color:#fff6d6;margin-bottom:16px;"></div>
+        <div class="modal-actions">
+          <button id="retryBtn" class="px-btn">RETRY &#9654;</button>
+          <button id="goMapBtn" class="px-btn secondary">MAPS</button>
+          <button id="goHomeBtn" class="icon-btn" title="Home"><img src="v2/forge-gui/btn_home.png" width="40" alt="Home" /></button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Mobile On-Screen Play Buttons (visible when DEVICE = MOBILE) -->
-  <div id="touchBtns" class="touch-btns">
-    <button id="touchDuck" class="px-btn touch-pad">
-      <svg class="px-icon" style="width:20px;height:20px" viewBox="0 0 16 16" fill="currentColor"><path d="M7 2h2v7h3l-4 5-4-5h3V2z"/></svg>
-      DUCK / FAST-FALL
-    </button>
-    <button id="touchJump" class="px-btn touch-pad jump-pad">
-      <svg class="px-icon" style="width:20px;height:20px" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l4 5H9v7H7V7H4l4-5z"/></svg>
-      JUMP
-    </button>
+    <!-- On-Screen Mobile Buttons -->
+    <div id="mobileControls" class="mobile-controls">
+      <button id="touchDuck" class="touch-btn">
+        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M7 2h2v7h3l-4 5-4-5h3V2z"/></svg>
+        DUCK
+      </button>
+      <button id="touchJump" class="touch-btn">
+        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l4 5H9v7H7V7H4l4-5z"/></svg>
+        JUMP
+      </button>
+    </div>
   </div>
 
   <div class="footer">
-    <span id="controlsHint"><b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall</span>
-    <span>Select <b>PC</b> or <b>MOBILE</b> anytime &nbsp;|&nbsp; <b>AUTO</b> evolves realms &amp; heroes</span>
+    <span><b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall</span>
+    <span>Click top-left icon anytime to <b>Pause &amp; Settings</b> (PC / Mobile / SFX)</span>
   </div>
 
   <script>
@@ -521,8 +647,9 @@
     };
 
     const keys = { jump: false, duck: false };
-    // state: "home" | "map_select" | "playing" | "gameover"
+    // state: "home" | "hero_select" | "map_select" | "playing" | "paused" | "gameover"
     let state = "home";
+    let prevStateBeforeSettings = "home";
     let score = 0;
     let highScore = Number(localStorage.getItem("angkor_dino_v2_hi") || 0);
     let speed = 360;
@@ -549,16 +676,26 @@
     let levelBannerText = "";
 
     const homeOverlay = document.getElementById("homeOverlay");
+    const heroOverlay = document.getElementById("heroOverlay");
     const mapOverlay = document.getElementById("mapOverlay");
+    const settingsOverlay = document.getElementById("settingsOverlay");
     const gameoverOverlay = document.getElementById("gameoverOverlay");
+    const mobileControls = document.getElementById("mobileControls");
+
+    const homeStatus = document.getElementById("homeStatus");
     const charGrid = document.getElementById("charGrid");
     const mapGrid = document.getElementById("mapGrid");
     const mapSub = document.getElementById("mapSub");
     const gameoverStats = document.getElementById("gameoverStats");
-    const deviceBtnText = document.getElementById("deviceBtnText");
-    const pickPcBtn = document.getElementById("pickPcBtn");
-    const pickMobileBtn = document.getElementById("pickMobileBtn");
-    const controlsHint = document.getElementById("controlsHint");
+
+    const pickPcCard = document.getElementById("pickPcCard");
+    const pickMobileCard = document.getElementById("pickMobileCard");
+    const sfxIconImg = document.getElementById("sfxIconImg");
+    const sfxLabel = document.getElementById("sfxLabel");
+    const settingsTitle = document.getElementById("settingsTitle");
+    const resumeBtn = document.getElementById("resumeBtn");
+    const settingsRestartBtn = document.getElementById("settingsRestartBtn");
+    const settingsDoneBtn = document.getElementById("settingsDoneBtn");
 
     const hero = {
       x: 112,
@@ -586,12 +723,9 @@
 
     function applyDeviceMode() {
       document.body.classList.toggle("device-mobile", deviceMode === "mobile");
-      deviceBtnText.textContent = deviceMode === "mobile" ? "MOBILE" : "PC";
-      pickPcBtn.classList.toggle("active-mode", deviceMode === "pc");
-      pickMobileBtn.classList.toggle("active-mode", deviceMode === "mobile");
-      controlsHint.innerHTML = deviceMode === "mobile"
-        ? "<b>DUCK</b> &amp; <b>JUMP</b> buttons below &nbsp;|&nbsp; Tap canvas to Jump"
-        : "<b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall";
+      pickPcCard.classList.toggle("selected", deviceMode === "pc");
+      pickMobileCard.classList.toggle("selected", deviceMode === "mobile");
+      homeStatus.textContent = `HERO: ${HERO_LABELS[charMode]}  |  MAP: ${MAP_LABELS[mapMode]}  |  DEVICE: ${deviceMode.toUpperCase()}`;
     }
 
     function setDeviceMode(mode) {
@@ -602,14 +736,24 @@
 
     function syncOverlays() {
       homeOverlay.classList.toggle("active", state === "home");
+      heroOverlay.classList.toggle("active", state === "hero_select");
       mapOverlay.classList.toggle("active", state === "map_select");
+      settingsOverlay.classList.toggle("active", state === "paused");
       gameoverOverlay.classList.toggle("active", state === "gameover");
+      mobileControls.classList.toggle("playing", state === "playing");
+
+      homeStatus.textContent = `HERO: ${HERO_LABELS[charMode]}  |  MAP: ${MAP_LABELS[mapMode]}  |  DEVICE: ${deviceMode.toUpperCase()}`;
       if (state === "map_select") {
         mapSub.textContent = `Hero: ${HERO_LABELS[charMode]} — Choose a Map or AUTO to progress through all 4 realms`;
       }
       if (state === "gameover") {
         gameoverStats.textContent = `Score: ${Math.floor(score)}   |   Best: ${highScore}`;
       }
+      const inRun = prevStateBeforeSettings === "playing";
+      settingsTitle.textContent = inRun ? "PAUSED & SETTINGS" : "SETTINGS";
+      resumeBtn.style.display = inRun ? "inline-flex" : "none";
+      settingsRestartBtn.style.display = inRun ? "inline-flex" : "none";
+      settingsDoneBtn.style.display = inRun ? "none" : "inline-flex";
     }
 
     function renderCards() {
@@ -626,6 +770,7 @@
           charMode = c.id;
           localStorage.setItem("angkor_dino_char", charMode);
           renderCards();
+          syncOverlays();
         });
         charGrid.appendChild(el);
       }
@@ -640,13 +785,14 @@
             : `background-image:url('${m.thumb}');background-size:cover;background-position:center;`;
           el.innerHTML = `<div class="card-map-thumb" style="${thumbStyle}"></div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
         } else {
-          el.innerHTML = `<div class="card-auto-badge" style="width:100%;height:54px;">AUTO</div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
+          el.innerHTML = `<div class="card-auto-badge" style="width:100%;height:52px;">AUTO</div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
         }
         el.addEventListener("click", () => {
           mapMode = m.id;
           localStorage.setItem("angkor_dino_map", mapMode);
           level = mapMode === "auto" ? 1 : Number(mapMode);
           renderCards();
+          syncOverlays();
         });
         el.addEventListener("dblclick", () => {
           mapMode = m.id;
@@ -659,11 +805,15 @@
 
     function openHome() {
       state = "home";
+      prevStateBeforeSettings = "home";
       level = mapMode === "auto" ? 1 : Number(mapMode);
-      obstacles = [];
-      orbs = [];
-      fxAnims = [];
-      popups = [];
+      obstacles = []; orbs = []; fxAnims = []; popups = [];
+      syncOverlays();
+      renderCards();
+    }
+
+    function openHeroSelect() {
+      state = "hero_select";
       syncOverlays();
       renderCards();
     }
@@ -671,12 +821,20 @@
     function openMapSelect() {
       state = "map_select";
       level = mapMode === "auto" ? 1 : Number(mapMode);
-      obstacles = [];
-      orbs = [];
-      fxAnims = [];
-      popups = [];
       syncOverlays();
       renderCards();
+    }
+
+    function openSettings() {
+      if (state === "paused") { closeSettings(); return; }
+      prevStateBeforeSettings = state;
+      state = "paused";
+      syncOverlays();
+    }
+
+    function closeSettings() {
+      state = prevStateBeforeSettings === "playing" ? "playing" : "home";
+      syncOverlays();
     }
 
     function spawnFx(kind, x, y, scale = 2) {
@@ -714,6 +872,7 @@
       orbs = [];
       fxAnims = [];
       popups = [];
+      prevStateBeforeSettings = "playing";
       state = "playing";
       syncOverlays();
     }
@@ -775,11 +934,17 @@
     }
 
     window.addEventListener("keydown", (e) => {
+      if (e.code === "Escape") {
+        if (state === "playing" || state === "paused") openSettings();
+        else if (state === "hero_select" || state === "map_select") openHome();
+        return;
+      }
       if (["Space", "ArrowUp", "KeyW", "Enter"].includes(e.code)) {
         e.preventDefault();
         if (state === "home") { openMapSelect(); return; }
         if (state === "map_select") { startRun(); return; }
         if (state === "gameover") { startRun(); return; }
+        if (state === "paused") { closeSettings(); return; }
         if (!keys.jump) triggerJump();
         keys.jump = true;
       }
@@ -800,37 +965,45 @@
       }
     });
     window.addEventListener("pointerup", () => {
-      if (deviceMode === "mobile" || state === "playing") keys.jump = false;
+      if (state === "playing") keys.jump = false;
     });
 
-    document.getElementById("playBtn").addEventListener("click", openMapSelect);
-    document.getElementById("backHomeBtn").addEventListener("click", openHome);
+    // Menu & Modal Listeners
+    document.getElementById("hudSettingsBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openSettings(); });
+    document.getElementById("menuPlayBtn").addEventListener("click", openMapSelect);
+    document.getElementById("menuHeroBtn").addEventListener("click", openHeroSelect);
+    document.getElementById("menuMapBtn").addEventListener("click", openMapSelect);
+    document.getElementById("menuSettingsBtn").addEventListener("click", openSettings);
+
+    document.getElementById("heroCloseBtn").addEventListener("click", openHome);
+    document.getElementById("heroDoneBtn").addEventListener("click", openHome);
+    document.getElementById("mapBackBtn").addEventListener("click", openHome);
+    document.getElementById("mapCloseBtn").addEventListener("click", openHome);
     document.getElementById("startRunBtn").addEventListener("click", startRun);
+
+    document.getElementById("settingsCloseBtn").addEventListener("click", closeSettings);
+    document.getElementById("settingsDoneBtn").addEventListener("click", closeSettings);
+    resumeBtn.addEventListener("click", closeSettings);
+    settingsRestartBtn.addEventListener("click", startRun);
+    document.getElementById("settingsHomeBtn").addEventListener("click", openHome);
+
     document.getElementById("retryBtn").addEventListener("click", startRun);
     document.getElementById("goMapBtn").addEventListener("click", openMapSelect);
     document.getElementById("goHomeBtn").addEventListener("click", openHome);
-    document.getElementById("homeBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openHome(); });
-    document.getElementById("mapBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openMapSelect(); });
 
-    pickPcBtn.addEventListener("click", () => setDeviceMode("pc"));
-    pickMobileBtn.addEventListener("click", () => setDeviceMode("mobile"));
-    document.getElementById("deviceBtn").addEventListener("click", (e) => {
-      e.currentTarget.blur();
-      setDeviceMode(deviceMode === "pc" ? "mobile" : "pc");
-    });
-
-    document.getElementById("muteBtn").addEventListener("click", (e) => {
+    pickPcCard.addEventListener("click", () => setDeviceMode("pc"));
+    pickMobileCard.addEventListener("click", () => setDeviceMode("mobile"));
+    document.getElementById("sfxToggleCard").addEventListener("click", () => {
       muted = !muted;
-      document.getElementById("muteBtnText").textContent = muted ? "SFX: OFF" : "SFX: ON";
-      e.currentTarget.blur();
+      sfxIconImg.src = muted ? "v2/forge-gui/icon_sfx_off.png" : "v2/forge-gui/icon_sfx_on.png";
+      sfxLabel.textContent = muted ? "SFX: OFF" : "SFX: ON";
     });
 
     const touchJump = document.getElementById("touchJump");
     const touchDuck = document.getElementById("touchDuck");
     touchJump.addEventListener("pointerdown", (e) => {
       e.preventDefault();
-      if (state === "home") { openMapSelect(); return; }
-      if (state === "map_select" || state === "gameover") { startRun(); return; }
+      e.stopPropagation();
       triggerJump();
       keys.jump = true;
     });
@@ -839,12 +1012,15 @@
 
     touchDuck.addEventListener("pointerdown", (e) => {
       e.preventDefault();
+      e.stopPropagation();
       keys.duck = true;
     });
     touchDuck.addEventListener("pointerup", () => { keys.duck = false; });
     touchDuck.addEventListener("pointercancel", () => { keys.duck = false; });
 
     function update(dt) {
+      if (state === "paused") return;
+
       if (flashTimer > 0) flashTimer -= dt;
       if (trauma > 0) {
         trauma = Math.max(0, trauma - 1.6 * dt);
@@ -1088,16 +1264,16 @@
       ctx.textAlign = "left";
       ctx.font = "bold 15px Courier New";
       ctx.fillStyle = "#141020";
-      ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 26, 36);
+      ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 62, 34);
       ctx.fillStyle = "#ffe373";
-      ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 24, 34);
+      ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 60, 32);
 
       ctx.textAlign = "right";
       ctx.font = "bold 26px Courier New";
       ctx.fillStyle = "#141020";
-      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 26, 40);
+      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 24, 38);
       ctx.fillStyle = "#fff6d6";
-      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 28, 38);
+      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 26, 36);
 
       if (levelBannerTimer > 0 && state === "playing") {
         ctx.fillStyle = "rgba(20, 16, 32, 0.78)";
