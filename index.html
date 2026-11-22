@@ -2,97 +2,108 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Angkor Dino Run — Khmer Pixel Runner</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #120e1c;
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: radial-gradient(circle at top, #23173a 0%, #120e1c 70%);
       color: #fff6d6;
       font-family: "Courier New", Courier, monospace;
-      user-select: none;
-    }
-    body {
       display: flex;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 12px;
+      user-select: none;
+      touch-action: manipulation;
     }
-    .topbar {
+
+    .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 16px;
-      background: #191228;
-      border-bottom: 2px solid #ebb03d;
-      gap: 10px;
+      width: min(960px, 100%);
+      margin-bottom: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      z-index: 20;
     }
     h1 {
-      font-size: clamp(15px, 2vw, 20px);
+      font-size: clamp(16px, 2.4vw, 22px);
       color: #ffe373;
       letter-spacing: 1.5px;
-      text-shadow: 2px 2px 0 #141020;
+      text-shadow: 2px 2px 0 #141020, 0 0 10px rgba(235, 176, 61, 0.35);
     }
     .controls-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       flex-wrap: wrap;
     }
-    button {
-      background: #2b2142;
+
+    /* Custom Khmer Pixel-Bevel Buttons */
+    .px-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(180deg, #3a2b59 0%, #241a3a 100%);
       color: #ffe373;
       border: 2px solid #ebb03d;
-      padding: 6px 12px;
+      box-shadow: inset 0 2px 0 rgba(255, 241, 168, 0.22), inset 0 -2px 0 rgba(0, 0, 0, 0.45), 0 3px 0 #140d21;
+      padding: 6px 11px;
       font-family: inherit;
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       border-radius: 4px;
       outline: none;
-      transition: transform 0.08s ease, background 0.12s ease;
+      transition: transform 0.06s ease, filter 0.1s ease;
     }
-    button:hover { background: #3e2f5e; }
-    button:active { transform: translateY(1px); }
-    button.primary {
-      background: linear-gradient(180deg, #f7c948, #d9911e);
-      color: #1a1026;
-      border-color: #fff1a8;
-      font-size: 16px;
-      padding: 12px 32px;
+    .px-btn:hover { filter: brightness(1.14); }
+    .px-btn:active {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.35), 0 1px 0 #140d21;
+    }
+    .px-btn.active-mode {
+      background: linear-gradient(180deg, #543d82 0%, #362457 100%);
+      border-color: #ffe373;
+    }
+    .px-btn.primary {
+      background: linear-gradient(180deg, #ffe066 0%, #e09619 100%);
+      color: #1c1028;
+      border-color: #fff6c2;
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -3px 0 rgba(130, 72, 0, 0.45), 0 4px 0 #7a4504, 0 8px 20px rgba(0, 0, 0, 0.55);
+      font-size: 15px;
+      padding: 10px 26px;
       letter-spacing: 1px;
-      box-shadow: 0 4px 0 #8f5708, 0 8px 24px rgba(0, 0, 0, 0.5);
     }
-    button.primary:hover {
-      background: linear-gradient(180deg, #ffe073, #ebb03d);
+    .px-btn.primary:active {
+      transform: translateY(3px);
+      box-shadow: inset 0 2px 0 rgba(130, 72, 0, 0.4), 0 1px 0 #7a4504;
+    }
+    .px-icon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      image-rendering: pixelated;
     }
 
-    .stage {
-      position: relative;
-      flex: 1;
-      width: 100%;
-      min-height: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #0d0915;
-      overflow: hidden;
-    }
     .game-wrap {
       position: relative;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: min(960px, 100%);
+      aspect-ratio: 16 / 9;
+      border: 3px solid #ebb03d;
+      border-radius: 6px;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75);
+      background: #2d1e40;
+      overflow: hidden;
     }
     canvas {
       width: 100%;
       height: 100%;
-      object-fit: contain;
       display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
@@ -104,190 +115,256 @@
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      background: rgba(14, 9, 24, 0.72);
-      backdrop-filter: blur(2px);
+      padding: 12px;
+      background: rgba(14, 9, 24, 0.74);
       z-index: 10;
     }
     .overlay.active { display: flex; }
 
     .panel {
-      width: min(860px, 100%);
-      max-height: 92%;
+      width: min(820px, 100%);
+      max-height: 100%;
       overflow-y: auto;
-      background: rgba(24, 17, 40, 0.94);
+      background: rgba(24, 17, 40, 0.95);
       border: 3px solid #ebb03d;
-      border-radius: 10px;
-      padding: 22px 24px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+      border-radius: 8px;
+      padding: 14px 16px;
+      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.85);
       text-align: center;
     }
     .panel-title {
-      font-size: clamp(22px, 3.4vw, 34px);
+      font-size: clamp(18px, 2.8vw, 26px);
       color: #ffe373;
-      letter-spacing: 2px;
-      text-shadow: 3px 3px 0 #120b1e;
-      margin-bottom: 6px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 0 #120b1e;
+      margin-bottom: 4px;
     }
     .panel-sub {
-      font-size: 13px;
+      font-size: 12px;
       color: #cbbbe0;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
+    }
+
+    .device-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+      background: #1a122b;
+      border: 2px solid #513c78;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: #c4b5d9;
     }
 
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
-      gap: 12px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 680px) {
+      .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .panel { padding: 10px; }
     }
     .card {
       background: #231938;
       border: 2px solid #594382;
-      border-radius: 8px;
-      padding: 12px 10px;
+      border-radius: 6px;
+      padding: 8px 6px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-      transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
+      gap: 5px;
+      transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
     }
     .card:hover {
       border-color: #ebb03d;
       background: #2f224b;
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
     .card.selected {
       border-color: #ffe373;
       background: #3b2a5e;
-      box-shadow: 0 0 0 2px #ebb03d, 0 0 18px rgba(255, 227, 115, 0.35);
+      box-shadow: 0 0 0 2px #ebb03d, 0 0 14px rgba(255, 227, 115, 0.35);
     }
     .card-sprite {
-      width: 96px;
-      height: 72px;
+      width: 72px;
+      height: 54px;
       object-fit: contain;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
     .card-auto-badge {
-      width: 96px;
-      height: 72px;
+      width: 72px;
+      height: 54px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 17px;
       font-weight: bold;
       color: #ffe373;
       background: radial-gradient(circle, #46316e 0%, #24183b 100%);
       border: 2px dashed #ebb03d;
-      border-radius: 6px;
+      border-radius: 5px;
     }
     .card-map-thumb {
       width: 100%;
-      height: 74px;
-      border-radius: 5px;
+      height: 54px;
+      border-radius: 4px;
       border: 1px solid #6b5299;
       background-color: #1a1229;
       background-repeat: no-repeat;
       image-rendering: pixelated;
     }
     .card-name {
-      font-size: 13px;
+      font-size: 11px;
       font-weight: bold;
       color: #ffe373;
+      line-height: 1.2;
     }
     .card-desc {
-      font-size: 11px;
+      font-size: 10px;
       color: #c4b5d9;
-      line-height: 1.3;
+      line-height: 1.2;
     }
 
     .panel-actions {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
+    /* Mobile Touch Controls Bar */
     .touch-btns {
       display: none;
-      position: absolute;
-      bottom: 14px;
-      left: 14px;
-      right: 14px;
+      width: min(960px, 100%);
+      gap: 14px;
+      margin-top: 10px;
+    }
+    body.device-mobile .touch-btns { display: flex; }
+    .touch-pad {
+      flex: 1;
+      padding: 16px 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      min-height: 62px;
+    }
+    .touch-pad.jump-pad {
+      background: linear-gradient(180deg, #4b3575 0%, #2e1e4d 100%);
+      border-color: #ffe373;
+    }
+
+    .footer {
+      width: min(960px, 100%);
+      margin-top: 10px;
+      display: flex;
       justify-content: space-between;
-      pointer-events: none;
-      z-index: 5;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+      color: #c4b5d9;
     }
-    .touch-btns button {
-      pointer-events: auto;
-      padding: 14px 26px;
-      font-size: 15px;
-      opacity: 0.85;
-    }
-    @media (pointer: coarse) { .touch-btns.playing { display: flex; } }
   </style>
 </head>
 <body>
-  <div class="topbar">
+  <div class="header">
     <h1>ANGKOR DINO RUN</h1>
     <div class="controls-bar">
-      <button id="homeBtn">HOME</button>
-      <button id="mapBtn">MAPS</button>
-      <button id="muteBtn">SFX: ON</button>
-      <button id="fsBtn">FULLSCREEN</button>
+      <button id="homeBtn" class="px-btn">
+        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1L1 7h2v7h4v-4h2v4h4V7h2L8 1z"/></svg>
+        HOME
+      </button>
+      <button id="mapBtn" class="px-btn">
+        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3l4-2 6 2 4-2v12l-4 2-6-2-4 2V3zm4 0v9l6 2V5L5 3z"/></svg>
+        MAPS
+      </button>
+      <button id="deviceBtn" class="px-btn">
+        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v9H2V2zm4 10h4v2H6v-2z"/></svg>
+        <span id="deviceBtnText">PC</span>
+      </button>
+      <button id="muteBtn" class="px-btn">
+        <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 6h3l4-4v12l-4-4H2V6zm9-1l3 3-3 3V5z"/></svg>
+        <span id="muteBtnText">SFX: ON</span>
+      </button>
     </div>
   </div>
 
-  <div class="stage">
-    <div class="game-wrap">
-      <canvas id="game" width="960" height="540"></canvas>
+  <div class="game-wrap">
+    <canvas id="game" width="960" height="540"></canvas>
 
-      <!-- 1. HOME PAGE: Select Character & Play -->
-      <div id="homeOverlay" class="overlay active">
-        <div class="panel">
-          <div class="panel-title">ANGKOR DINO RUN</div>
-          <div class="panel-sub">Step 1: Choose your Khmer Hero (or AUTO to evolve with each map)</div>
-          <div id="charGrid" class="card-grid"></div>
-          <div class="panel-actions">
-            <button id="playBtn" class="primary">PLAY &#9654;</button>
-          </div>
+    <!-- 1. HOME PAGE: Select Device, Character & Play -->
+    <div id="homeOverlay" class="overlay active">
+      <div class="panel">
+        <div class="panel-title">ANGKOR DINO RUN</div>
+        <div class="panel-sub">Step 1: Choose your Hero (or AUTO to evolve with each map)</div>
+        <div class="device-row">
+          <span>DEVICE:</span>
+          <button id="pickPcBtn" class="px-btn active-mode" style="padding:4px 10px;font-size:11px;">PC (KEYBOARD)</button>
+          <button id="pickMobileBtn" class="px-btn" style="padding:4px 10px;font-size:11px;">MOBILE (TOUCH BUTTONS)</button>
         </div>
-      </div>
-
-      <!-- 2. MAP SELECT PAGE: After clicking PLAY -->
-      <div id="mapOverlay" class="overlay">
-        <div class="panel">
-          <div class="panel-title">SELECT REALM</div>
-          <div id="mapSub" class="panel-sub">Step 2: Choose a Map or AUTO to progress through all 4 realms</div>
-          <div id="mapGrid" class="card-grid"></div>
-          <div class="panel-actions">
-            <button id="backHomeBtn">&#8592; CHARACTER</button>
-            <button id="startRunBtn" class="primary">START RUN &#9654;</button>
-          </div>
+        <div id="charGrid" class="card-grid"></div>
+        <div class="panel-actions">
+          <button id="playBtn" class="px-btn primary">
+            PLAY
+            <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+          </button>
         </div>
-      </div>
-
-      <!-- 3. GAME OVER OVERLAY -->
-      <div id="gameoverOverlay" class="overlay">
-        <div class="panel" style="width:min(520px, 100%)">
-          <div class="panel-title" style="color:#ff9ec0;">GAME OVER</div>
-          <div id="gameoverStats" class="panel-sub" style="font-size:15px;color:#fff6d6;margin-bottom:20px;"></div>
-          <div class="panel-actions">
-            <button id="retryBtn" class="primary">RETRY &#9654;</button>
-            <button id="goMapBtn">CHANGE MAP</button>
-            <button id="goHomeBtn">HERO SELECT</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="touchBtns" class="touch-btns">
-        <button id="touchDuck">DUCK</button>
-        <button id="touchJump">JUMP</button>
       </div>
     </div>
+
+    <!-- 2. MAP SELECT PAGE: After clicking PLAY -->
+    <div id="mapOverlay" class="overlay">
+      <div class="panel">
+        <div class="panel-title">SELECT REALM</div>
+        <div id="mapSub" class="panel-sub">Step 2: Choose a Map or AUTO to progress through all 4 realms</div>
+        <div id="mapGrid" class="card-grid"></div>
+        <div class="panel-actions">
+          <button id="backHomeBtn" class="px-btn">&#8592; CHARACTER</button>
+          <button id="startRunBtn" class="px-btn primary">
+            START RUN
+            <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. GAME OVER OVERLAY -->
+    <div id="gameoverOverlay" class="overlay">
+      <div class="panel" style="width:min(480px, 100%)">
+        <div class="panel-title" style="color:#ff9ec0;">GAME OVER</div>
+        <div id="gameoverStats" class="panel-sub" style="font-size:14px;color:#fff6d6;margin-bottom:16px;"></div>
+        <div class="panel-actions">
+          <button id="retryBtn" class="px-btn primary">
+            RETRY
+            <svg class="px-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6V2z"/></svg>
+          </button>
+          <button id="goMapBtn" class="px-btn">CHANGE MAP</button>
+          <button id="goHomeBtn" class="px-btn">HERO SELECT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile On-Screen Play Buttons (visible when DEVICE = MOBILE) -->
+  <div id="touchBtns" class="touch-btns">
+    <button id="touchDuck" class="px-btn touch-pad">
+      <svg class="px-icon" style="width:20px;height:20px" viewBox="0 0 16 16" fill="currentColor"><path d="M7 2h2v7h3l-4 5-4-5h3V2z"/></svg>
+      DUCK / FAST-FALL
+    </button>
+    <button id="touchJump" class="px-btn touch-pad jump-pad">
+      <svg class="px-icon" style="width:20px;height:20px" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l4 5H9v7H7V7H4l4-5z"/></svg>
+      JUMP
+    </button>
+  </div>
+
+  <div class="footer">
+    <span id="controlsHint"><b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall</span>
+    <span>Select <b>PC</b> or <b>MOBILE</b> anytime &nbsp;|&nbsp; <b>AUTO</b> evolves realms &amp; heroes</span>
   </div>
 
   <script>
@@ -310,19 +387,19 @@
     };
 
     const CHAR_OPTIONS = [
-      { id: "auto", name: "AUTO", desc: "Changes with map", preview: null },
-      { id: "krama_dino", name: "KRAMA DINO", desc: "Angkor Jade Hero", preview: "v2/forge-dino/run-0.png?v=2" },
-      { id: "khmer_tiger", name: "KHMER TIGER", desc: "Royal Bayon Striker", preview: "v2/forge-tiger/run-0.png?v=2" },
-      { id: "khmer_hanuman", name: "HANUMAN", desc: "Preah Vihear Warrior", preview: "v2/forge-hanuman/run-0.png?v=2" },
-      { id: "khmer_elephant", name: "ELEPHANT", desc: "Ta Prohm Guardian", preview: "v2/forge-elephant/run-0.png?v=2" },
+      { id: "auto", name: "AUTO", desc: "Matches map", preview: null },
+      { id: "krama_dino", name: "KRAMA DINO", desc: "Angkor Jade", preview: "v2/forge-dino/run-0.png?v=2" },
+      { id: "khmer_tiger", name: "KHMER TIGER", desc: "Bayon Striker", preview: "v2/forge-tiger/run-0.png?v=2" },
+      { id: "khmer_hanuman", name: "HANUMAN", desc: "Sky Warrior", preview: "v2/forge-hanuman/run-0.png?v=2" },
+      { id: "khmer_elephant", name: "ELEPHANT", desc: "Jungle Guard", preview: "v2/forge-elephant/run-0.png?v=2" },
     ];
 
     const MAP_OPTIONS = [
-      { id: "auto", name: "AUTO (ALL 4)", desc: "Changes at 300 / 600 / 900 pts", thumb: null },
-      { id: "1", name: "1. ANGKOR WAT", desc: "Golden Sunrise Temple", thumb: "assets/anims/bg_angkor.png", sheet: true },
-      { id: "2", name: "2. BAYON NIGHT", desc: "Twilight Stone Faces", thumb: "assets/anims/bg_bayon.png", sheet: true },
-      { id: "3", name: "3. PREAH VIHEAR", desc: "Sacred Cliff & Petals", thumb: "assets/sprites/bg_preah_vihear_base.png", sheet: false },
-      { id: "4", name: "4. TA PROHM", desc: "Ancient Jungle Roots", thumb: "assets/sprites/bg_ta_prohm_base.png", sheet: false },
+      { id: "auto", name: "AUTO (ALL 4)", desc: "300 / 600 / 900 pts", thumb: null },
+      { id: "1", name: "1. ANGKOR WAT", desc: "Golden Sunrise", thumb: "assets/anims/bg_angkor.png", sheet: true },
+      { id: "2", name: "2. BAYON NIGHT", desc: "Twilight Faces", thumb: "assets/anims/bg_bayon.png", sheet: true },
+      { id: "3", name: "3. PREAH VIHEAR", desc: "Sacred Cliff", thumb: "assets/sprites/bg_preah_vihear_base.png", sheet: false },
+      { id: "4", name: "4. TA PROHM", desc: "Ancient Roots", thumb: "assets/sprites/bg_ta_prohm_base.png", sheet: false },
     ];
 
     const HERO_LABELS = Object.fromEntries(CHAR_OPTIONS.map((c) => [c.id, c.name]));
@@ -448,9 +525,9 @@
     let state = "home";
     let score = 0;
     let highScore = Number(localStorage.getItem("angkor_dino_v2_hi") || 0);
-    let speed = 380;
+    let speed = 360;
     let dist = 0;
-    let spawnTimer = 0.8;
+    let spawnTimer = 0.9;
     let lastMilestone = 0;
     let flashTimer = 0;
     let trauma = 0;
@@ -463,6 +540,10 @@
     let charMode = localStorage.getItem("angkor_dino_char") || "auto";
     if (charMode !== "auto" && !VARIANTS.includes(charMode)) charMode = "auto";
 
+    const detectedMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 760;
+    let deviceMode = localStorage.getItem("angkor_dino_device") || (detectedMobile ? "mobile" : "pc");
+    if (!["pc", "mobile"].includes(deviceMode)) deviceMode = "pc";
+
     let level = mapMode === "auto" ? 1 : Number(mapMode);
     let levelBannerTimer = 0;
     let levelBannerText = "";
@@ -470,11 +551,14 @@
     const homeOverlay = document.getElementById("homeOverlay");
     const mapOverlay = document.getElementById("mapOverlay");
     const gameoverOverlay = document.getElementById("gameoverOverlay");
-    const touchBtns = document.getElementById("touchBtns");
     const charGrid = document.getElementById("charGrid");
     const mapGrid = document.getElementById("mapGrid");
     const mapSub = document.getElementById("mapSub");
     const gameoverStats = document.getElementById("gameoverStats");
+    const deviceBtnText = document.getElementById("deviceBtnText");
+    const pickPcBtn = document.getElementById("pickPcBtn");
+    const pickMobileBtn = document.getElementById("pickMobileBtn");
+    const controlsHint = document.getElementById("controlsHint");
 
     const hero = {
       x: 112,
@@ -500,11 +584,26 @@
       phase: i * 0.7,
     }));
 
+    function applyDeviceMode() {
+      document.body.classList.toggle("device-mobile", deviceMode === "mobile");
+      deviceBtnText.textContent = deviceMode === "mobile" ? "MOBILE" : "PC";
+      pickPcBtn.classList.toggle("active-mode", deviceMode === "pc");
+      pickMobileBtn.classList.toggle("active-mode", deviceMode === "mobile");
+      controlsHint.innerHTML = deviceMode === "mobile"
+        ? "<b>DUCK</b> &amp; <b>JUMP</b> buttons below &nbsp;|&nbsp; Tap canvas to Jump"
+        : "<b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall";
+    }
+
+    function setDeviceMode(mode) {
+      deviceMode = mode;
+      localStorage.setItem("angkor_dino_device", deviceMode);
+      applyDeviceMode();
+    }
+
     function syncOverlays() {
       homeOverlay.classList.toggle("active", state === "home");
       mapOverlay.classList.toggle("active", state === "map_select");
       gameoverOverlay.classList.toggle("active", state === "gameover");
-      touchBtns.classList.toggle("playing", state === "playing");
       if (state === "map_select") {
         mapSub.textContent = `Hero: ${HERO_LABELS[charMode]} — Choose a Map or AUTO to progress through all 4 realms`;
       }
@@ -541,7 +640,7 @@
             : `background-image:url('${m.thumb}');background-size:cover;background-position:center;`;
           el.innerHTML = `<div class="card-map-thumb" style="${thumbStyle}"></div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
         } else {
-          el.innerHTML = `<div class="card-auto-badge" style="width:100%;height:74px;">AUTO</div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
+          el.innerHTML = `<div class="card-auto-badge" style="width:100%;height:54px;">AUTO</div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
         }
         el.addEventListener("click", () => {
           mapMode = m.id;
@@ -593,9 +692,9 @@
     function startRun() {
       score = 0;
       level = mapMode === "auto" ? 1 : Number(mapMode);
-      speed = 380;
+      speed = 360;
       dist = 0;
-      spawnTimer = 0.9;
+      spawnTimer = 0.95;
       lastMilestone = 0;
       flashTimer = 0;
       trauma = 0;
@@ -621,17 +720,17 @@
 
     function spawnObstacle() {
       const r = Math.random();
-      if (score > 80 && r < 0.32) {
+      if (score > 80 && r < 0.30) {
         const high = Math.random() < 0.6;
         obstacles.push({
           type: "garuda",
           x: W + 40,
-          y: high ? GROUND_Y - 154 : GROUND_Y - 102,
+          y: high ? GROUND_Y - 156 : GROUND_Y - 102,
           w: 64 * 2,
           h: 56 * 2,
           animTime: Math.random() * 0.5,
         });
-      } else if (r < 0.66) {
+      } else if (r < 0.65) {
         obstacles.push({
           type: "pillar",
           x: W + 40,
@@ -648,10 +747,10 @@
           h: 32 * 3,
         });
       }
-      if (Math.random() < 0.5) {
+      if (Math.random() < 0.55) {
         orbs.push({
           x: W + 220 + Math.random() * 120,
-          y: GROUND_Y - (Math.random() < 0.5 ? 78 : 148),
+          y: GROUND_Y - (Math.random() < 0.5 ? 88 : 168),
           size: 48 * 1.5,
           t: Math.random(),
         });
@@ -660,9 +759,9 @@
 
     function getHeroHitbox() {
       if (hero.ducking && hero.onGround) {
-        return { x: hero.x + 22, y: GROUND_Y - 46, w: 54, h: 42 };
+        return { x: hero.x + 24, y: GROUND_Y - 42, w: 48, h: 38 };
       }
-      return { x: hero.x + 26, y: hero.y + 24, w: 44, h: 68 };
+      return { x: hero.x + 28, y: hero.y + 26, w: 40, h: 64 };
     }
 
     function boxesOverlap(a, b) {
@@ -671,7 +770,7 @@
 
     function triggerJump() {
       if (state === "playing") {
-        hero.jumpBuffer = 0.12;
+        hero.jumpBuffer = 0.15;
       }
     }
 
@@ -695,7 +794,13 @@
     });
 
     canvas.addEventListener("pointerdown", () => {
-      if (state === "playing") triggerJump();
+      if (state === "playing") {
+        triggerJump();
+        keys.jump = true;
+      }
+    });
+    window.addEventListener("pointerup", () => {
+      if (deviceMode === "mobile" || state === "playing") keys.jump = false;
     });
 
     document.getElementById("playBtn").addEventListener("click", openMapSelect);
@@ -704,36 +809,40 @@
     document.getElementById("retryBtn").addEventListener("click", startRun);
     document.getElementById("goMapBtn").addEventListener("click", openMapSelect);
     document.getElementById("goHomeBtn").addEventListener("click", openHome);
-    document.getElementById("homeBtn").addEventListener("click", (e) => { e.target.blur(); openHome(); });
-    document.getElementById("mapBtn").addEventListener("click", (e) => { e.target.blur(); openMapSelect(); });
+    document.getElementById("homeBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openHome(); });
+    document.getElementById("mapBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openMapSelect(); });
+
+    pickPcBtn.addEventListener("click", () => setDeviceMode("pc"));
+    pickMobileBtn.addEventListener("click", () => setDeviceMode("mobile"));
+    document.getElementById("deviceBtn").addEventListener("click", (e) => {
+      e.currentTarget.blur();
+      setDeviceMode(deviceMode === "pc" ? "mobile" : "pc");
+    });
 
     document.getElementById("muteBtn").addEventListener("click", (e) => {
       muted = !muted;
-      e.target.textContent = muted ? "SFX: OFF" : "SFX: ON";
-      e.target.blur();
+      document.getElementById("muteBtnText").textContent = muted ? "SFX: OFF" : "SFX: ON";
+      e.currentTarget.blur();
     });
 
-    const fsBtn = document.getElementById("fsBtn");
-    fsBtn.addEventListener("click", (e) => {
-      e.target.blur();
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
+    const touchJump = document.getElementById("touchJump");
+    const touchDuck = document.getElementById("touchDuck");
+    touchJump.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      if (state === "home") { openMapSelect(); return; }
+      if (state === "map_select" || state === "gameover") { startRun(); return; }
+      triggerJump();
+      keys.jump = true;
     });
-    document.addEventListener("fullscreenchange", () => {
-      fsBtn.textContent = document.fullscreenElement ? "EXIT FULLSCREEN" : "FULLSCREEN";
-    });
+    touchJump.addEventListener("pointerup", () => { keys.jump = false; });
+    touchJump.addEventListener("pointercancel", () => { keys.jump = false; });
 
-    document.getElementById("touchJump").addEventListener("pointerdown", (e) => {
-      e.preventDefault(); triggerJump(); keys.jump = true;
+    touchDuck.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      keys.duck = true;
     });
-    document.getElementById("touchJump").addEventListener("pointerup", () => { keys.jump = false; });
-    document.getElementById("touchDuck").addEventListener("pointerdown", (e) => {
-      e.preventDefault(); keys.duck = true;
-    });
-    document.getElementById("touchDuck").addEventListener("pointerup", () => { keys.duck = false; });
+    touchDuck.addEventListener("pointerup", () => { keys.duck = false; });
+    touchDuck.addEventListener("pointercancel", () => { keys.duck = false; });
 
     function update(dt) {
       if (flashTimer > 0) flashTimer -= dt;
@@ -758,7 +867,7 @@
         return;
       }
 
-      speed = Math.min(880, 380 + score * 0.42);
+      speed = Math.min(820, 360 + score * 0.36);
       dist += speed * dt;
       score += dt * 14;
 
@@ -782,12 +891,12 @@
       }
 
       hero.ducking = keys.duck;
-      if (hero.onGround) hero.coyote = 0.08;
+      if (hero.onGround) hero.coyote = 0.12;
       else hero.coyote = Math.max(0, hero.coyote - dt);
       if (hero.jumpBuffer > 0) hero.jumpBuffer -= dt;
 
       if (hero.jumpBuffer > 0 && hero.coyote > 0) {
-        hero.vy = -750;
+        hero.vy = -900;
         hero.onGround = false;
         hero.coyote = 0;
         hero.jumpBuffer = 0;
@@ -797,9 +906,9 @@
         spawnFx("dust", hero.x + 12, GROUND_Y - 76, 2);
       }
 
-      let grav = 2300;
-      if (hero.vy < 0 && !keys.jump) grav = 3800;
-      if (keys.duck && !hero.onGround) grav = 5000;
+      let grav = 2150;
+      if (hero.vy < 0 && !keys.jump) grav = 3400;
+      if (keys.duck && !hero.onGround) grav = 5200;
       hero.vy += grav * dt;
       hero.y += hero.vy * dt;
 
@@ -814,21 +923,21 @@
         hero.onGround = true;
       }
 
-      hero.animTime += dt * (speed / 380);
+      hero.animTime += dt * (speed / 360);
 
       spawnTimer -= dt;
       if (spawnTimer <= 0) {
         spawnObstacle();
-        const minGap = Math.max(0.68, 1.45 - (speed - 380) / 720);
+        const minGap = Math.max(0.85, 1.55 - (speed - 360) / 760);
         spawnTimer = minGap + Math.random() * 0.65;
       }
 
       const hBox = getHeroHitbox();
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const o = obstacles[i];
-        o.x -= (o.type === "garuda" ? speed * 1.15 : speed) * dt;
+        o.x -= (o.type === "garuda" ? speed * 1.12 : speed) * dt;
         if (o.animTime !== undefined) o.animTime += dt;
-        const oBox = { x: o.x + 14, y: o.y + 10, w: o.w - 28, h: o.h - 14 };
+        const oBox = { x: o.x + 18, y: o.y + 12, w: o.w - 36, h: o.h - 18 };
         if (boxesOverlap(hBox, oBox)) {
           state = "gameover";
           flashTimer = 0.25;
@@ -1018,6 +1127,7 @@
       requestAnimationFrame(loop);
     }
 
+    applyDeviceMode();
     renderCards();
     syncOverlays();
     loadAssets().then(() => {
