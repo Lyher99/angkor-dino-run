@@ -396,23 +396,45 @@
       </div>
     </div>
 
-    <!-- 2. HERO SELECT MODAL -->
-    <div id="heroOverlay" class="overlay">
-      <div class="stone-modal">
+    <!-- 1B. DEVICE SELECT MODAL (Opened when clicking PLAY) -->
+    <div id="deviceOverlay" class="overlay">
+      <div class="stone-modal" style="width:min(460px, 94%);">
         <div class="modal-header">
-          <div style="width:36px;"></div>
-          <div class="modal-title">SELECT HERO</div>
-          <button id="heroCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+          <button id="deviceBackBtn" class="icon-btn"><img src="v2/forge-gui/btn_back.png" width="36" alt="Back" /></button>
+          <div class="modal-title">SELECT DEVICE</div>
+          <button id="deviceCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
         </div>
-        <div class="modal-sub">Pick a Hero or AUTO to evolve with each map!</div>
-        <div id="charGrid" class="card-grid"></div>
-        <div class="modal-actions">
-          <button id="heroDoneBtn" class="px-btn">CONFIRM HERO</button>
+        <div class="modal-sub">Step 1: Choose PC or Mobile to continue</div>
+        <div class="settings-row">
+          <div id="flowPcCard" class="platform-card">
+            <img src="v2/forge-gui/card_pc.png" style="width:108px;" alt="PC" />
+            <div class="card-desc">Keyboard Controls</div>
+          </div>
+          <div id="flowMobileCard" class="platform-card">
+            <img src="v2/forge-gui/card_mobile.png" style="width:108px;" alt="MOBILE" />
+            <div class="card-desc">On-Screen Touch Buttons</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 3. MAP SELECT MODAL (Opened after clicking PLAY or MAP) -->
+    <!-- 2. HERO SELECT MODAL -->
+    <div id="heroOverlay" class="overlay">
+      <div class="stone-modal">
+        <div class="modal-header">
+          <button id="heroBackBtn" class="icon-btn"><img src="v2/forge-gui/btn_back.png" width="36" alt="Back" /></button>
+          <div class="modal-title">SELECT HERO</div>
+          <button id="heroCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+        </div>
+        <div class="modal-sub">Step 2: Pick a Hero or AUTO to evolve with each map!</div>
+        <div id="charGrid" class="card-grid"></div>
+        <div class="modal-actions">
+          <button id="heroNextBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_next.png" style="width:156px;" alt="NEXT" /></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. MAP SELECT MODAL (Opened after Hero Select NEXT or MAP button) -->
     <div id="mapOverlay" class="overlay">
       <div class="stone-modal">
         <div class="modal-header">
@@ -420,10 +442,10 @@
           <div class="modal-title">SELECT REALM</div>
           <button id="mapCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
         </div>
-        <div id="mapSub" class="modal-sub">Pick a Map or AUTO to progress through all 4 realms!</div>
+        <div id="mapSub" class="modal-sub">Step 3: Pick a Map or AUTO to progress through all 4 realms!</div>
         <div id="mapGrid" class="card-grid"></div>
         <div class="modal-actions">
-          <button id="startRunBtn" class="px-btn">START RUN &#9654;</button>
+          <button id="startRunBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_start.png" style="width:176px;" alt="START RUN" /></button>
         </div>
       </div>
     </div>
@@ -678,6 +700,7 @@
     let levelBannerText = "";
 
     const homeOverlay = document.getElementById("homeOverlay");
+    const deviceOverlay = document.getElementById("deviceOverlay");
     const heroOverlay = document.getElementById("heroOverlay");
     const mapOverlay = document.getElementById("mapOverlay");
     const settingsOverlay = document.getElementById("settingsOverlay");
@@ -738,6 +761,7 @@
 
     function syncOverlays() {
       homeOverlay.classList.toggle("active", state === "home");
+      deviceOverlay.classList.toggle("active", state === "device_select");
       heroOverlay.classList.toggle("active", state === "hero_select");
       mapOverlay.classList.toggle("active", state === "map_select");
       settingsOverlay.classList.toggle("active", state === "paused");
@@ -812,6 +836,12 @@
       obstacles = []; orbs = []; fxAnims = []; popups = [];
       syncOverlays();
       renderCards();
+    }
+
+    function openDeviceSelect() {
+      state = "device_select";
+      syncOverlays();
+      applyDeviceMode();
     }
 
     function openHeroSelect() {
@@ -943,7 +973,9 @@
       }
       if (["Space", "ArrowUp", "KeyW", "Enter"].includes(e.code)) {
         e.preventDefault();
-        if (state === "home") { openMapSelect(); return; }
+        if (state === "home") { openDeviceSelect(); return; }
+        if (state === "device_select") { openHeroSelect(); return; }
+        if (state === "hero_select") { openMapSelect(); return; }
         if (state === "map_select") { startRun(); return; }
         if (state === "gameover") { startRun(); return; }
         if (state === "paused") { closeSettings(); return; }
@@ -972,14 +1004,20 @@
 
     // Menu & Modal Listeners
     document.getElementById("hudSettingsBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openSettings(); });
-    document.getElementById("menuPlayBtn").addEventListener("click", openMapSelect);
+    document.getElementById("menuPlayBtn").addEventListener("click", openDeviceSelect);
     document.getElementById("menuHeroBtn").addEventListener("click", openHeroSelect);
     document.getElementById("menuMapBtn").addEventListener("click", openMapSelect);
     document.getElementById("menuSettingsBtn").addEventListener("click", openSettings);
 
+    document.getElementById("deviceBackBtn").addEventListener("click", openHome);
+    document.getElementById("deviceCloseBtn").addEventListener("click", openHome);
+    document.getElementById("flowPcCard").addEventListener("click", () => { setDeviceMode("pc"); openHeroSelect(); });
+    document.getElementById("flowMobileCard").addEventListener("click", () => { setDeviceMode("mobile"); openHeroSelect(); });
+
+    document.getElementById("heroBackBtn").addEventListener("click", openDeviceSelect);
     document.getElementById("heroCloseBtn").addEventListener("click", openHome);
-    document.getElementById("heroDoneBtn").addEventListener("click", openHome);
-    document.getElementById("mapBackBtn").addEventListener("click", openHome);
+    document.getElementById("heroNextBtn").addEventListener("click", openMapSelect);
+    document.getElementById("mapBackBtn").addEventListener("click", openHeroSelect);
     document.getElementById("mapCloseBtn").addEventListener("click", openHome);
     document.getElementById("startRunBtn").addEventListener("click", startRun);
 
