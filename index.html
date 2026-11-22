@@ -318,41 +318,39 @@
       flex-wrap: wrap;
     }
 
-    /* On-Screen Mobile Buttons (inside .game-wrap, visible when deviceMode === 'mobile' & playing) */
+    /* On-Screen Mobile Buttons (all anchored on the RIGHT side of screen) */
     .mobile-controls {
       display: none;
       position: absolute;
       bottom: 14px;
-      left: 14px;
       right: 14px;
-      justify-content: space-between;
-      align-items: flex-end;
+      left: auto;
+      gap: 10px;
+      justify-content: flex-end;
+      align-items: center;
       pointer-events: none;
       z-index: 14;
     }
     body.device-mobile .mobile-controls.playing { display: flex; }
-    .touch-btn {
+    .touch-img-btn {
       pointer-events: auto;
-      width: clamp(92px, 22vw, 136px);
-      height: clamp(64px, 14vw, 84px);
-      background: rgba(34, 22, 56, 0.72);
-      border: 3px solid #ebb03d;
-      border-radius: 12px;
-      color: #ffe373;
-      font-family: inherit;
-      font-size: clamp(13px, 3vw, 16px);
-      font-weight: bold;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+      background: none;
+      border: none;
+      padding: 0;
       cursor: pointer;
+      opacity: 0.92;
+      transition: transform 0.06s ease, filter 0.08s ease;
     }
-    .touch-btn:active {
-      background: rgba(74, 48, 118, 0.88);
-      transform: scale(0.96);
+    .touch-img-btn:active {
+      transform: scale(0.94);
+      filter: brightness(1.15);
+    }
+    .touch-img-btn img {
+      width: clamp(112px, 24vw, 156px);
+      height: auto;
+      display: block;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
     }
 
     .footer {
@@ -497,16 +495,10 @@
       </div>
     </div>
 
-    <!-- On-Screen Mobile Buttons -->
+    <!-- On-Screen Mobile Buttons (Right Side) -->
     <div id="mobileControls" class="mobile-controls">
-      <button id="touchDuck" class="touch-btn">
-        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M7 2h2v7h3l-4 5-4-5h3V2z"/></svg>
-        DUCK
-      </button>
-      <button id="touchJump" class="touch-btn">
-        <svg width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l4 5H9v7H7V7H4l4-5z"/></svg>
-        JUMP
-      </button>
+      <button id="touchDuck" class="touch-img-btn" aria-label="Duck"><img src="v2/forge-gui/btn_duck.png" alt="DUCK" /></button>
+      <button id="touchJump" class="touch-img-btn" aria-label="Jump"><img src="v2/forge-gui/btn_jump.png" alt="JUMP" /></button>
     </div>
   </div>
 
