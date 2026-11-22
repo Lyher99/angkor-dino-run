@@ -6,31 +6,34 @@
   <title>Angkor Dino Run — Khmer Pixel Runner</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background: #120e1c;
       color: #fff6d6;
       font-family: "Courier New", Courier, monospace;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 16px;
       user-select: none;
     }
-    .header {
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      width: min(960px, 100%);
-      margin-bottom: 10px;
+      padding: 8px 16px;
+      background: #191228;
+      border-bottom: 2px solid #ebb03d;
       gap: 10px;
       flex-wrap: wrap;
+      z-index: 20;
     }
     h1 {
-      font-size: clamp(16px, 2.4vw, 22px);
+      font-size: clamp(15px, 2vw, 20px);
       color: #ffe373;
-      letter-spacing: 1px;
+      letter-spacing: 1.5px;
       text-shadow: 2px 2px 0 #141020;
     }
     .controls-bar {
@@ -39,92 +42,252 @@
       align-items: center;
       flex-wrap: wrap;
     }
-    button, a.btn, select {
+    button {
       background: #2b2142;
       color: #ffe373;
       border: 2px solid #ebb03d;
-      padding: 6px 10px;
+      padding: 6px 12px;
       font-family: inherit;
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       border-radius: 4px;
-      text-decoration: none;
       outline: none;
+      transition: transform 0.08s ease, background 0.12s ease;
     }
-    button:hover, a.btn:hover, select:hover { background: #3e2f5e; }
-    select option { background: #1e1630; color: #ffe373; }
+    button:hover { background: #3e2f5e; }
+    button:active { transform: translateY(1px); }
+    button.primary {
+      background: linear-gradient(180deg, #f7c948, #d9911e);
+      color: #1a1026;
+      border-color: #fff1a8;
+      font-size: 16px;
+      padding: 12px 32px;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 0 #8f5708, 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+    button.primary:hover {
+      background: linear-gradient(180deg, #ffe073, #ebb03d);
+    }
+
+    .stage {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0d0915;
+      overflow: hidden;
+    }
     .game-wrap {
       position: relative;
-      width: min(960px, 100%);
-      aspect-ratio: 16 / 9;
-      border: 3px solid #ebb03d;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
-      background: #2d1e40;
-      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     canvas {
       width: 100%;
       height: 100%;
+      object-fit: contain;
       display: block;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
-    .footer {
-      width: min(960px, 100%);
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 12px;
-      color: #c4b5d9;
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(14, 9, 24, 0.72);
+      backdrop-filter: blur(2px);
+      z-index: 10;
     }
+    .overlay.active { display: flex; }
+
+    .panel {
+      width: min(860px, 100%);
+      max-height: 92%;
+      overflow-y: auto;
+      background: rgba(24, 17, 40, 0.94);
+      border: 3px solid #ebb03d;
+      border-radius: 10px;
+      padding: 22px 24px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+      text-align: center;
+    }
+    .panel-title {
+      font-size: clamp(22px, 3.4vw, 34px);
+      color: #ffe373;
+      letter-spacing: 2px;
+      text-shadow: 3px 3px 0 #120b1e;
+      margin-bottom: 6px;
+    }
+    .panel-sub {
+      font-size: 13px;
+      color: #cbbbe0;
+      margin-bottom: 18px;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: #231938;
+      border: 2px solid #594382;
+      border-radius: 8px;
+      padding: 12px 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.1s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+    .card:hover {
+      border-color: #ebb03d;
+      background: #2f224b;
+      transform: translateY(-2px);
+    }
+    .card.selected {
+      border-color: #ffe373;
+      background: #3b2a5e;
+      box-shadow: 0 0 0 2px #ebb03d, 0 0 18px rgba(255, 227, 115, 0.35);
+    }
+    .card-sprite {
+      width: 96px;
+      height: 72px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .card-auto-badge {
+      width: 96px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      font-weight: bold;
+      color: #ffe373;
+      background: radial-gradient(circle, #46316e 0%, #24183b 100%);
+      border: 2px dashed #ebb03d;
+      border-radius: 6px;
+    }
+    .card-map-thumb {
+      width: 100%;
+      height: 74px;
+      border-radius: 5px;
+      border: 1px solid #6b5299;
+      background-color: #1a1229;
+      background-repeat: no-repeat;
+      image-rendering: pixelated;
+    }
+    .card-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ffe373;
+    }
+    .card-desc {
+      font-size: 11px;
+      color: #c4b5d9;
+      line-height: 1.3;
+    }
+
+    .panel-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
     .touch-btns {
       display: none;
-      width: min(960px, 100%);
-      gap: 12px;
-      margin-top: 10px;
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 5;
     }
-    .touch-btns button { flex: 1; padding: 14px; font-size: 16px; }
-    @media (pointer: coarse) { .touch-btns { display: flex; } }
+    .touch-btns button {
+      pointer-events: auto;
+      padding: 14px 26px;
+      font-size: 15px;
+      opacity: 0.85;
+    }
+    @media (pointer: coarse) { .touch-btns.playing { display: flex; } }
   </style>
 </head>
 <body>
-  <div class="header">
+  <div class="topbar">
     <h1>ANGKOR DINO RUN</h1>
     <div class="controls-bar">
-      <select id="mapSelect" aria-label="Select Map">
-        <option value="auto">MAP: AUTO (ALL 4)</option>
-        <option value="1">MAP 1: ANGKOR WAT</option>
-        <option value="2">MAP 2: BAYON NIGHT</option>
-        <option value="3">MAP 3: PREAH VIHEAR</option>
-        <option value="4">MAP 4: TA PROHM</option>
-      </select>
-      <select id="charSelect" aria-label="Select Character">
-        <option value="auto">CHAR: AUTO (BY MAP)</option>
-        <option value="krama_dino">1: KRAMA DINO</option>
-        <option value="khmer_tiger">2: KHMER TIGER</option>
-        <option value="khmer_hanuman">3: HANUMAN</option>
-        <option value="khmer_elephant">4: ELEPHANT</option>
-      </select>
+      <button id="homeBtn">HOME</button>
+      <button id="mapBtn">MAPS</button>
       <button id="muteBtn">SFX: ON</button>
-      <button id="restartBtn">RESTART</button>
+      <button id="fsBtn">FULLSCREEN</button>
     </div>
   </div>
 
-  <div class="game-wrap">
-    <canvas id="game" width="960" height="540"></canvas>
-  </div>
+  <div class="stage">
+    <div class="game-wrap">
+      <canvas id="game" width="960" height="540"></canvas>
 
-  <div class="touch-btns">
-    <button id="touchDuck">DUCK</button>
-    <button id="touchJump">JUMP</button>
-  </div>
+      <!-- 1. HOME PAGE: Select Character & Play -->
+      <div id="homeOverlay" class="overlay active">
+        <div class="panel">
+          <div class="panel-title">ANGKOR DINO RUN</div>
+          <div class="panel-sub">Step 1: Choose your Khmer Hero (or AUTO to evolve with each map)</div>
+          <div id="charGrid" class="card-grid"></div>
+          <div class="panel-actions">
+            <button id="playBtn" class="primary">PLAY &#9654;</button>
+          </div>
+        </div>
+      </div>
 
-  <div class="footer">
-    <span><b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall</span>
-    <span>4 Khmer Realms &amp; 4 Heroes — Select manually or set <b>AUTO</b> to evolve as you run</span>
+      <!-- 2. MAP SELECT PAGE: After clicking PLAY -->
+      <div id="mapOverlay" class="overlay">
+        <div class="panel">
+          <div class="panel-title">SELECT REALM</div>
+          <div id="mapSub" class="panel-sub">Step 2: Choose a Map or AUTO to progress through all 4 realms</div>
+          <div id="mapGrid" class="card-grid"></div>
+          <div class="panel-actions">
+            <button id="backHomeBtn">&#8592; CHARACTER</button>
+            <button id="startRunBtn" class="primary">START RUN &#9654;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. GAME OVER OVERLAY -->
+      <div id="gameoverOverlay" class="overlay">
+        <div class="panel" style="width:min(520px, 100%)">
+          <div class="panel-title" style="color:#ff9ec0;">GAME OVER</div>
+          <div id="gameoverStats" class="panel-sub" style="font-size:15px;color:#fff6d6;margin-bottom:20px;"></div>
+          <div class="panel-actions">
+            <button id="retryBtn" class="primary">RETRY &#9654;</button>
+            <button id="goMapBtn">CHANGE MAP</button>
+            <button id="goHomeBtn">HERO SELECT</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="touchBtns" class="touch-btns">
+        <button id="touchDuck">DUCK</button>
+        <button id="touchJump">JUMP</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -135,8 +298,8 @@
     const W = 960;
     const H = 540;
     const GROUND_Y = 444;
-    const HERO_SCALE = 3; // Base hitbox reference (32 * 3 = 96px)
-    const SPRITE_SCALE = 2; // 64x48 sprite sheets @2x = 128x96
+    const HERO_SCALE = 3;
+    const SPRITE_SCALE = 2;
 
     const VARIANTS = ["krama_dino", "khmer_tiger", "khmer_hanuman", "khmer_elephant"];
     const HERO_FOLDERS = {
@@ -145,20 +308,25 @@
       khmer_hanuman: "v2/forge-hanuman",
       khmer_elephant: "v2/forge-elephant",
     };
-    const HERO_LABELS = {
-      auto: "AUTO",
-      krama_dino: "KRAMA DINO",
-      khmer_tiger: "KHMER TIGER",
-      khmer_hanuman: "HANUMAN",
-      khmer_elephant: "ELEPHANT",
-    };
-    const MAP_LABELS = {
-      auto: "AUTO",
-      1: "ANGKOR WAT",
-      2: "BAYON NIGHT",
-      3: "PREAH VIHEAR",
-      4: "TA PROHM",
-    };
+
+    const CHAR_OPTIONS = [
+      { id: "auto", name: "AUTO", desc: "Changes with map", preview: null },
+      { id: "krama_dino", name: "KRAMA DINO", desc: "Angkor Jade Hero", preview: "v2/forge-dino/run-0.png?v=2" },
+      { id: "khmer_tiger", name: "KHMER TIGER", desc: "Royal Bayon Striker", preview: "v2/forge-tiger/run-0.png?v=2" },
+      { id: "khmer_hanuman", name: "HANUMAN", desc: "Preah Vihear Warrior", preview: "v2/forge-hanuman/run-0.png?v=2" },
+      { id: "khmer_elephant", name: "ELEPHANT", desc: "Ta Prohm Guardian", preview: "v2/forge-elephant/run-0.png?v=2" },
+    ];
+
+    const MAP_OPTIONS = [
+      { id: "auto", name: "AUTO (ALL 4)", desc: "Changes at 300 / 600 / 900 pts", thumb: null },
+      { id: "1", name: "1. ANGKOR WAT", desc: "Golden Sunrise Temple", thumb: "assets/anims/bg_angkor.png", sheet: true },
+      { id: "2", name: "2. BAYON NIGHT", desc: "Twilight Stone Faces", thumb: "assets/anims/bg_bayon.png", sheet: true },
+      { id: "3", name: "3. PREAH VIHEAR", desc: "Sacred Cliff & Petals", thumb: "assets/sprites/bg_preah_vihear_base.png", sheet: false },
+      { id: "4", name: "4. TA PROHM", desc: "Ancient Jungle Roots", thumb: "assets/sprites/bg_ta_prohm_base.png", sheet: false },
+    ];
+
+    const HERO_LABELS = Object.fromEntries(CHAR_OPTIONS.map((c) => [c.id, c.name]));
+    const MAP_LABELS = { auto: "AUTO", 1: "ANGKOR WAT", 2: "BAYON NIGHT", 3: "PREAH VIHEAR", 4: "TA PROHM" };
 
     const imgs = {
       heroes: {},
@@ -276,7 +444,8 @@
     };
 
     const keys = { jump: false, duck: false };
-    let state = "ready";
+    // state: "home" | "map_select" | "playing" | "gameover"
+    let state = "home";
     let score = 0;
     let highScore = Number(localStorage.getItem("angkor_dino_v2_hi") || 0);
     let speed = 380;
@@ -298,10 +467,14 @@
     let levelBannerTimer = 0;
     let levelBannerText = "";
 
-    const mapSelect = document.getElementById("mapSelect");
-    const charSelect = document.getElementById("charSelect");
-    mapSelect.value = mapMode;
-    charSelect.value = charMode;
+    const homeOverlay = document.getElementById("homeOverlay");
+    const mapOverlay = document.getElementById("mapOverlay");
+    const gameoverOverlay = document.getElementById("gameoverOverlay");
+    const touchBtns = document.getElementById("touchBtns");
+    const charGrid = document.getElementById("charGrid");
+    const mapGrid = document.getElementById("mapGrid");
+    const mapSub = document.getElementById("mapSub");
+    const gameoverStats = document.getElementById("gameoverStats");
 
     const hero = {
       x: 112,
@@ -327,6 +500,86 @@
       phase: i * 0.7,
     }));
 
+    function syncOverlays() {
+      homeOverlay.classList.toggle("active", state === "home");
+      mapOverlay.classList.toggle("active", state === "map_select");
+      gameoverOverlay.classList.toggle("active", state === "gameover");
+      touchBtns.classList.toggle("playing", state === "playing");
+      if (state === "map_select") {
+        mapSub.textContent = `Hero: ${HERO_LABELS[charMode]} — Choose a Map or AUTO to progress through all 4 realms`;
+      }
+      if (state === "gameover") {
+        gameoverStats.textContent = `Score: ${Math.floor(score)}   |   Best: ${highScore}`;
+      }
+    }
+
+    function renderCards() {
+      charGrid.innerHTML = "";
+      for (const c of CHAR_OPTIONS) {
+        const el = document.createElement("div");
+        el.className = "card" + (charMode === c.id ? " selected" : "");
+        if (c.preview) {
+          el.innerHTML = `<img class="card-sprite" src="${c.preview}" alt="${c.name}" /><div class="card-name">${c.name}</div><div class="card-desc">${c.desc}</div>`;
+        } else {
+          el.innerHTML = `<div class="card-auto-badge">AUTO</div><div class="card-name">${c.name}</div><div class="card-desc">${c.desc}</div>`;
+        }
+        el.addEventListener("click", () => {
+          charMode = c.id;
+          localStorage.setItem("angkor_dino_char", charMode);
+          renderCards();
+        });
+        charGrid.appendChild(el);
+      }
+
+      mapGrid.innerHTML = "";
+      for (const m of MAP_OPTIONS) {
+        const el = document.createElement("div");
+        el.className = "card" + (mapMode === m.id ? " selected" : "");
+        if (m.thumb) {
+          const thumbStyle = m.sheet
+            ? `background-image:url('${m.thumb}');background-size:600% 100%;background-position:0 0;`
+            : `background-image:url('${m.thumb}');background-size:cover;background-position:center;`;
+          el.innerHTML = `<div class="card-map-thumb" style="${thumbStyle}"></div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
+        } else {
+          el.innerHTML = `<div class="card-auto-badge" style="width:100%;height:74px;">AUTO</div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
+        }
+        el.addEventListener("click", () => {
+          mapMode = m.id;
+          localStorage.setItem("angkor_dino_map", mapMode);
+          level = mapMode === "auto" ? 1 : Number(mapMode);
+          renderCards();
+        });
+        el.addEventListener("dblclick", () => {
+          mapMode = m.id;
+          localStorage.setItem("angkor_dino_map", mapMode);
+          startRun();
+        });
+        mapGrid.appendChild(el);
+      }
+    }
+
+    function openHome() {
+      state = "home";
+      level = mapMode === "auto" ? 1 : Number(mapMode);
+      obstacles = [];
+      orbs = [];
+      fxAnims = [];
+      popups = [];
+      syncOverlays();
+      renderCards();
+    }
+
+    function openMapSelect() {
+      state = "map_select";
+      level = mapMode === "auto" ? 1 : Number(mapMode);
+      obstacles = [];
+      orbs = [];
+      fxAnims = [];
+      popups = [];
+      syncOverlays();
+      renderCards();
+    }
+
     function spawnFx(kind, x, y, scale = 2) {
       fxAnims.push({ kind, x, y, scale, t: 0, duration: kind === "dust" ? 0.36 : 0.32 });
     }
@@ -337,7 +590,7 @@
         lvl === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "LEVEL 1: ANGKOR WAT!";
     }
 
-    function resetGame() {
+    function startRun() {
       score = 0;
       level = mapMode === "auto" ? 1 : Number(mapMode);
       speed = 380;
@@ -348,8 +601,8 @@
       trauma = 0;
       hitStopTimer = 0;
       combo = 0;
-      levelBannerTimer = level >= 2 ? 2.0 : 0;
-      levelBannerText = level >= 2 ? getLevelBanner(level) : "";
+      levelBannerTimer = 2.0;
+      levelBannerText = getLevelBanner(level);
       hero.y = GROUND_Y - 32 * HERO_SCALE;
       hero.vy = 0;
       hero.onGround = true;
@@ -363,6 +616,7 @@
       fxAnims = [];
       popups = [];
       state = "playing";
+      syncOverlays();
     }
 
     function spawnObstacle() {
@@ -416,16 +670,17 @@
     }
 
     function triggerJump() {
-      if (state === "ready" || state === "gameover") {
-        resetGame();
-        return;
+      if (state === "playing") {
+        hero.jumpBuffer = 0.12;
       }
-      hero.jumpBuffer = 0.12;
     }
 
     window.addEventListener("keydown", (e) => {
-      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) {
+      if (["Space", "ArrowUp", "KeyW", "Enter"].includes(e.code)) {
         e.preventDefault();
+        if (state === "home") { openMapSelect(); return; }
+        if (state === "map_select") { startRun(); return; }
+        if (state === "gameover") { startRun(); return; }
         if (!keys.jump) triggerJump();
         keys.jump = true;
       }
@@ -439,36 +694,38 @@
       if (["ArrowDown", "KeyS"].includes(e.code)) keys.duck = false;
     });
 
-    canvas.addEventListener("pointerdown", () => triggerJump());
-    document.getElementById("restartBtn").addEventListener("click", (e) => {
-      e.target.blur();
-      resetGame();
+    canvas.addEventListener("pointerdown", () => {
+      if (state === "playing") triggerJump();
     });
 
-    mapSelect.addEventListener("change", (e) => {
-      mapMode = e.target.value;
-      localStorage.setItem("angkor_dino_map", mapMode);
-      level = mapMode === "auto"
-        ? (state === "playing" ? (score >= 900 ? 4 : score >= 600 ? 3 : score >= 300 ? 2 : 1) : 1)
-        : Number(mapMode);
-      levelBannerTimer = 1.8;
-      levelBannerText = mapMode === "auto" ? "MAP: AUTO-CHANGE ON" : getLevelBanner(level);
-      e.target.blur();
-      if (state !== "playing") render();
-    });
-
-    charSelect.addEventListener("change", (e) => {
-      charMode = e.target.value;
-      localStorage.setItem("angkor_dino_char", charMode);
-      e.target.blur();
-      if (state !== "playing") render();
-    });
+    document.getElementById("playBtn").addEventListener("click", openMapSelect);
+    document.getElementById("backHomeBtn").addEventListener("click", openHome);
+    document.getElementById("startRunBtn").addEventListener("click", startRun);
+    document.getElementById("retryBtn").addEventListener("click", startRun);
+    document.getElementById("goMapBtn").addEventListener("click", openMapSelect);
+    document.getElementById("goHomeBtn").addEventListener("click", openHome);
+    document.getElementById("homeBtn").addEventListener("click", (e) => { e.target.blur(); openHome(); });
+    document.getElementById("mapBtn").addEventListener("click", (e) => { e.target.blur(); openMapSelect(); });
 
     document.getElementById("muteBtn").addEventListener("click", (e) => {
       muted = !muted;
       e.target.textContent = muted ? "SFX: OFF" : "SFX: ON";
       e.target.blur();
     });
+
+    const fsBtn = document.getElementById("fsBtn");
+    fsBtn.addEventListener("click", (e) => {
+      e.target.blur();
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+    document.addEventListener("fullscreenchange", () => {
+      fsBtn.textContent = document.fullscreenElement ? "EXIT FULLSCREEN" : "FULLSCREEN";
+    });
+
     document.getElementById("touchJump").addEventListener("pointerdown", (e) => {
       e.preventDefault(); triggerJump(); keys.jump = true;
     });
@@ -583,6 +840,7 @@
             highScore = Math.floor(score);
             localStorage.setItem("angkor_dino_v2_hi", String(highScore));
           }
+          syncOverlays();
           break;
         }
         if (o.x + o.w < -40) obstacles.splice(i, 1);
@@ -686,7 +944,7 @@
       if (state === "gameover" && imgs.heroes[activeVariant]["hit-0"]) frameKey = "hit-0";
       else if (!hero.onGround) frameKey = hero.vy < 0 ? "jump-0" : "jump-1";
       else if (hero.ducking && state === "playing") frameKey = "duck-" + (Math.floor(hero.animTime * 10) % 2);
-      else frameKey = state === "ready" ? "run-0" : "run-" + (Math.floor(hero.animTime * 12) % 6);
+      else frameKey = "run-" + (Math.floor(hero.animTime * 10) % 6);
 
       const hImg = imgs.heroes[activeVariant][frameKey];
       const drawW = 64 * SPRITE_SCALE;
@@ -743,36 +1001,6 @@
         ctx.font = "bold 22px Courier New";
         ctx.fillText(levelBannerText, W / 2, 87);
       }
-      if (state === "ready") {
-        ctx.fillStyle = "rgba(20, 16, 32, 0.72)";
-        ctx.fillRect(W / 2 - 290, 144, 580, 134);
-        ctx.strokeStyle = "#ebb03d";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(W / 2 - 290, 144, 580, 134);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#ffe373";
-        ctx.font = "bold 28px Courier New";
-        ctx.fillText("ANGKOR DINO RUN", W / 2, 188);
-        ctx.fillStyle = "#c4b5d9";
-        ctx.font = "bold 15px Courier New";
-        ctx.fillText(`MAP: ${MAP_LABELS[mapMode]}   |   CHAR: ${HERO_LABELS[charMode]}`, W / 2, 218);
-        ctx.fillStyle = "#fff6d6";
-        ctx.font = "18px Courier New";
-        ctx.fillText("Press SPACE / UP or Click to Start", W / 2, 252);
-      } else if (state === "gameover") {
-        ctx.fillStyle = "rgba(20, 16, 32, 0.75)";
-        ctx.fillRect(W / 2 - 240, 148, 480, 120);
-        ctx.strokeStyle = "#eb5963";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(W / 2 - 240, 148, 480, 120);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#ff9ec0";
-        ctx.font = "bold 30px Courier New";
-        ctx.fillText("GAME OVER", W / 2, 196);
-        ctx.fillStyle = "#fff6d6";
-        ctx.font = "20px Courier New";
-        ctx.fillText("Press SPACE or Click to Retry", W / 2, 236);
-      }
 
       if (flashTimer > 0) {
         ctx.fillStyle = `rgba(255, 255, 255, ${flashTimer * 2})`;
@@ -790,6 +1018,8 @@
       requestAnimationFrame(loop);
     }
 
+    renderCards();
+    syncOverlays();
     loadAssets().then(() => {
       render();
       requestAnimationFrame(loop);
