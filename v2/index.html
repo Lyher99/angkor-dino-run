@@ -134,7 +134,7 @@
     const HERO_SCALE = 3; // 32x32 PixelSpec * 3 = 96x96
     const KRAMA_SCALE = 2; // 62x48 8-frame Krama Dino * 2 = 124x96
 
-    const VARIANTS = ["krama_dino", "khmer_tiger", "white_hanuman", "crimson_garuda", "jade_dino"];
+    const VARIANTS = ["krama_dino", "khmer_tiger", "khmer_hanuman", "crimson_garuda", "jade_dino"];
     const FRAME_NAMES = ["run-0", "run-1", "run-2", "run-3", "jump-0", "jump-1", "duck-0", "duck-1"];
 
     const imgs = {
@@ -172,17 +172,18 @@
               })
             );
           }
-        } else if (v === "khmer_tiger") {
+        } else if (v === "khmer_tiger" || v === "khmer_hanuman") {
+          const folder = v === "khmer_tiger" ? "forge-tiger" : "forge-hanuman";
           for (let i = 0; i < 6; i++) {
             tasks.push(
-              loadImg(`forge-tiger/run-${i}.png?v=1`).then((img) => {
+              loadImg(`${folder}/run-${i}.png?v=1`).then((img) => {
                 imgs.heroes[v][`run-${i}`] = img;
               })
             );
           }
           for (const fn of ["jump-0", "jump-1", "duck-0", "duck-1", "hit-0"]) {
             tasks.push(
-              loadImg(`forge-tiger/${fn}.png?v=1`).then((img) => {
+              loadImg(`${folder}/${fn}.png?v=1`).then((img) => {
                 imgs.heroes[v][fn] = img;
               })
             );
@@ -671,11 +672,11 @@
         }
       }
 
-      // 5. Hero (62x48 Krama Dino, 64x48 Khmer Tiger, or 32x32 PixelSpec @3x)
+      // 5. Hero (62x48 Krama Dino, 64x48 Tiger/Hanuman, or 32x32 PixelSpec @3x)
       const activeVariant = charMode !== "auto" ? charMode : VARIANTS[level - 1];
       const isKrama = activeVariant === "krama_dino";
-      const isTiger = activeVariant === "khmer_tiger";
-      const runCount = isKrama ? 8 : isTiger ? 6 : 4;
+      const isSheet64 = activeVariant === "khmer_tiger" || activeVariant === "khmer_hanuman";
+      const runCount = isKrama ? 8 : isSheet64 ? 6 : 4;
       let frameKey = "run-0";
       if (state === "gameover" && imgs.heroes[activeVariant]["hit-0"]) frameKey = "hit-0";
       else if (!hero.onGround) frameKey = hero.vy < 0 ? "jump-0" : "jump-1";
@@ -683,9 +684,9 @@
       else frameKey = state === "ready" ? "run-0" : "run-" + (Math.floor(hero.animTime * 12) % runCount);
 
       const hImg = imgs.heroes[activeVariant][frameKey];
-      const drawW = isKrama ? 62 * KRAMA_SCALE : isTiger ? 64 * KRAMA_SCALE : 32 * HERO_SCALE;
-      const drawH = (isKrama || isTiger) ? 48 * KRAMA_SCALE : 32 * HERO_SCALE;
-      const drawX = (isKrama || isTiger) ? hero.x - 14 : hero.x;
+      const drawW = isKrama ? 62 * KRAMA_SCALE : isSheet64 ? 64 * KRAMA_SCALE : 32 * HERO_SCALE;
+      const drawH = (isKrama || isSheet64) ? 48 * KRAMA_SCALE : 32 * HERO_SCALE;
+      const drawX = (isKrama || isSheet64) ? hero.x - 14 : hero.x;
       ctx.save();
       const px = drawX + drawW / 2;
       const py = GROUND_Y;
