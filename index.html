@@ -389,8 +389,6 @@
         <div id="homeStatus" class="status-pill"></div>
         <div class="menu-grid">
           <button id="menuPlayBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_play.png" alt="PLAY" /></button>
-          <button id="menuMapBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_map.png" alt="MAP" /></button>
-          <button id="menuHeroBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_hero.png" alt="HERO" /></button>
           <button id="menuSettingsBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_settings.png" alt="SETTINGS" /></button>
         </div>
       </div>
@@ -1005,8 +1003,6 @@
     // Menu & Modal Listeners
     document.getElementById("hudSettingsBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openSettings(); });
     document.getElementById("menuPlayBtn").addEventListener("click", openDeviceSelect);
-    document.getElementById("menuHeroBtn").addEventListener("click", openHeroSelect);
-    document.getElementById("menuMapBtn").addEventListener("click", openMapSelect);
     document.getElementById("menuSettingsBtn").addEventListener("click", openSettings);
 
     document.getElementById("deviceBackBtn").addEventListener("click", openHome);
