@@ -326,6 +326,57 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+    .shop-grid, .mission-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .mission-list { grid-template-columns: 1fr; gap: 8px; }
+    @media (max-width: 560px) { .shop-grid { grid-template-columns: 1fr; } }
+    .shop-card, .mission-row {
+      background: #2b2042;
+      border: 2px solid #5c4685;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .mission-row.done { border-color: #7ee081; background: #1e3633; }
+    .shop-info { display: flex; flex-direction: column; gap: 3px; }
+    .shop-btn {
+      background: linear-gradient(180deg, #ffe066 0%, #e09619 100%);
+      color: #1c1028;
+      border: 2px solid #fff6c2;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .shop-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .toast-banner {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 17, 40, 0.94);
+      border: 2px solid #ffe373;
+      color: #ffe373;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      z-index: 30;
+      display: none;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+    }
+    .toast-banner.show { display: block; }
 
     /* On-Screen Mobile Buttons (all anchored on the RIGHT side of screen) */
     .mobile-controls {
@@ -401,6 +452,10 @@
         <div class="menu-grid">
           <button id="menuPlayBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_play.png" alt="PLAY" /></button>
           <button id="menuSettingsBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_settings.png" alt="SETTINGS" /></button>
+        </div>
+        <div class="modal-actions" style="margin-top:2px;">
+          <button id="menuShopBtn" class="px-btn">SHOP &amp; UPGRADES</button>
+          <button id="menuMissionsBtn" class="px-btn secondary">MISSIONS</button>
         </div>
       </div>
     </div>
@@ -478,9 +533,13 @@
             <img src="v2/forge-gui/card_mobile.png" alt="MOBILE" />
             <div class="card-desc">On-Screen Touch Buttons</div>
           </div>
-          <div id="sfxToggleCard" class="platform-card" style="justify-content:center;min-width:110px;">
-            <img id="sfxIconImg" src="v2/forge-gui/icon_sfx_on.png" style="width:46px;" alt="SFX" />
+          <div id="sfxToggleCard" class="platform-card" style="justify-content:center;min-width:104px;">
+            <img id="sfxIconImg" src="v2/forge-gui/icon_sfx_on.png" style="width:42px;" alt="SFX" />
             <div id="sfxLabel" class="card-name">SFX: ON</div>
+          </div>
+          <div id="bgmToggleCard" class="platform-card selected" style="justify-content:center;min-width:104px;">
+            <div style="font-size:28px;line-height:42px;">&#9835;</div>
+            <div id="bgmLabel" class="card-name">BGM: ON</div>
           </div>
         </div>
 
@@ -507,6 +566,40 @@
         </div>
       </div>
     </div>
+
+    <!-- 6. SHOP MODAL -->
+    <div id="shopOverlay" class="overlay">
+      <div class="stone-modal" style="width:min(620px, 95%);">
+        <div class="modal-header">
+          <div style="width:36px;"></div>
+          <div class="modal-title">TEMPLE SHOP</div>
+          <button id="shopCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+        </div>
+        <div id="shopCoinsLabel" class="modal-sub">YOUR GOLD COINS: 0</div>
+        <div id="shopGrid" class="shop-grid"></div>
+        <div class="modal-actions">
+          <button id="shopDoneBtn" class="px-btn secondary">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. MISSIONS MODAL -->
+    <div id="missionsOverlay" class="overlay">
+      <div class="stone-modal" style="width:min(560px, 95%);">
+        <div class="modal-header">
+          <div style="width:36px;"></div>
+          <div class="modal-title">TEMPLE MISSIONS</div>
+          <button id="missionsCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+        </div>
+        <div class="modal-sub">Complete goals during runs to earn bonus Gold Coins!</div>
+        <div id="missionList" class="mission-list"></div>
+        <div class="modal-actions">
+          <button id="missionsDoneBtn" class="px-btn secondary">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toastBanner" class="toast-banner"></div>
 
     <!-- On-Screen Mobile Buttons (Small Round Icons on Right Side) -->
     <div id="mobileControls" class="mobile-controls">
@@ -541,10 +634,10 @@
 
     const CHAR_OPTIONS = [
       { id: "auto", name: "AUTO", desc: "Matches map", preview: null },
-      { id: "krama_dino", name: "KRAMA DINO", desc: "Angkor Jade", preview: "v2/forge-dino/run-0.png?v=2" },
-      { id: "khmer_tiger", name: "KHMER TIGER", desc: "Bayon Striker", preview: "v2/forge-tiger/run-0.png?v=2" },
-      { id: "khmer_hanuman", name: "HANUMAN", desc: "Sky Warrior", preview: "v2/forge-hanuman/run-0.png?v=2" },
-      { id: "khmer_elephant", name: "ELEPHANT", desc: "Jungle Guard", preview: "v2/forge-elephant/run-0.png?v=2" },
+      { id: "krama_dino", name: "KRAMA DINO", desc: "+25% Coins & Combo", preview: "v2/forge-dino/run-0.png?v=2" },
+      { id: "khmer_tiger", name: "KHMER TIGER", desc: "Longer Fire Smash", preview: "v2/forge-tiger/run-0.png?v=2" },
+      { id: "khmer_hanuman", name: "HANUMAN", desc: "Mid-Air Double Jump", preview: "v2/forge-hanuman/run-0.png?v=2" },
+      { id: "khmer_elephant", name: "ELEPHANT", desc: "Starts With Shield", preview: "v2/forge-elephant/run-0.png?v=2" },
     ];
 
     const MAP_OPTIONS = [
@@ -558,10 +651,51 @@
     const HERO_LABELS = Object.fromEntries(CHAR_OPTIONS.map((c) => [c.id, c.name]));
     const MAP_LABELS = { auto: "AUTO", 1: "ANGKOR WAT", 2: "BAYON NIGHT", 3: "PREAH VIHEAR", 4: "TA PROHM" };
 
+    const MAP_OBSTACLES = {
+      1: [
+        { key: "obs_lv1_sema1", src: "v2/forge-items/sema_single.png", w: 29 * 2.5, h: 36 * 2.5, yOff: 36 * 2.5, frames: 1, glint: true },
+        { key: "obs_lv1_sema2", src: "v2/forge-items/sema_double.png", w: 43 * 2.5, h: 36 * 2.5, yOff: 36 * 2.5, frames: 1, glint: true },
+        { key: "obs_lv1_sema3", src: "v2/forge-items/sema_triple.png", w: 45 * 2.5, h: 36 * 2.5, yOff: 36 * 2.5, frames: 1, glint: true },
+        { key: "obs_lv1_naga1", src: "v2/forge-items/naga_single.png", w: 28 * 2.5, h: 34 * 2.5, yOff: 34 * 2.5, frames: 1, glint: true },
+        { key: "obs_lv1_naga2", src: "v2/forge-items/naga_double.png", w: 39 * 2.5, h: 34 * 2.5, yOff: 34 * 2.5, frames: 1, glint: true },
+        { key: "obs_lv1_naga3", src: "v2/forge-items/naga_triple.png", w: 80 * 2.0, h: 34 * 2.0, yOff: 34 * 2.0, frames: 1, glint: true },
+        { key: "obs_lv1_urn", src: "assets/anims/obs_lv1_urn.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv1_lotus", src: "assets/anims/obs_lv1_lotus.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
+      ],
+      2: [
+        { key: "obs_lv2_pillar", src: "assets/anims/obs_pillar_lv2.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 8 },
+        { key: "obs_lv2_brazier", src: "assets/anims/obs_lv2_brazier.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 9 },
+        { key: "obs_lv2_singha", src: "assets/anims/obs_lv2_singha.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv2_faceblock", src: "assets/anims/obs_lv2_faceblock.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
+      ],
+      3: [
+        { key: "obs_lv3_pillar", src: "assets/anims/obs_pillar_lv3.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv3_tree", src: "assets/anims/obs_lv3_tree.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv3_boulders", src: "assets/anims/obs_lv3_boulders.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 8 },
+        { key: "obs_lv3_roof", src: "assets/anims/obs_lv3_roof.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
+      ],
+      4: [
+        { key: "obs_lv4_pillar", src: "assets/anims/obs_pillar_lv4.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv4_mushroom", src: "assets/anims/obs_lv4_mushroom.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv4_roots", src: "assets/anims/obs_lv4_roots.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
+        { key: "obs_lv4_rubble", src: "assets/anims/obs_lv4_rubble.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
+      ],
+    };
+
     const imgs = {
       heroes: {},
       fx: { dust: [], impact: [], orb: [] },
+      items: { coin: [], lotus: [], shield: null, aura: null, chili: null, bamboo: null },
       bird: [],
+      birdLv2High: [],
+      birdLv2Low: [],
+      birdLv2Dive: [],
+      birdLv3High: [],
+      birdLv3Low: [],
+      birdLv3Dive: [],
+      birdLv4High: [],
+      birdLv4Low: [],
+      birdLv4Dive: [],
       env: {},
     };
     let assetsLoaded = false;
@@ -604,7 +738,40 @@
         tasks.push(loadImg(`v2/forge-fx/frames/orb-0${i}.png`).then((img) => { imgs.fx.orb[i] = img; }));
       }
       for (let i = 0; i < 4; i++) {
+        tasks.push(loadImg(`v2/forge-items/coin-${i}.png`).then((img) => { imgs.items.coin[i] = img; }));
+      }
+      for (let i = 0; i < 3; i++) {
+        tasks.push(loadImg(`v2/forge-items/lotus-${i}.png`).then((img) => { imgs.items.lotus[i] = img; }));
+      }
+      tasks.push(loadImg("v2/forge-items/pu_shield.png").then((img) => { imgs.items.shield = img; }));
+      tasks.push(loadImg("v2/forge-items/pu_aura.png").then((img) => { imgs.items.aura = img; }));
+      tasks.push(loadImg("v2/forge-items/pu_chili.png").then((img) => { imgs.items.chili = img; }));
+      tasks.push(loadImg("v2/forge-items/pu_bamboo.png").then((img) => { imgs.items.bamboo = img; }));
+      for (let i = 0; i < 4; i++) {
         tasks.push(loadImg(`v2/forge-bird-ai-48-clips/frames/frame-0${i}.png?v=2`).then((img) => { imgs.bird[i] = img; }));
+      }
+      for (let i = 0; i < 6; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv2/high-${i}.png`).then((img) => { imgs.birdLv2High[i] = img; }));
+      }
+      for (let i = 0; i < 5; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv2/low-${i}.png`).then((img) => { imgs.birdLv2Low[i] = img; }));
+      }
+      for (let i = 0; i < 6; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv3/high-${i}.png`).then((img) => { imgs.birdLv3High[i] = img; }));
+      }
+      for (let i = 0; i < 5; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv3/low-${i}.png`).then((img) => { imgs.birdLv3Low[i] = img; }));
+      }
+      for (let i = 0; i < 6; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv4/high-${i}.png`).then((img) => { imgs.birdLv4High[i] = img; }));
+      }
+      for (let i = 0; i < 5; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv4/low-${i}.png`).then((img) => { imgs.birdLv4Low[i] = img; }));
+      }
+      for (let i = 0; i < 5; i++) {
+        tasks.push(loadImg(`v2/forge-bird-lv2/dive-${i}.png`).then((img) => { imgs.birdLv2Dive[i] = img; }));
+        tasks.push(loadImg(`v2/forge-bird-lv3/dive-${i}.png`).then((img) => { imgs.birdLv3Dive[i] = img; }));
+        tasks.push(loadImg(`v2/forge-bird-lv4/dive-${i}.png`).then((img) => { imgs.birdLv4Dive[i] = img; }));
       }
       const envPaths = {
         bg_angkor: "assets/anims/bg_angkor.png",
@@ -615,11 +782,12 @@
         ground_2: "assets/sprites/ground_tile_lv2.png",
         ground_3: "assets/sprites/ground_tile_lv3.png",
         ground_4: "assets/sprites/ground_tile_lv4.png",
-        obs_pillar: "assets/sprites/obs_pillar.png",
-        obs_naga: "assets/sprites/obs_naga.png",
         fx_petal: "assets/sprites/petal.png",
         fx_leaf: "assets/sprites/leaf.png",
       };
+      for (const list of Object.values(MAP_OBSTACLES)) {
+        for (const item of list) envPaths[item.key] = item.src;
+      }
       for (const [k, src] of Object.entries(envPaths)) {
         tasks.push(loadImg(src).then((img) => { imgs.env[k] = img; }));
       }
@@ -627,10 +795,22 @@
       assetsLoaded = true;
     }
 
-    // Audio-Design Bus + Pitch-Varied SFX
+    // Audio-Design Bus + Pitch-Varied SFX + Procedural Khmer Pentatonic BGM
     let audioCtx = null;
     let sfxBus = null;
+    let bgmBus = null;
     let muted = false;
+    let bgmEnabled = localStorage.getItem("angkor_dino_bgm") !== "0";
+    let bgmStep = 0;
+    let bgmAccum = 0;
+    const BGM_SCALES = {
+      1: [261.6, 293.7, 329.6, 392.0, 440.0, 523.3, 587.3], // Angkor warm major pentatonic
+      2: [220.0, 261.6, 293.7, 329.6, 392.0, 440.0, 523.3], // Bayon twilight minor pentatonic
+      3: [293.7, 329.6, 392.0, 440.0, 523.3, 587.3, 659.3], // Preah Vihear soaring sky
+      4: [246.9, 293.7, 329.6, 370.0, 440.0, 493.9, 587.3], // Ta Prohm mysterious jungle
+    };
+    const BGM_MELODY = [0, 2, 4, 5, 4, 2, 3, 1, 0, 4, 5, 6, 5, 4, 2, 0];
+
     function ensureAudio() {
       if (!audioCtx) {
         const AC = window.AudioContext || window.webkitAudioContext;
@@ -639,9 +819,39 @@
           sfxBus = audioCtx.createGain();
           sfxBus.gain.value = 0.85;
           sfxBus.connect(audioCtx.destination);
+          bgmBus = audioCtx.createGain();
+          bgmBus.gain.value = 0.24;
+          bgmBus.connect(audioCtx.destination);
         }
       }
       if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    }
+    function playBgmNote(freq, dur, type = "triangle", vol = 0.14) {
+      if (!bgmEnabled || !audioCtx || !bgmBus) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(bgmBus);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur);
+    }
+    function tickBgm(dt) {
+      if (!bgmEnabled || state !== "playing") return;
+      const stepDur = bossRushTimer > 0 ? 0.145 : (chiliTimer > 0 ? 0.15 : 0.195);
+      bgmAccum += dt;
+      if (bgmAccum >= stepDur) {
+        bgmAccum -= stepDur;
+        ensureAudio();
+        const scale = BGM_SCALES[level] || BGM_SCALES[1];
+        const idx = BGM_MELODY[bgmStep % BGM_MELODY.length];
+        playBgmNote(scale[idx], stepDur * 1.15, "triangle", 0.16);
+        if (bgmStep % 4 === 0) playBgmNote(scale[0] * 0.5, stepDur * 2.2, "sine", 0.15);
+        bgmStep++;
+      }
     }
     function playTone(freq, endFreq, duration, type = "square", vol = 0.08, jitter = 0.04) {
       if (muted) return;
@@ -734,14 +944,131 @@
       animTime: 0,
       jumpBuffer: 0,
       coyote: 0,
+      airJumps: 0,
       scaleX: 1,
       scaleY: 1,
     };
 
+    // Persistent Progression: Coin Bank, Shop Upgrades & Missions
+    const DEFAULT_SAVE = {
+      coins: 0,
+      upgrades: { startShield: 0, powerDur: 0, magnet: 0, goldAura: 0 },
+      stats: { coins: 0, smashes: 0, nearMisses: 0, maxLevel: 1, bestScore: 0 },
+      claimed: {},
+    };
+    let saveData = (() => {
+      try {
+        const raw = JSON.parse(localStorage.getItem("angkor_dino_save_v1") || "{}");
+        return {
+          coins: Number(raw.coins || 0),
+          upgrades: { ...DEFAULT_SAVE.upgrades, ...(raw.upgrades || {}) },
+          stats: { ...DEFAULT_SAVE.stats, ...(raw.stats || {}) },
+          claimed: { ...(raw.claimed || {}) },
+        };
+      } catch { return JSON.parse(JSON.stringify(DEFAULT_SAVE)); }
+    })();
+    function persistSave() {
+      localStorage.setItem("angkor_dino_save_v1", JSON.stringify(saveData));
+    }
+
+    const SHOP_ITEMS = [
+      { id: "startShield", name: "STARTING SHIELD", desc: "Begin every run with a Shield", max: 1, costs: [30] },
+      { id: "powerDur", name: "POWER DURATION", desc: "+1.5s Chili & Bamboo per Lv", max: 3, costs: [25, 50, 80] },
+      { id: "magnet", name: "COIN MAGNET", desc: "Pulls nearby Coins & Lotuses", max: 3, costs: [35, 65, 100] },
+      { id: "goldAura", name: "ROYAL GOLD TRAIL", desc: "Golden sparkle trail on hero", max: 1, costs: [120] },
+    ];
+    const MISSIONS = [
+      { id: "m_coins", title: "Treasure Hunter", desc: "Collect 15 Gold Coins", goal: 15, stat: "coins", reward: 20 },
+      { id: "m_smash", title: "Chili Crusher", desc: "Smash 5 obstacles with Fire Chili", goal: 5, stat: "smashes", reward: 30 },
+      { id: "m_close", title: "Close Call Master", desc: "Land 5 Near-Miss jumps", goal: 5, stat: "nearMisses", reward: 25 },
+      { id: "m_realm", title: "Realm Explorer", desc: "Reach Map 3 (Preah Vihear)", goal: 3, stat: "maxLevel", reward: 40 },
+      { id: "m_score", title: "Angkor Legend", desc: "Reach 1,000 pts in one run", goal: 1000, stat: "bestScore", reward: 60 },
+    ];
+
+    const shopOverlay = document.getElementById("shopOverlay");
+    const missionsOverlay = document.getElementById("missionsOverlay");
+    const shopGrid = document.getElementById("shopGrid");
+    const shopCoinsLabel = document.getElementById("shopCoinsLabel");
+    const missionList = document.getElementById("missionList");
+    const toastBanner = document.getElementById("toastBanner");
+    const bgmToggleCard = document.getElementById("bgmToggleCard");
+    const bgmLabel = document.getElementById("bgmLabel");
+    let toastTimer = null;
+
+    function showToast(msg) {
+      toastBanner.textContent = msg;
+      toastBanner.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastBanner.classList.remove("show"), 2600);
+    }
+
+    function checkMissions() {
+      let updated = false;
+      for (const m of MISSIONS) {
+        if (!saveData.claimed[m.id] && (saveData.stats[m.stat] || 0) >= m.goal) {
+          saveData.claimed[m.id] = true;
+          saveData.coins += m.reward;
+          updated = true;
+          sfx.milestone();
+          showToast(`MISSION COMPLETE: ${m.title}! +${m.reward} GOLD COINS`);
+        }
+      }
+      if (updated) persistSave();
+    }
+
+    function renderShop() {
+      shopCoinsLabel.textContent = `YOUR GOLD COINS: ${saveData.coins}`;
+      shopGrid.innerHTML = "";
+      for (const item of SHOP_ITEMS) {
+        const lv = saveData.upgrades[item.id] || 0;
+        const maxed = lv >= item.max;
+        const cost = maxed ? 0 : item.costs[lv];
+        const card = document.createElement("div");
+        card.className = "shop-card";
+        card.innerHTML = `<div class="shop-info"><div class="card-name">${item.name} (${lv}/${item.max})</div><div class="card-desc">${item.desc}</div></div><button class="shop-btn" ${maxed || saveData.coins < cost ? "disabled" : ""}>${maxed ? "MAXED" : `${cost} COINS`}</button>`;
+        const btn = card.querySelector("button");
+        btn.addEventListener("click", () => {
+          if (maxed || saveData.coins < cost) return;
+          saveData.coins -= cost;
+          saveData.upgrades[item.id] = lv + 1;
+          persistSave();
+          sfx.milestone();
+          renderShop();
+          syncOverlays();
+        });
+        shopGrid.appendChild(card);
+      }
+    }
+
+    function renderMissions() {
+      missionList.innerHTML = "";
+      for (const m of MISSIONS) {
+        const cur = Math.min(m.goal, saveData.stats[m.stat] || 0);
+        const done = !!saveData.claimed[m.id];
+        const row = document.createElement("div");
+        row.className = "mission-row" + (done ? " done" : "");
+        row.innerHTML = `<div class="shop-info"><div class="card-name">${done ? "&#10003; " : ""}${m.title} (+${m.reward} Coins)</div><div class="card-desc">${m.desc}</div></div><div class="card-name" style="color:${done ? "#7ee081" : "#ffe373"}">${cur} / ${m.goal}</div>`;
+        missionList.appendChild(row);
+      }
+    }
+
     let obstacles = [];
     let orbs = [];
+    let powerups = [];
+    let diveWarnings = [];
+    let trailParticles = [];
     let fxAnims = [];
     let popups = [];
+    let shieldCharges = 0;
+    let invulnTimer = 0;
+    let chiliTimer = 0;
+    let bambooTimer = 0;
+    let runCoins = 0;
+    let comboForgive = 0;
+    let bossRushTimer = 0;
+    let bossNextLevel = 0;
+    let bossSpawnAccum = 0;
+    let bossTriggered = { 2: false, 3: false, 4: false };
     const motes = Array.from({ length: 16 }, (_, i) => ({
       x: (i * 63) % W,
       y: 60 + ((i * 71) % (GROUND_Y - 100)),
@@ -769,14 +1096,18 @@
       mapOverlay.classList.toggle("active", state === "map_select");
       settingsOverlay.classList.toggle("active", state === "paused");
       gameoverOverlay.classList.toggle("active", state === "gameover");
+      shopOverlay.classList.toggle("active", state === "shop");
+      missionsOverlay.classList.toggle("active", state === "missions");
       mobileControls.classList.toggle("playing", state === "playing");
 
-      homeStatus.textContent = `HERO: ${HERO_LABELS[charMode]}  |  MAP: ${MAP_LABELS[mapMode]}  |  DEVICE: ${deviceMode.toUpperCase()}`;
+      homeStatus.textContent = `HERO: ${HERO_LABELS[charMode]}  |  MAP: ${MAP_LABELS[mapMode]}  |  COINS: ${saveData.coins}`;
+      bgmToggleCard.classList.toggle("selected", bgmEnabled);
+      bgmLabel.textContent = bgmEnabled ? "BGM: ON" : "BGM: OFF";
       if (state === "map_select") {
         mapSub.textContent = `Hero: ${HERO_LABELS[charMode]} — Choose a Map or AUTO to progress through all 4 realms`;
       }
       if (state === "gameover") {
-        gameoverStats.textContent = `Score: ${Math.floor(score)}   |   Best: ${highScore}`;
+        gameoverStats.textContent = `Score: ${Math.floor(score)}  |  Best: ${highScore}  |  +${runCoins} Coins`;
       }
       const inRun = prevStateBeforeSettings === "playing";
       settingsTitle.textContent = inRun ? "PAUSED & SETTINGS" : "SETTINGS";
@@ -832,11 +1163,22 @@
       }
     }
 
+    function openShop() {
+      state = "shop";
+      renderShop();
+      syncOverlays();
+    }
+    function openMissions() {
+      state = "missions";
+      renderMissions();
+      syncOverlays();
+    }
+
     function openHome() {
       state = "home";
       prevStateBeforeSettings = "home";
       level = mapMode === "auto" ? 1 : Number(mapMode);
-      obstacles = []; orbs = []; fxAnims = []; popups = [];
+      obstacles = []; orbs = []; powerups = []; diveWarnings = []; trailParticles = []; fxAnims = []; popups = [];
       syncOverlays();
       renderCards();
     }
@@ -905,48 +1247,95 @@
       hero.scaleY = 1;
       obstacles = [];
       orbs = [];
+      powerups = [];
+      diveWarnings = [];
+      trailParticles = [];
       fxAnims = [];
       popups = [];
+      const startHero = charMode !== "auto" ? charMode : VARIANTS[level - 1];
+      shieldCharges = (saveData.upgrades.startShield || 0) + (startHero === "khmer_elephant" ? 1 : 0);
+      invulnTimer = 0;
+      chiliTimer = 0;
+      bambooTimer = 0;
+      runCoins = 0;
+      comboForgive = 0;
+      bossRushTimer = 0;
+      bossNextLevel = 0;
+      bossSpawnAccum = 0;
+      bossTriggered = { 2: false, 3: false, 4: false };
+      hero.airJumps = startHero === "khmer_hanuman" ? 1 : 0;
+      if (level > saveData.stats.maxLevel) { saveData.stats.maxLevel = level; checkMissions(); }
       prevStateBeforeSettings = "playing";
       state = "playing";
       syncOverlays();
     }
 
+    let lastObsKey = "";
+    function spawnDiveWarning(targetY) {
+      diveWarnings.push({ y: targetY, t: 0.65, lvl: level });
+      playTone(880, 620, 0.08, "sawtooth", 0.06);
+    }
+
     function spawnObstacle() {
       const r = Math.random();
-      if (score > 80 && r < 0.30) {
+      if (score > 140 && r < 0.14) {
+        // Fast Diving Attack bird with "!" warning indicator!
+        const targetY = Math.random() < 0.5 ? GROUND_Y - 146 : GROUND_Y - 98;
+        spawnDiveWarning(targetY);
+      } else if (score > 80 && r < 0.30) {
         const high = Math.random() < 0.6;
         obstacles.push({
           type: "garuda",
+          lvl: level,
+          high,
+          dive: false,
           x: W + 40,
           y: high ? GROUND_Y - 156 : GROUND_Y - 102,
           w: 64 * 2,
           h: 56 * 2,
           animTime: Math.random() * 0.5,
         });
-      } else if (r < 0.65) {
-        obstacles.push({
-          type: "pillar",
-          x: W + 40,
-          y: GROUND_Y - 28 * 3,
-          w: 24 * 3,
-          h: 38 * 3,
-        });
       } else {
+        const pool = MAP_OBSTACLES[level] || MAP_OBSTACLES[1];
+        let pick = pool[Math.floor(Math.random() * pool.length)];
+        if (pool.length > 1 && pick.key === lastObsKey) {
+          pick = pool[(pool.indexOf(pick) + 1 + Math.floor(Math.random() * (pool.length - 1))) % pool.length];
+        }
+        lastObsKey = pick.key;
         obstacles.push({
-          type: "naga",
+          type: "ground",
+          spriteKey: pick.key,
+          fw: pick.fw || 0,
+          fh: pick.fh || 0,
+          frames: pick.frames || 1,
+          fps: pick.fps || 6,
+          glint: !!pick.glint,
           x: W + 40,
-          y: GROUND_Y - 19 * 3,
-          w: 36 * 3,
-          h: 32 * 3,
+          y: GROUND_Y - pick.yOff,
+          w: pick.w,
+          h: pick.h,
+          animTime: Math.random() * 0.6,
         });
       }
-      if (Math.random() < 0.55) {
+      if (Math.random() < 0.62) {
+        const isLotus = Math.random() < 0.28;
         orbs.push({
+          kind: isLotus ? "lotus" : "coin",
           x: W + 220 + Math.random() * 120,
           y: GROUND_Y - (Math.random() < 0.5 ? 88 : 168),
-          size: 48 * 1.5,
+          size: isLotus ? 54 : 46,
           t: Math.random(),
+        });
+      }
+      if (score > 40 && Math.random() < 0.14 && powerups.length === 0) {
+        const kinds = ["shield", "chili", "bamboo"];
+        const pKind = kinds[Math.floor(Math.random() * kinds.length)];
+        powerups.push({
+          kind: pKind,
+          x: W + 320 + Math.random() * 120,
+          y: GROUND_Y - (Math.random() < 0.5 ? 110 : 175),
+          size: 52,
+          t: Math.random() * 2,
         });
       }
     }
@@ -1024,6 +1413,12 @@
     document.getElementById("hudFullscreenBtn").addEventListener("click", (e) => { e.currentTarget.blur(); toggleFullscreen(); });
     document.getElementById("menuPlayBtn").addEventListener("click", openDeviceSelect);
     document.getElementById("menuSettingsBtn").addEventListener("click", openSettings);
+    document.getElementById("menuShopBtn").addEventListener("click", openShop);
+    document.getElementById("menuMissionsBtn").addEventListener("click", openMissions);
+    document.getElementById("shopCloseBtn").addEventListener("click", openHome);
+    document.getElementById("shopDoneBtn").addEventListener("click", openHome);
+    document.getElementById("missionsCloseBtn").addEventListener("click", openHome);
+    document.getElementById("missionsDoneBtn").addEventListener("click", openHome);
 
     document.getElementById("deviceBackBtn").addEventListener("click", openHome);
     document.getElementById("deviceCloseBtn").addEventListener("click", openHome);
@@ -1053,6 +1448,11 @@
       muted = !muted;
       sfxIconImg.src = muted ? "v2/forge-gui/icon_sfx_off.png" : "v2/forge-gui/icon_sfx_on.png";
       sfxLabel.textContent = muted ? "SFX: OFF" : "SFX: ON";
+    });
+    bgmToggleCard.addEventListener("click", () => {
+      bgmEnabled = !bgmEnabled;
+      localStorage.setItem("angkor_dino_bgm", bgmEnabled ? "1" : "0");
+      syncOverlays();
     });
 
     const touchJump = document.getElementById("touchJump");
@@ -1099,20 +1499,55 @@
         return;
       }
 
-      speed = Math.min(820, 360 + score * 0.36);
-      dist += speed * dt;
-      score += dt * 14;
+      const activeHeroId = charMode !== "auto" ? charMode : VARIANTS[level - 1];
+      tickBgm(dt);
 
-      if (mapMode === "auto") {
-        if (level === 1 && score >= 300) {
-          level = 2; levelBannerTimer = 2.4; levelBannerText = getLevelBanner(2);
-          flashTimer = 0.2; trauma = Math.min(1, trauma + 0.35); sfx.milestone();
-        } else if (level === 2 && score >= 600) {
-          level = 3; levelBannerTimer = 2.6; levelBannerText = getLevelBanner(3);
-          flashTimer = 0.25; trauma = Math.min(1, trauma + 0.4); sfx.milestone();
-        } else if (level === 3 && score >= 900) {
-          level = 4; levelBannerTimer = 2.6; levelBannerText = getLevelBanner(4);
-          flashTimer = 0.25; trauma = Math.min(1, trauma + 0.45); sfx.milestone();
+      const baseSpeed = Math.min(820, 360 + score * 0.36);
+      if (invulnTimer > 0) invulnTimer = Math.max(0, invulnTimer - dt);
+      if (chiliTimer > 0) chiliTimer = Math.max(0, chiliTimer - dt);
+      if (bambooTimer > 0) bambooTimer = Math.max(0, bambooTimer - dt);
+
+      speed = chiliTimer > 0 ? Math.min(980, baseSpeed * 1.38) : (bossRushTimer > 0 ? Math.min(860, baseSpeed * 1.12) : baseSpeed);
+      dist += speed * dt;
+      score += dt * 14 * (chiliTimer > 0 || bambooTimer > 0 || combo >= 4 ? 2 : 1);
+
+      if (Math.floor(score) > saveData.stats.bestScore) {
+        saveData.stats.bestScore = Math.floor(score);
+        if (saveData.stats.bestScore >= 1000) checkMissions();
+      }
+
+      // Temple Boss Rush -> Realm Transition in AUTO mode
+      if (mapMode === "auto" && bossRushTimer <= 0) {
+        if (level === 1 && !bossTriggered[2] && score >= 280) {
+          bossTriggered[2] = true; bossRushTimer = 7.5; bossNextLevel = 2;
+          levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR BAYON!";
+          trauma = Math.min(1, trauma + 0.3); sfx.milestone();
+        } else if (level === 2 && !bossTriggered[3] && score >= 580) {
+          bossTriggered[3] = true; bossRushTimer = 7.5; bossNextLevel = 3;
+          levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR PREAH VIHEAR!";
+          trauma = Math.min(1, trauma + 0.35); sfx.milestone();
+        } else if (level === 3 && !bossTriggered[4] && score >= 880) {
+          bossTriggered[4] = true; bossRushTimer = 7.5; bossNextLevel = 4;
+          levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR TA PROHM!";
+          trauma = Math.min(1, trauma + 0.4); sfx.milestone();
+        }
+      }
+      if (bossRushTimer > 0) {
+        bossRushTimer -= dt;
+        bossSpawnAccum += dt;
+        if (bossSpawnAccum >= 1.55) {
+          bossSpawnAccum = 0;
+          spawnDiveWarning(Math.random() < 0.5 ? GROUND_Y - 148 : GROUND_Y - 100);
+          orbs.push({ kind: "coin", x: W + 60, y: GROUND_Y - 130, size: 46, t: Math.random() });
+        }
+        if (bossRushTimer <= 0) {
+          bossRushTimer = 0;
+          level = bossNextLevel;
+          score += 250;
+          levelBannerTimer = 2.6;
+          levelBannerText = `REALM CLEAR +250! ${getLevelBanner(level)}`;
+          flashTimer = 0.28; trauma = Math.min(1, trauma + 0.45); sfx.milestone();
+          if (level > saveData.stats.maxLevel) { saveData.stats.maxLevel = level; checkMissions(); }
         }
       }
 
@@ -1127,18 +1562,21 @@
       else hero.coyote = Math.max(0, hero.coyote - dt);
       if (hero.jumpBuffer > 0) hero.jumpBuffer -= dt;
 
-      if (hero.jumpBuffer > 0 && hero.coyote > 0) {
-        hero.vy = -900;
+      if (hero.jumpBuffer > 0 && (hero.coyote > 0 || hero.airJumps > 0)) {
+        const isAirJump = hero.coyote <= 0;
+        if (isAirJump) hero.airJumps--;
+        hero.vy = bambooTimer > 0 ? -1040 : (isAirJump ? -820 : -900);
         hero.onGround = false;
         hero.coyote = 0;
         hero.jumpBuffer = 0;
         hero.scaleX = 0.84;
         hero.scaleY = 1.18;
         sfx.jump();
-        spawnFx("dust", hero.x + 12, GROUND_Y - 76, 2);
+        spawnFx("dust", hero.x + 12, isAirJump ? hero.y + 42 : GROUND_Y - 76, isAirJump ? 1.6 : 2);
+        if (isAirJump) popups.push({ x: hero.x + 48, y: hero.y, text: "DOUBLE JUMP!", life: 0.65 });
       }
 
-      let grav = 2150;
+      let grav = bambooTimer > 0 ? 1850 : 2150;
       if (hero.vy < 0 && !keys.jump) grav = 3400;
       if (keys.duck && !hero.onGround) grav = 5200;
       hero.vy += grav * dt;
@@ -1153,6 +1591,44 @@
         hero.y = GROUND_Y - 32 * HERO_SCALE;
         hero.vy = 0;
         hero.onGround = true;
+        hero.airJumps = activeHeroId === "khmer_hanuman" ? 1 : 0;
+      }
+
+      // Fever / Gold Aura trail particles
+      if (combo >= 4 || saveData.upgrades.goldAura > 0 || chiliTimer > 0) {
+        if (Math.random() < 0.55) {
+          trailParticles.push({
+            x: hero.x + 14 + Math.random() * 16,
+            y: hero.y + 24 + Math.random() * 52,
+            life: 0.35,
+            col: chiliTimer > 0 ? "#ff5e3a" : "#ffe373",
+          });
+        }
+      }
+      for (let i = trailParticles.length - 1; i >= 0; i--) {
+        trailParticles[i].x -= speed * 0.55 * dt;
+        trailParticles[i].life -= dt;
+        if (trailParticles[i].life <= 0) trailParticles.splice(i, 1);
+      }
+
+      // Update Diving Bird Warnings ("!")
+      for (let i = diveWarnings.length - 1; i >= 0; i--) {
+        diveWarnings[i].t -= dt;
+        if (diveWarnings[i].t <= 0) {
+          const dw = diveWarnings[i];
+          obstacles.push({
+            type: "garuda",
+            lvl: dw.lvl,
+            high: false,
+            dive: true,
+            x: W + 24,
+            y: dw.y,
+            w: 64 * 2,
+            h: 56 * 2,
+            animTime: 0,
+          });
+          diveWarnings.splice(i, 1);
+        }
       }
 
       hero.animTime += dt * (speed / 360);
@@ -1167,45 +1643,124 @@
       const hBox = getHeroHitbox();
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const o = obstacles[i];
-        o.x -= (o.type === "garuda" ? speed * 1.12 : speed) * dt;
+        const moveMul = o.type === "garuda" ? (o.dive ? 1.45 : 1.12) : 1.0;
+        o.x -= speed * moveMul * dt;
         if (o.animTime !== undefined) o.animTime += dt;
         const oBox = { x: o.x + 18, y: o.y + 12, w: o.w - 36, h: o.h - 18 };
         if (boxesOverlap(hBox, oBox)) {
-          state = "gameover";
-          flashTimer = 0.25;
-          trauma = 0.85;
-          hitStopTimer = 0.08;
-          sfx.hit();
-          spawnFx("impact", hBox.x + 10, hBox.y + 10, 2);
-          if (Math.floor(score) > highScore) {
-            highScore = Math.floor(score);
-            localStorage.setItem("angkor_dino_v2_hi", String(highScore));
+          if (chiliTimer > 0) {
+            const smashPts = activeHeroId === "khmer_tiger" ? 100 : 75;
+            score += smashPts;
+            saveData.stats.smashes++;
+            checkMissions();
+            trauma = Math.min(1, trauma + 0.35);
+            sfx.orb();
+            spawnFx("impact", o.x + o.w * 0.3, o.y + o.h * 0.3, 2.2);
+            popups.push({ x: o.x + o.w / 2, y: o.y, text: `+${smashPts} SMASH!`, life: 0.85 });
+            obstacles.splice(i, 1);
+            continue;
+          } else if (invulnTimer > 0) {
+            continue;
+          } else if (shieldCharges > 0) {
+            shieldCharges--;
+            invulnTimer = 0.9;
+            flashTimer = 0.18;
+            trauma = 0.55;
+            hitStopTimer = 0.05;
+            sfx.milestone();
+            spawnFx("impact", hBox.x + 10, hBox.y + 10, 2.4);
+            popups.push({ x: hero.x + 48, y: hero.y - 10, text: "SHIELD SAVED!", life: 1.0 });
+            obstacles.splice(i, 1);
+            continue;
+          } else {
+            state = "gameover";
+            flashTimer = 0.25;
+            trauma = 0.85;
+            hitStopTimer = 0.08;
+            sfx.hit();
+            spawnFx("impact", hBox.x + 10, hBox.y + 10, 2);
+            if (Math.floor(score) > highScore) {
+              highScore = Math.floor(score);
+              localStorage.setItem("angkor_dino_v2_hi", String(highScore));
+            }
+            persistSave();
+            syncOverlays();
+            break;
           }
-          syncOverlays();
-          break;
+        }
+        // Near-Miss Detection ("CLOSE CALL!") when jumping closely over an obstacle
+        if (!o.nearMissed && o.x + o.w < hBox.x && o.x + o.w > hBox.x - 40 && !hero.onGround && Math.abs((hBox.y + hBox.h) - oBox.y) < 34) {
+          o.nearMissed = true;
+          score += 25;
+          saveData.stats.nearMisses++;
+          checkMissions();
+          popups.push({ x: hero.x + 56, y: hero.y - 8, text: "+25 CLOSE CALL!", life: 0.8 });
         }
         if (o.x + o.w < -40) obstacles.splice(i, 1);
       }
 
+      const magnetRange = (saveData.upgrades.magnet || 0) * 85;
       for (let i = orbs.length - 1; i >= 0; i--) {
         const ob = orbs[i];
         ob.x -= speed * dt;
         ob.t += dt;
-        if (boxesOverlap(hBox, { x: ob.x + 10, y: ob.y + 10, w: ob.size - 20, h: ob.size - 20 })) {
+        if (magnetRange > 0) {
+          const dx = (hero.x + 48) - (ob.x + ob.size / 2);
+          const dy = (hero.y + 48) - (ob.y + ob.size / 2);
+          const d = Math.hypot(dx, dy);
+          if (d < magnetRange && d > 4) {
+            ob.x += (dx / d) * 420 * dt;
+            ob.y += (dy / d) * 420 * dt;
+          }
+        }
+        if (boxesOverlap(hBox, { x: ob.x + 6, y: ob.y + 6, w: ob.size - 12, h: ob.size - 12 })) {
           combo = Math.min(4, combo + 1);
-          const pts = 50 * combo;
+          comboForgive = activeHeroId === "krama_dino" ? 1 : 0;
+          const basePts = ob.kind === "lotus" ? 100 : 50;
+          const dinoBonus = activeHeroId === "krama_dino" ? 1.25 : 1.0;
+          const pts = Math.round(basePts * combo * dinoBonus);
           score += pts;
+          const coinGain = ob.kind === "lotus" ? 3 : 1;
+          runCoins += coinGain;
+          saveData.coins += coinGain;
+          saveData.stats.coins += coinGain;
+          checkMissions();
           trauma = Math.min(1, trauma + 0.18);
           sfx.orb();
-          spawnFx("impact", ob.x, ob.y, 1.8);
-          popups.push({ x: ob.x + ob.size / 2, y: ob.y, text: combo > 1 ? `+${pts} x${combo}` : `+${pts}`, life: 0.85 });
+          spawnFx("impact", ob.x, ob.y, 1.6);
+          popups.push({ x: ob.x + ob.size / 2, y: ob.y, text: combo >= 4 ? `FEVER +${pts}!` : (combo > 1 ? `+${pts} x${combo}` : `+${pts}`), life: 0.85 });
           orbs.splice(i, 1);
           continue;
         }
         if (ob.x + ob.size < -40) {
-          combo = 0;
+          if (comboForgive > 0) comboForgive--;
+          else combo = 0;
           orbs.splice(i, 1);
         }
+      }
+
+      const durBonus = (saveData.upgrades.powerDur || 0) * 1.5;
+      for (let i = powerups.length - 1; i >= 0; i--) {
+        const pu = powerups[i];
+        pu.x -= speed * dt;
+        pu.t += dt;
+        if (boxesOverlap(hBox, { x: pu.x + 6, y: pu.y + 6, w: pu.size - 12, h: pu.size - 12 })) {
+          sfx.milestone();
+          spawnFx("impact", pu.x, pu.y, 2.0);
+          if (pu.kind === "shield") {
+            shieldCharges = Math.min(2, shieldCharges + 1);
+            popups.push({ x: pu.x + 26, y: pu.y, text: "SHIELD ON!", life: 1.0 });
+          } else if (pu.kind === "chili") {
+            chiliTimer = 4.5 + durBonus + (activeHeroId === "khmer_tiger" ? 1.5 : 0);
+            popups.push({ x: pu.x + 26, y: pu.y, text: "FIRE DASH!", life: 1.0 });
+          } else if (pu.kind === "bamboo") {
+            bambooTimer = 6.0 + durBonus;
+            popups.push({ x: pu.x + 26, y: pu.y, text: "SUPER JUMP 2x!", life: 1.0 });
+          }
+          powerups.splice(i, 1);
+          continue;
+        }
+        if (pu.x + pu.size < -40) powerups.splice(i, 1);
       }
 
       for (let i = fxAnims.length - 1; i >= 0; i--) {
@@ -1246,6 +1801,40 @@
       ctx.fillStyle = level === 2 ? "rgba(10, 8, 22, 0.16)" : "rgba(20, 14, 30, 0.08)";
       ctx.fillRect(0, 0, W, GROUND_Y);
 
+      // Multi-Layer Parallax Weather & Per-Map Atmosphere
+      ctx.save();
+      const atmOff = (dist * 0.18) % W;
+      if (level === 1) {
+        // Golden Angkor diagonal sunbeams
+        ctx.fillStyle = "rgba(255, 227, 115, 0.07)";
+        for (let i = 0; i < 4; i++) {
+          const bx = ((i * 290 - atmOff * 0.5) % (W + 240) + W + 240) % (W + 240) - 120;
+          ctx.beginPath(); ctx.moveTo(bx, 0); ctx.lineTo(bx + 70, 0); ctx.lineTo(bx - 60, GROUND_Y); ctx.lineTo(bx - 130, GROUND_Y); ctx.fill();
+        }
+      } else if (level === 2) {
+        // Drifting Bayon twilight mist bands
+        ctx.fillStyle = "rgba(150, 130, 210, 0.10)";
+        for (let i = 0; i < 3; i++) {
+          const mx = ((i * 380 - atmOff) % (W + 300) + W + 300) % (W + 300) - 150;
+          ctx.fillRect(mx, GROUND_Y - 58 - i * 18, 240, 22);
+        }
+      } else if (level === 3) {
+        // Preah Vihear cliff wind streaks
+        ctx.fillStyle = "rgba(255, 220, 200, 0.22)";
+        for (let i = 0; i < 6; i++) {
+          const wx = ((i * 190 - dist * 0.9) % (W + 120) + W + 120) % (W + 120) - 60;
+          ctx.fillRect(wx, 70 + i * 56, 64, 2);
+        }
+      } else {
+        // Ta Prohm emerald jungle light shafts
+        ctx.fillStyle = "rgba(168, 255, 120, 0.06)";
+        for (let i = 0; i < 4; i++) {
+          const gx = ((i * 270 - atmOff * 0.4) % (W + 200) + W + 200) % (W + 200) - 100;
+          ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx + 55, 0); ctx.lineTo(gx - 35, GROUND_Y); ctx.lineTo(gx - 90, GROUND_Y); ctx.fill();
+        }
+      }
+      ctx.restore();
+
       for (let i = 0; i < motes.length; i++) {
         const m = motes[i];
         const my = m.y + Math.sin(m.phase) * 8;
@@ -1263,20 +1852,108 @@
       const gImg = imgs.env["ground_" + level];
       for (let x = -gOff; x < W; x += gTileW) ctx.drawImage(gImg, x, GROUND_Y, gTileW, 96);
 
-      // 3. Collectible Orbs
+      // 3. Collectibles (Spinning Gold Coins & Blooming Golden Lotus) + Power-Ups
       for (const ob of orbs) {
-        const f = Math.floor(ob.t * 16) % 8;
-        ctx.drawImage(imgs.fx.orb[f], Math.round(ob.x), Math.round(ob.y), ob.size, ob.size);
+        const bobY = Math.round(Math.sin(ob.t * 5) * 4);
+        if (ob.kind === "lotus") {
+          const seq = [0, 1, 2, 1];
+          const f = seq[Math.floor(ob.t * 5) % seq.length];
+          ctx.drawImage(imgs.items.lotus[f], Math.round(ob.x), Math.round(ob.y + bobY), ob.size, ob.size);
+        } else {
+          const f = Math.floor(ob.t * 10) % 4;
+          ctx.drawImage(imgs.items.coin[f], Math.round(ob.x), Math.round(ob.y + bobY), ob.size, ob.size);
+        }
+      }
+      for (const pu of powerups) {
+        const bobY = Math.round(Math.sin(pu.t * 6) * 5);
+        const pImg = imgs.items[pu.kind];
+        if (pImg) {
+          ctx.save();
+          ctx.globalAlpha = 0.28 + 0.15 * Math.sin(pu.t * 8);
+          ctx.fillStyle = pu.kind === "chili" ? "#ff5e3a" : pu.kind === "bamboo" ? "#7ee081" : "#ffe373";
+          ctx.beginPath();
+          ctx.arc(pu.x + pu.size / 2, pu.y + pu.size / 2 + bobY, pu.size * 0.56, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          ctx.drawImage(pImg, Math.round(pu.x), Math.round(pu.y + bobY), pu.size, pu.size);
+        }
       }
 
-      // 4. Obstacles
+      // 4. Obstacles (Animated per-map ground obstacles + map-themed flying enemies)
       for (const o of obstacles) {
-        if (o.type === "pillar") ctx.drawImage(imgs.env.obs_pillar, Math.round(o.x), Math.round(o.y), o.w, o.h);
-        else if (o.type === "naga") ctx.drawImage(imgs.env.obs_naga, Math.round(o.x), Math.round(o.y), o.w, o.h);
-        else {
-          const f = Math.floor(o.animTime * 9) % 4;
-          ctx.drawImage(imgs.bird[f], Math.round(o.x), Math.round(o.y), o.w, o.h);
+        if (o.type === "ground") {
+          const img = imgs.env[o.spriteKey];
+          if (o.frames > 1 && o.fw && o.fh) {
+            const f = Math.floor((o.animTime || 0) * (o.fps || 6)) % o.frames;
+            ctx.drawImage(img, f * o.fw, 0, o.fw, o.fh, Math.round(o.x), Math.round(o.y), o.w, o.h);
+          } else {
+            ctx.drawImage(img, Math.round(o.x), Math.round(o.y), o.w, o.h);
+            // Subtle living spirit glint/firefly animation on carved Sema & Naga stones
+            if (o.glint) {
+              const t = (o.animTime || 0) * 4;
+              const gx = Math.round(o.x + o.w * (0.25 + 0.5 * (0.5 + 0.5 * Math.sin(t))));
+              const gy = Math.round(o.y + 8 + Math.cos(t * 1.4) * 10);
+              ctx.fillStyle = "#ffe373";
+              ctx.fillRect(gx, gy, 4, 4);
+              ctx.fillStyle = "#fff9d6";
+              ctx.fillRect(gx + 1, gy + 1, 2, 2);
+            }
+          }
+        } else {
+          const frames = (o.lvl === 2)
+            ? (o.dive ? imgs.birdLv2Dive : (o.high ? imgs.birdLv2High : imgs.birdLv2Low))
+            : (o.lvl === 3)
+            ? (o.dive ? imgs.birdLv3Dive : (o.high ? imgs.birdLv3High : imgs.birdLv3Low))
+            : (o.lvl === 4)
+            ? (o.dive ? imgs.birdLv4Dive : (o.high ? imgs.birdLv4High : imgs.birdLv4Low))
+            : imgs.bird;
+          const f = Math.floor(o.animTime * (o.dive ? 13 : 9)) % frames.length;
+          ctx.drawImage(frames[f], Math.round(o.x), Math.round(o.y), o.w, o.h);
         }
+      }
+
+      // Diving Bird Warning "!" Badges on Right Edge
+      for (const dw of diveWarnings) {
+        const blink = Math.floor(dw.t * 16) % 2 === 0;
+        ctx.save();
+        ctx.fillStyle = blink ? "#ff3b3b" : "#ffe373";
+        ctx.fillRect(W - 54, Math.round(dw.y + 24), 38, 38);
+        ctx.strokeStyle = "#140e24";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(W - 54, Math.round(dw.y + 24), 38, 38);
+        ctx.fillStyle = "#140e24";
+        ctx.font = "bold 26px Courier New";
+        ctx.textAlign = "center";
+        ctx.fillText("!", W - 35, Math.round(dw.y + 52));
+        ctx.restore();
+      }
+
+      // Giant Shadow Boss Bird Hovering during Temple Rush
+      if (bossRushTimer > 0) {
+        const bossFrames = level === 2 ? imgs.birdLv2High : level === 3 ? imgs.birdLv3High : level === 4 ? imgs.birdLv4High : imgs.bird;
+        const bf = Math.floor(performance.now() / 110) % bossFrames.length;
+        const bossY = 120 + Math.sin(performance.now() / 220) * 28;
+        ctx.save();
+        ctx.globalAlpha = 0.85;
+        ctx.drawImage(bossFrames[bf], W - 210, Math.round(bossY), 192, 168);
+        ctx.restore();
+        // Boss Rush Progress Bar
+        ctx.fillStyle = "rgba(20, 14, 30, 0.8)";
+        ctx.fillRect(W / 2 - 140, 14, 280, 16);
+        ctx.fillStyle = "#ff5e3a";
+        ctx.fillRect(W / 2 - 138, 16, Math.round((bossRushTimer / 7.5) * 276), 12);
+        ctx.strokeStyle = "#ffe373";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(W / 2 - 140, 14, 280, 16);
+      }
+
+      // Fever / Gold Aura Trail Particles behind Hero
+      for (const tp of trailParticles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, tp.life / 0.35);
+        ctx.fillStyle = tp.col;
+        ctx.fillRect(Math.round(tp.x), Math.round(tp.y), 6, 6);
+        ctx.restore();
       }
 
       // 5. Hero (64x48 Krama Dino/Tiger/Hanuman/Elephant @2x = 128x96)
@@ -1299,6 +1976,31 @@
       ctx.translate(-px, -py);
       ctx.drawImage(hImg, Math.round(drawX), Math.round(hero.y), drawW, drawH);
       ctx.restore();
+
+      // Active Power-Up Auras around Hero (Fire Chili / Bamboo / Shield Bubble)
+      if (chiliTimer > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.25 + 0.15 * Math.sin(performance.now() / 60);
+        ctx.fillStyle = "#ff5e3a";
+        ctx.beginPath();
+        ctx.arc(drawX + drawW * 0.5, hero.y + drawH * 0.55, 56, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      } else if (bambooTimer > 0) {
+        ctx.save();
+        ctx.globalAlpha = 0.22 + 0.12 * Math.sin(performance.now() / 90);
+        ctx.fillStyle = "#7ee081";
+        ctx.beginPath();
+        ctx.arc(drawX + drawW * 0.5, hero.y + drawH * 0.55, 54, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+      if (shieldCharges > 0 && imgs.items.aura) {
+        ctx.save();
+        ctx.globalAlpha = 0.55 + 0.15 * Math.sin(performance.now() / 130);
+        ctx.drawImage(imgs.items.aura, Math.round(drawX - 4), Math.round(hero.y - 12), 132, 132);
+        ctx.restore();
+      }
 
       // 6. FX Clips (dust & impact)
       for (const fx of fxAnims) {
@@ -1323,6 +2025,40 @@
       ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 106, 34);
       ctx.fillStyle = "#ffe373";
       ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 104, 32);
+
+      // Active Power-Up HUD Badges + Coin Counter + Fever Badge
+      let badgeX = 104;
+      if (imgs.items.coin[0]) {
+        ctx.drawImage(imgs.items.coin[0], badgeX, 42, 22, 22);
+        ctx.fillStyle = "#ffe373";
+        ctx.font = "bold 14px Courier New";
+        ctx.fillText(`${saveData.coins}`, badgeX + 26, 58);
+        badgeX += 74;
+      }
+      if (shieldCharges > 0 && imgs.items.shield) {
+        ctx.drawImage(imgs.items.shield, badgeX, 40, 26, 26);
+        if (shieldCharges > 1) { ctx.fillStyle = "#fff6d6"; ctx.fillText(`x${shieldCharges}`, badgeX + 26, 58); badgeX += 20; }
+        badgeX += 32;
+      }
+      if (chiliTimer > 0 && imgs.items.chili) {
+        const maxChili = 4.5 + (saveData.upgrades.powerDur || 0) * 1.5 + (activeVariant === "khmer_tiger" ? 1.5 : 0);
+        ctx.drawImage(imgs.items.chili, badgeX, 40, 26, 26);
+        ctx.fillStyle = "#ff5e3a";
+        ctx.fillRect(badgeX + 28, 50, Math.round((chiliTimer / maxChili) * 48), 8);
+        badgeX += 84;
+      }
+      if (bambooTimer > 0 && imgs.items.bamboo) {
+        const maxBam = 6.0 + (saveData.upgrades.powerDur || 0) * 1.5;
+        ctx.drawImage(imgs.items.bamboo, badgeX, 40, 26, 26);
+        ctx.fillStyle = "#7ee081";
+        ctx.fillRect(badgeX + 28, 50, Math.round((bambooTimer / maxBam) * 48), 8);
+        badgeX += 84;
+      }
+      if (combo >= 4) {
+        ctx.fillStyle = "#ffe373";
+        ctx.font = "bold 14px Courier New";
+        ctx.fillText("FEVER x4!", badgeX, 58);
+      }
 
       ctx.textAlign = "right";
       ctx.font = "bold 26px Courier New";
