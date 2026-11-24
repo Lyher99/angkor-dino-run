@@ -3,1399 +3,782 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Angkor Dino Run — Khmer Pixel Runner</title>
+  <title>CamboPixel Game — Retro Khmer Pixel Arcade</title>
   <link rel="icon" type="image/png" href="icon-512.png" />
   <link rel="apple-touch-icon" href="icon-512.png" />
   <style>
+    :root {
+      --ink: #120c1f;
+      --panel: #221738;
+      --panel-hi: #342454;
+      --border: #5a4485;
+      --gold: #ebb03d;
+      --gold-hi: #ffe373;
+      --cream: #fff6d6;
+      --crimson: #b8233a;
+      --emerald: #6fd184;
+    }
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
-      -webkit-touch-callout: none;
       -webkit-user-select: none;
       user-select: none;
     }
-    img { pointer-events: none; -webkit-user-drag: none; }
     html, body {
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at top, #23173a 0%, #120e1c 75%);
-      color: #fff6d6;
-      font-family: "Courier New", Courier, monospace;
-      touch-action: none;
-      overscroll-behavior: none;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 12px;
-    }
-    body.device-mobile {
-      padding: 0;
-    }
-
-    .game-wrap {
-      position: relative;
-      width: min(960px, 100%);
-      aspect-ratio: 16 / 9;
-      border: 3px solid #ebb03d;
-      border-radius: 6px;
-      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.78);
-      background: #1b122b;
-      overflow: hidden;
-    }
-    body.device-mobile .game-wrap {
       width: 100vw;
       height: 100dvh;
-      max-width: 100vw;
-      aspect-ratio: auto;
-      border: none;
-      border-radius: 0;
+      overflow: hidden;
+      background: #120c1f;
+      color: var(--cream);
+      font-family: "Courier New", Courier, monospace;
     }
 
-    canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      object-fit: contain;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
-
-    /* In-game top-left quick HUD icon button (Settings / Pause) */
-    .hud-controls {
-      position: absolute;
-      top: 10px;
-      left: 12px;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      z-index: 15;
-    }
-    .icon-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.08s ease, filter 0.1s ease;
-    }
-    .icon-btn:hover { filter: brightness(1.12); transform: scale(1.05); }
-    .icon-btn:active { transform: scale(0.95); }
-    .icon-btn img {
-      display: block;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
-
-    /* Overlays */
-    .overlay {
-      position: absolute;
+    /* Full-Screen Live Pixel Backdrop Canvas */
+    #bgCanvas {
+      position: fixed;
       inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      background: rgba(14, 9, 24, 0.56);
-      z-index: 20;
+      width: 100vw;
+      height: 100dvh;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      z-index: 0;
     }
-    .overlay.active { display: flex; }
 
-    /* Home Menu */
-    .home-box {
+    /* Subtle Retro CRT Pixel Scanline Overlay */
+    .crt-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.14) 0px,
+        rgba(0, 0, 0, 0.14) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+      z-index: 1;
+    }
+
+    /* Full-Screen Console Shell */
+    .console-os {
+      position: relative;
+      z-index: 2;
+      width: 100vw;
+      height: 100dvh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      width: min(560px, 100%);
-    }
-    .banner-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: min(440px, 95%);
-    }
-    .banner-wrap img {
-      width: 100%;
-      height: auto;
-      image-rendering: pixelated;
-      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.65));
-    }
-    .banner-text {
-      position: absolute;
-      top: 52%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: clamp(14px, 2.3vw, 20px);
-      font-weight: bold;
-      color: #ffe373;
-      letter-spacing: 1.5px;
-      text-shadow: 2px 2px 0 #1a0f2e, -1px -1px 0 #1a0f2e;
-      white-space: nowrap;
-    }
-    .status-pill {
-      background: rgba(24, 17, 40, 0.88);
-      border: 2px solid #ebb03d;
-      border-radius: 6px;
-      padding: 5px 14px;
-      font-size: 12px;
-      color: #fff6d6;
-      text-align: center;
-    }
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(2, auto);
-      gap: 10px 14px;
-      justify-content: center;
-    }
-    .menu-img-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      transition: transform 0.08s ease, filter 0.1s ease;
-    }
-    .menu-img-btn:hover { filter: brightness(1.12); transform: translateY(-2px); }
-    .menu-img-btn:active { transform: translateY(1px); }
-    .menu-img-btn img {
-      width: clamp(132px, 22vw, 172px);
-      height: auto;
-      display: block;
-      image-rendering: pixelated;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.65));
+      justify-content: space-between;
     }
 
-    /* Khmer Stone Modal */
-    .stone-modal {
-      position: relative;
-      width: min(760px, 96%);
-      max-height: 94%;
-      background: #8f7e6a;
-      border: 4px solid #3a2718;
-      box-shadow: inset 0 0 0 3px #d9a73e, 0 18px 50px rgba(0, 0, 0, 0.85);
-      border-radius: 10px;
-      padding: 16px 18px;
-      overflow-y: auto;
-      text-align: center;
-      color: #fff6d6;
-    }
-    .modal-header {
+    /* Top Pixel Bezel Status Bar */
+    .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px 18px;
+      background: rgba(18, 12, 31, 0.9);
+      border-bottom: 4px solid var(--gold);
+      box-shadow: 0 4px 0 #120c1f, 0 8px 24px rgba(0, 0, 0, 0.65);
+    }
+    .brand-mini {
+      display: flex;
+      align-items: center;
       gap: 10px;
     }
-    .modal-title {
-      font-size: clamp(16px, 2.5vw, 22px);
+    .brand-mini img {
+      height: 34px;
+      width: auto;
+      image-rendering: pixelated;
+    }
+    .brand-title {
+      font-size: clamp(14px, 2vw, 19px);
       font-weight: bold;
-      color: #ffe373;
-      text-shadow: 2px 2px 0 #26180f;
+      color: var(--gold-hi);
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 0 var(--crimson);
+    }
+    .brand-ver {
+      font-size: 10px;
+      color: #a998cc;
       letter-spacing: 1px;
     }
-    .modal-sub {
-      font-size: 12px;
-      color: #2b1d12;
-      font-weight: bold;
-      margin-bottom: 12px;
-    }
-
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    @media (max-width: 660px) {
-      .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    .card {
-      background: #2b2042;
-      border: 3px solid #5c4685;
-      border-radius: 8px;
-      padding: 8px 6px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      transition: transform 0.08s ease, border-color 0.1s ease;
-    }
-    .card:hover { border-color: #ebb03d; transform: translateY(-2px); }
-    .card.selected {
-      border-color: #ffe373;
-      background: #422e66;
-      box-shadow: 0 0 0 2px #ebb03d, 0 0 14px rgba(255, 227, 115, 0.45);
-    }
-    .card-sprite {
-      width: 68px;
-      height: 52px;
-      object-fit: contain;
-      image-rendering: pixelated;
-    }
-    .card-auto-badge {
-      width: 68px;
-      height: 52px;
+    .top-stats {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: bold;
-      color: #ffe373;
-      background: radial-gradient(circle, #4e377a 0%, #24183b 100%);
-      border: 2px dashed #ebb03d;
-      border-radius: 5px;
-    }
-    .card-map-thumb {
-      width: 100%;
-      height: 52px;
-      border-radius: 4px;
-      border: 2px solid #6b5299;
-      background-color: #1a1229;
-      background-repeat: no-repeat;
-      image-rendering: pixelated;
-    }
-    .card-name { font-size: 11px; font-weight: bold; color: #ffe373; }
-    .card-desc { font-size: 10px; color: #d3c5e8; }
-
-    /* Settings Platform Cards */
-    .settings-row {
-      display: flex;
-      justify-content: center;
-      gap: 14px;
+      gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 14px;
     }
-    .platform-card {
-      background: #2b2042;
-      border: 3px solid #5c4685;
-      border-radius: 8px;
-      padding: 8px 12px;
+    .pixel-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      box-shadow: inset 0 -2px 0 #140d24;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--cream);
+    }
+    .pixel-pill img {
+      width: 16px;
+      height: 16px;
+      image-rendering: pixelated;
+    }
+    .pixel-pill.gold { border-color: var(--gold); color: var(--gold-hi); }
+    .pixel-pill.clickable { cursor: pointer; transition: transform 0.08s ease, background 0.1s ease; }
+    .pixel-pill.clickable:hover { background: var(--panel-hi); transform: translateY(-1px); }
+
+    /* Main Content Stage (Full Remaining Viewport) */
+    .stage {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(12px, 2.5vw, 28px);
+    }
+    .screen { display: none; width: 100%; max-width: 1120px; }
+    .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+    /* Khmer Krama Pixel Divider */
+    .krama-divider {
+      width: min(460px, 90%);
+      height: 8px;
+      margin: 12px auto 18px;
+      border: 2px solid var(--gold);
+      background: repeating-linear-gradient(
+        90deg,
+        #b8233a 0px, #b8233a 8px,
+        #fff6d6 8px, #fff6d6 12px,
+        #ebb03d 12px, #ebb03d 16px,
+        #5c1224 16px, #5c1224 24px
+      );
+      image-rendering: pixelated;
+    }
+
+    /* SCREEN 1: FULL-SCREEN DEVICE SELECT */
+    .welcome-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 100%;
+    }
+    .hero-logo {
+      width: clamp(180px, 28vw, 280px);
+      height: auto;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 8px 0 rgba(18, 12, 31, 0.85)) drop-shadow(0 0 24px rgba(235, 176, 61, 0.35));
+      animation: floatLogo 2.8s ease-in-out infinite;
+    }
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .big-title {
+      margin-top: 8px;
+      font-size: clamp(24px, 4.6vw, 44px);
+      font-weight: bold;
+      color: var(--gold-hi);
+      letter-spacing: 3px;
+      text-shadow: 4px 4px 0 #5c1224, -2px -2px 0 #120c1f;
+    }
+    .big-sub {
+      font-size: clamp(12px, 1.5vw, 15px);
+      color: #d8c9f2;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+    .prompt-blink {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--emerald);
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+      animation: blink 1.4s steps(2, start) infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    .device-grid {
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .device-card {
+      position: relative;
+      background: rgba(34, 23, 56, 0.92);
+      border: 4px solid var(--border);
+      box-shadow: inset 0 0 0 2px #140d24, 0 8px 0 #120c1f;
+      padding: 18px 26px;
+      min-width: 220px;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
+      gap: 10px;
+      transition: transform 0.08s ease, border-color 0.1s ease, box-shadow 0.1s ease;
     }
-    .platform-card.selected {
-      border-color: #ffe373;
-      background: #422e66;
-      box-shadow: 0 0 0 2px #ebb03d;
+    .device-card:hover, .device-card.selected {
+      border-color: var(--gold-hi);
+      background: rgba(56, 38, 92, 0.96);
+      transform: translateY(-4px);
+      box-shadow: inset 0 0 0 2px var(--gold), 0 12px 0 #120c1f, 0 0 28px rgba(255, 227, 115, 0.35);
     }
-    .platform-card img {
-      width: 82px;
+    .device-card img {
+      width: 126px;
       height: auto;
       image-rendering: pixelated;
     }
+    .device-title { font-size: 16px; font-weight: bold; color: var(--gold-hi); letter-spacing: 1.5px; }
+    .device-desc { font-size: 12px; color: #d3c5e8; }
 
-    .px-btn {
+    /* SCREEN 2: FULL-SCREEN ARCADE HUB */
+    .hub-layout {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Featured Game Spotlight Banner */
+    .featured-panel {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 20px;
+      background: rgba(30, 20, 50, 0.94);
+      border: 4px solid var(--gold);
+      box-shadow: inset 0 0 0 3px #4c3575, 0 10px 0 #120c1f, 0 16px 40px rgba(0, 0, 0, 0.7);
+      padding: 18px;
+      align-items: center;
+    }
+    @media (max-width: 780px) {
+      .featured-panel { grid-template-columns: 1fr; padding: 14px; gap: 14px; }
+    }
+    .featured-preview {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 3px solid var(--gold-hi);
+      background: #140e24 url("games/angkor-dino-run/assets/anims/bg_angkor.png") 0 0 / 600% 100% no-repeat;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 12px 18px;
+      image-rendering: pixelated;
+      animation: bgCycle 1.2s steps(6) infinite;
+    }
+    @keyframes bgCycle {
+      from { background-position: 0% 0; }
+      to { background-position: 120% 0; }
+    }
+    .featured-ground {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 28px;
+      background: url("games/angkor-dino-run/assets/sprites/ground_tile.png") repeat-x;
+      background-size: 64px 48px;
+      image-rendering: pixelated;
+    }
+    .preview-hero {
+      position: relative;
+      z-index: 2;
+      height: clamp(64px, 11vw, 96px);
+      margin-bottom: 14px;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 4px 0 rgba(18, 12, 31, 0.7));
+    }
+    .preview-obs {
+      position: relative;
+      z-index: 2;
+      height: clamp(48px, 8vw, 72px);
+      margin-bottom: 14px;
+      image-rendering: pixelated;
+    }
+    .preview-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: var(--crimson);
+      border: 2px solid var(--gold-hi);
+      color: var(--gold-hi);
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      letter-spacing: 1px;
+    }
+    .featured-info {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+    .featured-title {
+      font-size: clamp(20px, 3vw, 28px);
+      font-weight: bold;
+      color: var(--gold-hi);
+      text-shadow: 3px 3px 0 #5c1224;
+      letter-spacing: 1.5px;
+    }
+    .featured-desc {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e4d8fa;
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .mini-tag {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      background: #19112b;
+      border: 2px solid #5c4685;
+      color: #c9b8eb;
+    }
+    .mini-tag.hi { border-color: var(--emerald); color: var(--emerald); }
+    .record-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--gold-hi);
+    }
+    .px-launch-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      background: linear-gradient(180deg, #ffe066 0%, #e09619 100%);
-      color: #1c1028;
-      border: 2px solid #fff6c2;
-      box-shadow: 0 3px 0 #7a4504;
-      padding: 8px 20px;
+      gap: 10px;
+      background: linear-gradient(180deg, #ffe373 0%, #e69b1e 100%);
+      color: #1a0f2b;
+      border: 3px solid #fff9d6;
+      box-shadow: 0 5px 0 #7a4208;
+      padding: 12px 22px;
       font-family: inherit;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: bold;
+      letter-spacing: 1.5px;
       cursor: pointer;
-      border-radius: 5px;
+      transition: transform 0.08s ease, filter 0.1s ease;
     }
-    .px-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7a4504; }
-    .px-btn.secondary {
-      background: linear-gradient(180deg, #3f2f61 0%, #261b3d 100%);
-      color: #ffe373;
-      border-color: #ebb03d;
-      box-shadow: 0 3px 0 #140d21;
-    }
+    .px-launch-btn:hover { filter: brightness(1.08); transform: translateY(-2px); }
+    .px-launch-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #7a4208; }
 
-    .modal-actions {
+    /* Cartridge Library Shelf */
+    .shelf-header {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .shop-grid, .mission-list {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-      text-align: left;
-    }
-    .mission-list { grid-template-columns: 1fr; gap: 8px; }
-    @media (max-width: 560px) { .shop-grid { grid-template-columns: 1fr; } }
-    .shop-card, .mission-row {
-      background: #2b2042;
-      border: 2px solid #5c4685;
-      border-radius: 8px;
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-    }
-    .mission-row.done { border-color: #7ee081; background: #1e3633; }
-    .shop-info { display: flex; flex-direction: column; gap: 3px; }
-    .shop-btn {
-      background: linear-gradient(180deg, #ffe066 0%, #e09619 100%);
-      color: #1c1028;
-      border: 2px solid #fff6c2;
-      border-radius: 5px;
-      padding: 6px 10px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: bold;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .shop-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-    .toast-banner {
-      position: absolute;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(24, 17, 40, 0.94);
-      border: 2px solid #ffe373;
-      color: #ffe373;
-      padding: 7px 16px;
-      border-radius: 6px;
+      align-items: center;
       font-size: 13px;
       font-weight: bold;
-      z-index: 30;
-      display: none;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+      color: var(--gold-hi);
+      letter-spacing: 1.5px;
     }
-    .toast-banner.show { display: block; }
-
-    /* On-Screen Mobile Buttons (all anchored on the RIGHT side of screen) */
-    .mobile-controls {
-      display: none;
-      position: absolute;
-      bottom: 14px;
-      right: 14px;
-      left: auto;
-      gap: 10px;
-      justify-content: flex-end;
-      align-items: center;
-      pointer-events: none;
-      z-index: 14;
+    .shelf-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
     }
-    body.device-mobile .mobile-controls.playing { display: flex; }
-    .touch-img-btn {
-      pointer-events: auto;
-      background: none;
-      border: none;
-      padding: 0;
+    @media (max-width: 820px) { .shelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .cart-card {
+      background: rgba(34, 23, 56, 0.92);
+      border: 3px solid var(--gold);
+      box-shadow: 0 5px 0 #120c1f;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       cursor: pointer;
-      opacity: 0.9;
-      touch-action: none;
-      transition: transform 0.06s ease, filter 0.08s ease;
+      transition: transform 0.08s ease, box-shadow 0.1s ease;
     }
-    .touch-img-btn:active {
-      transform: scale(0.92);
-      filter: brightness(1.15);
+    .cart-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 0 #120c1f, 0 0 18px rgba(255, 227, 115, 0.3);
     }
-    .touch-img-btn img {
-      width: clamp(56px, 13vw, 72px);
-      height: clamp(56px, 13vw, 72px);
-      display: block;
+    .cart-card.locked {
+      border-color: #463569;
+      background: rgba(24, 17, 40, 0.78);
+      opacity: 0.68;
+      cursor: default;
+    }
+    .cart-card.locked:hover { transform: none; box-shadow: 0 5px 0 #120c1f; }
+    .cart-thumb {
+      height: 62px;
+      border: 2px solid #6b5299;
+      background: #140e24 url("games/angkor-dino-run/assets/anims/bg_angkor.png") 0 0 / 600% 100% no-repeat;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
       image-rendering: pixelated;
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.7));
+    }
+    .cart-thumb.empty {
+      background: repeating-linear-gradient(45deg, #1b132e, #1b132e 6px, #24193b 6px, #24193b 12px);
+      align-items: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #8474ab;
+    }
+    .cart-thumb img { height: 48px; image-rendering: pixelated; }
+    .cart-name { font-size: 12px; font-weight: bold; color: var(--gold-hi); }
+    .cart-meta { font-size: 10px; color: #c4b5e0; }
+    .badge-live {
+      display: inline-block;
+      align-self: flex-start;
+      background: var(--emerald);
+      color: #120c1f;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 6px;
+    }
+    .badge-soon {
+      display: inline-block;
+      align-self: flex-start;
+      background: #4b3a70;
+      color: #d3c5e8;
+      font-size: 9px;
+      font-weight: bold;
+      padding: 2px 6px;
     }
 
-    .footer {
-      width: min(960px, 100%);
-      margin-top: 8px;
+    /* Bottom Console Footer */
+    .bottom-bar {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       flex-wrap: wrap;
       gap: 8px;
-      font-size: 12px;
-      color: #c4b5d9;
+      padding: 8px 18px;
+      background: rgba(18, 12, 31, 0.92);
+      border-top: 3px solid #4c3575;
+      font-size: 11px;
+      color: #b5a3d6;
     }
-    body.device-mobile .footer { display: none; }
   </style>
 </head>
 <body>
-  <div class="game-wrap">
-    <canvas id="game" width="960" height="540"></canvas>
+  <canvas id="bgCanvas"></canvas>
+  <div class="crt-overlay"></div>
 
-    <!-- Top-Left HUD Controls: Settings/Pause + Fullscreen -->
-    <div class="hud-controls">
-      <button id="hudSettingsBtn" class="icon-btn" title="Settings & Pause">
-        <img id="hudSettingsImg" src="v2/forge-gui/btn_pause.png" width="38" height="38" alt="Settings / Pause" />
-      </button>
-      <button id="hudFullscreenBtn" class="icon-btn" title="Fullscreen">
-        <img src="v2/forge-gui/btn_fullscreen.png" width="38" height="38" alt="Fullscreen" />
-      </button>
-    </div>
-
-    <!-- 1. HOME PAGE (Clean Main Menu with User GUI) -->
-    <div id="homeOverlay" class="overlay active">
-      <div class="home-box">
-        <div class="banner-wrap">
-          <img src="v2/forge-gui/banner_krama.png" alt="Angkor Dino Run" />
-          <div class="banner-text">ANGKOR DINO RUN</div>
-        </div>
-        <div id="homeStatus" class="status-pill"></div>
-        <div class="menu-grid">
-          <button id="menuPlayBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_play.png" alt="PLAY" /></button>
-          <button id="menuSettingsBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_settings.png" alt="SETTINGS" /></button>
-        </div>
-        <div class="modal-actions" style="margin-top:2px;">
-          <button id="menuShopBtn" class="px-btn">SHOP &amp; UPGRADES</button>
-          <button id="menuMissionsBtn" class="px-btn secondary">MISSIONS</button>
+  <div class="console-os">
+    <!-- TOP CONSOLE STATUS BAR -->
+    <header class="top-bar">
+      <div class="brand-mini">
+        <img src="hub-assets/cambopixel_logo.png" alt="CamboPixel Logo" />
+        <div>
+          <div class="brand-title">CAMBOPIXEL GAME</div>
+          <div class="brand-ver">KHMER RETRO PIXEL ARCADE OS · v1.0</div>
         </div>
       </div>
-    </div>
-
-    <!-- 1B. DEVICE SELECT MODAL (Opened when clicking PLAY) -->
-    <div id="deviceOverlay" class="overlay">
-      <div class="stone-modal" style="width:min(460px, 94%);">
-        <div class="modal-header">
-          <button id="deviceBackBtn" class="icon-btn"><img src="v2/forge-gui/btn_back.png" width="36" alt="Back" /></button>
-          <div class="modal-title">SELECT DEVICE</div>
-          <button id="deviceCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
+      <div class="top-stats">
+        <div class="pixel-pill gold">
+          <img src="games/angkor-dino-run/v2/forge-items/coin-0.png" alt="Coins" />
+          <span id="topCoins">0 COINS</span>
         </div>
-        <div class="modal-sub">Step 1: Choose PC or Mobile to continue</div>
-        <div class="settings-row">
-          <div id="flowPcCard" class="platform-card">
-            <img src="v2/forge-gui/card_pc.png" style="width:108px;" alt="PC" />
-            <div class="card-desc">Keyboard Controls</div>
-          </div>
-          <div id="flowMobileCard" class="platform-card">
-            <img src="v2/forge-gui/card_mobile.png" style="width:108px;" alt="MOBILE" />
-            <div class="card-desc">On-Screen Touch Buttons</div>
-          </div>
+        <div id="topDevicePill" class="pixel-pill clickable" title="Switch PC / Mobile">
+          <span id="topDeviceText">DEVICE: PC</span>
+        </div>
+        <div id="topFullscreenBtn" class="pixel-pill clickable" title="Toggle Fullscreen">
+          <span>&#9974; FULLSCREEN</span>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- 2. HERO SELECT MODAL -->
-    <div id="heroOverlay" class="overlay">
-      <div class="stone-modal">
-        <div class="modal-header">
-          <button id="heroBackBtn" class="icon-btn"><img src="v2/forge-gui/btn_back.png" width="36" alt="Back" /></button>
-          <div class="modal-title">SELECT HERO</div>
-          <button id="heroCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
-        </div>
-        <div class="modal-sub">Step 2: Pick a Hero or AUTO to evolve with each map!</div>
-        <div id="charGrid" class="card-grid"></div>
-        <div class="modal-actions">
-          <button id="heroNextBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_next.png" style="width:156px;" alt="NEXT" /></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. MAP SELECT MODAL (Opened after Hero Select NEXT or MAP button) -->
-    <div id="mapOverlay" class="overlay">
-      <div class="stone-modal">
-        <div class="modal-header">
-          <button id="mapBackBtn" class="icon-btn"><img src="v2/forge-gui/btn_back.png" width="36" alt="Back" /></button>
-          <div class="modal-title">SELECT REALM</div>
-          <button id="mapCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
-        </div>
-        <div id="mapSub" class="modal-sub">Step 3: Pick a Map or AUTO to progress through all 4 realms!</div>
-        <div id="mapGrid" class="card-grid"></div>
-        <div class="modal-actions">
-          <button id="startRunBtn" class="menu-img-btn"><img src="v2/forge-gui/btn_start.png" style="width:176px;" alt="START RUN" /></button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. SETTINGS / PAUSE MODAL (1 icon opens this & pauses game) -->
-    <div id="settingsOverlay" class="overlay">
-      <div class="stone-modal" style="width:min(520px, 94%);">
-        <div class="modal-header">
-          <div style="width:36px;"></div>
-          <div id="settingsTitle" class="modal-title">SETTINGS</div>
-          <button id="settingsCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
-        </div>
-
-        <div class="modal-sub">Choose Device Controls &amp; Audio</div>
-        <div class="settings-row">
-          <div id="pickPcCard" class="platform-card">
-            <img src="v2/forge-gui/card_pc.png" alt="PC" />
-            <div class="card-desc">Keyboard (Space / Arrows)</div>
-          </div>
-          <div id="pickMobileCard" class="platform-card">
-            <img src="v2/forge-gui/card_mobile.png" alt="MOBILE" />
-            <div class="card-desc">On-Screen Touch Buttons</div>
-          </div>
-          <div id="sfxToggleCard" class="platform-card" style="justify-content:center;min-width:104px;">
-            <img id="sfxIconImg" src="v2/forge-gui/icon_sfx_on.png" style="width:42px;" alt="SFX" />
-            <div id="sfxLabel" class="card-name">SFX: ON</div>
-          </div>
-          <div id="bgmToggleCard" class="platform-card selected" style="justify-content:center;min-width:104px;">
-            <div style="font-size:28px;line-height:42px;">&#9835;</div>
-            <div id="bgmLabel" class="card-name">BGM: ON</div>
+    <!-- FULL-SCREEN STAGE -->
+    <main class="stage">
+      <!-- SCREEN 1: DEVICE SELECT (Shown FIRST before Game Select) -->
+      <section id="deviceScreen" class="screen active">
+        <div class="welcome-hero">
+          <img class="hero-logo" src="hub-assets/cambopixel_logo.png" alt="CamboPixel Game Logo" />
+          <h1 class="big-title">CAMBOPIXEL GAME</h1>
+          <div class="big-sub">RETRO KHMER PIXEL ARCADE EMULATOR</div>
+          <div class="krama-divider"></div>
+          <div class="prompt-blink">&#9654; SELECT YOUR DEVICE TO BOOT CONSOLE &#9664;</div>
+          <div class="device-grid">
+            <div id="pickPc" class="device-card">
+              <img src="games/angkor-dino-run/v2/forge-gui/card_pc.png" alt="PC Mode" />
+              <div class="device-title">PC MODE</div>
+              <div class="device-desc">Keyboard: Space / Arrows / W S</div>
+            </div>
+            <div id="pickMobile" class="device-card">
+              <img src="games/angkor-dino-run/v2/forge-gui/card_mobile.png" alt="Mobile Mode" />
+              <div class="device-title">MOBILE MODE</div>
+              <div class="device-desc">On-Screen Touch Jump &amp; Duck</div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="modal-actions">
-          <button id="resumeBtn" class="px-btn" style="display:none;">RESUME &#9654;</button>
-          <button id="settingsRestartBtn" class="icon-btn" style="display:none;" title="Restart"><img src="v2/forge-gui/btn_restart.png" width="42" alt="Restart" /></button>
-          <button id="settingsHomeBtn" class="icon-btn" title="Home"><img src="v2/forge-gui/btn_home.png" width="42" alt="Home" /></button>
-          <button id="settingsDoneBtn" class="px-btn secondary">DONE</button>
-        </div>
-      </div>
-    </div>
+      <!-- SCREEN 2: FULL-SCREEN GAME SELECT HUB -->
+      <section id="hubScreen" class="screen">
+        <div class="hub-layout">
+          <!-- Featured Playable Game Panel -->
+          <div class="featured-panel">
+            <div class="featured-preview">
+              <div class="preview-tag">CARTRIDGE 01 · FEATURED</div>
+              <img id="previewHeroImg" class="preview-hero" src="games/angkor-dino-run/v2/forge-dino/run-0.png?v=2" alt="Krama Dino" />
+              <img class="preview-obs" src="games/angkor-dino-run/v2/forge-items/naga_single.png" alt="Naga Statue" />
+              <div class="featured-ground"></div>
+            </div>
+            <div class="featured-info">
+              <div class="featured-title">ANGKOR DINO RUN</div>
+              <div class="featured-desc">
+                Sprint across 4 iconic Cambodian realms — Angkor Wat, Bayon Night, Preah Vihear &amp; Ta Prohm! Unlock upgrades, dodge diving Kruds &amp; Ravens, and survive Temple Boss Rushes.
+              </div>
+              <div class="tag-row">
+                <span class="mini-tag hi">PLAYABLE NOW</span>
+                <span class="mini-tag">4 REALMS</span>
+                <span class="mini-tag">4 HERO PASSIVES</span>
+                <span class="mini-tag">SHOP &amp; MISSIONS</span>
+              </div>
+              <div class="record-row">
+                <span id="hubBestScore">BEST SCORE: 0</span>
+                <span id="hubMissions">MISSIONS: 0/5</span>
+              </div>
+              <button id="launchAngkorBtn" class="px-launch-btn">&#9654; PLAY ANGKOR DINO RUN</button>
+            </div>
+          </div>
 
-    <!-- 5. GAME OVER MODAL -->
-    <div id="gameoverOverlay" class="overlay">
-      <div class="stone-modal" style="width:min(460px, 92%);">
-        <div class="modal-header" style="justify-content:center;">
-          <div class="modal-title" style="color:#ff9ec0;">GAME OVER</div>
+          <!-- Cartridge Library Shelf -->
+          <div class="shelf-header">
+            <span>GAME CARTRIDGE LIBRARY (2 INSTALLED · 2 SLOTS READY)</span>
+            <span id="shelfDeviceNote" style="color:#c8b8e6;">MODE: PC</span>
+          </div>
+          <div class="shelf-grid">
+            <div id="cartSlot1" class="cart-card">
+              <div class="cart-thumb">
+                <img src="games/angkor-dino-run/v2/forge-dino/run-0.png?v=2" alt="Angkor Dino Run" />
+              </div>
+              <span class="badge-live">01 · INSTALLED</span>
+              <div class="cart-name">ANGKOR DINO RUN</div>
+              <div class="cart-meta">Khmer Endless Runner</div>
+            </div>
+            <div id="cartSlot2" class="cart-card" style="border-color:#78d968;">
+              <div class="cart-thumb" style="background:#140e24 url('games/phnom-penh-zombie-tsunami/assets/pro/bg_riverside.png') center/cover no-repeat;gap:4px;">
+                <img src="games/phnom-penh-zombie-tsunami/assets/pro/zk_run-0.png" alt="Khmer Zombie" style="height:46px;" />
+                <img src="games/phnom-penh-zombie-tsunami/assets/pro/veh_tuktuk.png" alt="Tuk-Tuk" style="height:40px;" />
+              </div>
+              <span class="badge-live">02 · NEW!</span>
+              <div class="cart-name" style="color:#78d968;">PHNOM PENH ZOMBIE TSUNAMI</div>
+              <div class="cart-meta">Horde Runner · Flip Tuk-Tuks</div>
+            </div>
+            <div class="cart-card locked">
+              <div class="cart-thumb empty">SLOT 03</div>
+              <span class="badge-soon">COMING SOON</span>
+              <div class="cart-name" style="color:#a998cc;">MEKONG RACER</div>
+              <div class="cart-meta">games/mekong-racer/</div>
+            </div>
+            <div class="cart-card locked">
+              <div class="cart-thumb empty">SLOT 04</div>
+              <span class="badge-soon">COMING SOON</span>
+              <div class="cart-name" style="color:#a998cc;">APSARA BEAT</div>
+              <div class="cart-meta">games/apsara-beat/</div>
+            </div>
+          </div>
         </div>
-        <div id="gameoverStats" class="modal-sub" style="font-size:15px;color:#fff6d6;margin-bottom:16px;"></div>
-        <div class="modal-actions">
-          <button id="retryBtn" class="px-btn">RETRY &#9654;</button>
-          <button id="goMapBtn" class="px-btn secondary">MAPS</button>
-          <button id="goHomeBtn" class="icon-btn" title="Home"><img src="v2/forge-gui/btn_home.png" width="40" alt="Home" /></button>
-        </div>
-      </div>
-    </div>
+      </section>
+    </main>
 
-    <!-- 6. SHOP MODAL -->
-    <div id="shopOverlay" class="overlay">
-      <div class="stone-modal" style="width:min(620px, 95%);">
-        <div class="modal-header">
-          <div style="width:36px;"></div>
-          <div class="modal-title">TEMPLE SHOP</div>
-          <button id="shopCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
-        </div>
-        <div id="shopCoinsLabel" class="modal-sub">YOUR GOLD COINS: 0</div>
-        <div id="shopGrid" class="shop-grid"></div>
-        <div class="modal-actions">
-          <button id="shopDoneBtn" class="px-btn secondary">BACK</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. MISSIONS MODAL -->
-    <div id="missionsOverlay" class="overlay">
-      <div class="stone-modal" style="width:min(560px, 95%);">
-        <div class="modal-header">
-          <div style="width:36px;"></div>
-          <div class="modal-title">TEMPLE MISSIONS</div>
-          <button id="missionsCloseBtn" class="icon-btn"><img src="v2/forge-gui/btn_close.png" width="36" alt="Close" /></button>
-        </div>
-        <div class="modal-sub">Complete goals during runs to earn bonus Gold Coins!</div>
-        <div id="missionList" class="mission-list"></div>
-        <div class="modal-actions">
-          <button id="missionsDoneBtn" class="px-btn secondary">BACK</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="toastBanner" class="toast-banner"></div>
-
-    <!-- On-Screen Mobile Buttons (Small Round Icons on Right Side) -->
-    <div id="mobileControls" class="mobile-controls">
-      <button id="touchDuck" class="touch-img-btn" aria-label="Duck"><img src="v2/forge-gui/btn_duck_icon.png" alt="DUCK" /></button>
-      <button id="touchJump" class="touch-img-btn" aria-label="Jump"><img src="v2/forge-gui/btn_jump_icon.png" alt="JUMP" /></button>
-    </div>
-  </div>
-
-  <div class="footer">
-    <span><b>SPACE / UP / W</b>: Jump &nbsp;|&nbsp; <b>DOWN / S</b>: Duck &amp; Fast-Fall</span>
-    <span>Click top-left icon anytime to <b>Pause &amp; Settings</b> (PC / Mobile / SFX)</span>
+    <!-- BOTTOM PIXEL CONSOLE FOOTER -->
+    <footer class="bottom-bar">
+      <span><b>[ENTER]</b> Launch Selected &nbsp;|&nbsp; <b>[F]</b> Fullscreen &nbsp;|&nbsp; Click <b>DEVICE</b> pill anytime to switch</span>
+      <span>CAMBOPIXEL GAME · RETRO KHMER PIXEL ARCADE</span>
+    </footer>
   </div>
 
   <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
+    // === 1. LIVE ANIMATED PIXEL-ART ANGKOR TWILIGHT BACKDROP ===
+    const bgCanvas = document.getElementById("bgCanvas");
+    const bctx = bgCanvas.getContext("2d");
+    const BW = 320, BH = 180;
+    bgCanvas.width = BW;
+    bgCanvas.height = BH;
+    bctx.imageSmoothingEnabled = false;
 
-    const W = 960;
-    const H = 540;
-    const GROUND_Y = 444;
-    const HERO_SCALE = 3;
-    const SPRITE_SCALE = 2;
-
-    const VARIANTS = ["krama_dino", "khmer_tiger", "khmer_hanuman", "khmer_elephant"];
-    const HERO_FOLDERS = {
-      krama_dino: "v2/forge-dino",
-      khmer_tiger: "v2/forge-tiger",
-      khmer_hanuman: "v2/forge-hanuman",
-      khmer_elephant: "v2/forge-elephant",
-    };
-
-    const CHAR_OPTIONS = [
-      { id: "auto", name: "AUTO", desc: "Matches map", preview: null },
-      { id: "krama_dino", name: "KRAMA DINO", desc: "+25% Coins & Combo", preview: "v2/forge-dino/run-0.png?v=2" },
-      { id: "khmer_tiger", name: "KHMER TIGER", desc: "Longer Fire Smash", preview: "v2/forge-tiger/run-0.png?v=2" },
-      { id: "khmer_hanuman", name: "HANUMAN", desc: "Mid-Air Double Jump", preview: "v2/forge-hanuman/run-0.png?v=2" },
-      { id: "khmer_elephant", name: "ELEPHANT", desc: "Starts With Shield", preview: "v2/forge-elephant/run-0.png?v=2" },
+    const stars = Array.from({ length: 42 }, (_, i) => ({
+      x: (i * 53 + 17) % BW,
+      y: (i * 29 + 9) % 92,
+      p: i * 0.7,
+    }));
+    const clouds = [
+      { x: 24, y: 34, w: 46, s: 4 },
+      { x: 140, y: 22, w: 62, s: 3 },
+      { x: 250, y: 44, w: 50, s: 5 },
     ];
+    const fireflies = Array.from({ length: 18 }, (_, i) => ({
+      x: (i * 41) % BW,
+      y: 112 + ((i * 19) % 58),
+      s: 6 + (i % 4) * 3,
+      p: i * 1.1,
+    }));
 
-    const MAP_OPTIONS = [
-      { id: "auto", name: "AUTO (ALL 4)", desc: "300 / 600 / 900 pts", thumb: null },
-      { id: "1", name: "1. ANGKOR WAT", desc: "Golden Sunrise", thumb: "assets/anims/bg_angkor.png", sheet: true },
-      { id: "2", name: "2. BAYON NIGHT", desc: "Twilight Faces", thumb: "assets/anims/bg_bayon.png", sheet: true },
-      { id: "3", name: "3. PREAH VIHEAR", desc: "Sacred Cliff", thumb: "assets/sprites/bg_preah_vihear_base.png", sheet: false },
-      { id: "4", name: "4. TA PROHM", desc: "Ancient Roots", thumb: "assets/sprites/bg_ta_prohm_base.png", sheet: false },
-    ];
-
-    const HERO_LABELS = Object.fromEntries(CHAR_OPTIONS.map((c) => [c.id, c.name]));
-    const MAP_LABELS = { auto: "AUTO", 1: "ANGKOR WAT", 2: "BAYON NIGHT", 3: "PREAH VIHEAR", 4: "TA PROHM" };
-
-    const MAP_OBSTACLES = {
-      1: [
-        { key: "obs_lv1_sema1", src: "v2/forge-items/sema_single.png", w: 29 * 2.5, h: 36 * 2.5, yOff: 36 * 2.5, frames: 1, glint: true },
-        { key: "obs_lv1_sema2", src: "v2/forge-items/sema_double.png", w: 43 * 2.5, h: 36 * 2.5, yOff: 36 * 2.5, frames: 1, glint: true },
-        { key: "obs_lv1_sema3", src: "v2/forge-items/sema_triple.png", w: 45 * 2.5, h: 36 * 2.5, yOff: 36 * 2.5, frames: 1, glint: true },
-        { key: "obs_lv1_naga1", src: "v2/forge-items/naga_single.png", w: 28 * 2.5, h: 34 * 2.5, yOff: 34 * 2.5, frames: 1, glint: true },
-        { key: "obs_lv1_naga2", src: "v2/forge-items/naga_double.png", w: 39 * 2.5, h: 34 * 2.5, yOff: 34 * 2.5, frames: 1, glint: true },
-        { key: "obs_lv1_naga3", src: "v2/forge-items/naga_triple.png", w: 80 * 2.0, h: 34 * 2.0, yOff: 34 * 2.0, frames: 1, glint: true },
-        { key: "obs_lv1_urn", src: "assets/anims/obs_lv1_urn.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv1_lotus", src: "assets/anims/obs_lv1_lotus.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
-      ],
-      2: [
-        { key: "obs_lv2_pillar", src: "assets/anims/obs_pillar_lv2.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 8 },
-        { key: "obs_lv2_brazier", src: "assets/anims/obs_lv2_brazier.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 9 },
-        { key: "obs_lv2_singha", src: "assets/anims/obs_lv2_singha.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv2_faceblock", src: "assets/anims/obs_lv2_faceblock.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
-      ],
-      3: [
-        { key: "obs_lv3_pillar", src: "assets/anims/obs_pillar_lv3.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv3_tree", src: "assets/anims/obs_lv3_tree.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv3_boulders", src: "assets/anims/obs_lv3_boulders.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 8 },
-        { key: "obs_lv3_roof", src: "assets/anims/obs_lv3_roof.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
-      ],
-      4: [
-        { key: "obs_lv4_pillar", src: "assets/anims/obs_pillar_lv4.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv4_mushroom", src: "assets/anims/obs_lv4_mushroom.png", fw: 24, fh: 38, w: 24 * 3, h: 38 * 3, yOff: 28 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv4_roots", src: "assets/anims/obs_lv4_roots.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
-        { key: "obs_lv4_rubble", src: "assets/anims/obs_lv4_rubble.png", fw: 36, fh: 32, w: 36 * 3, h: 32 * 3, yOff: 19 * 3, frames: 4, fps: 6 },
-      ],
-    };
-
-    const imgs = {
-      heroes: {},
-      fx: { dust: [], impact: [], orb: [] },
-      items: { coin: [], lotus: [], shield: null, aura: null, chili: null, bamboo: null },
-      bird: [],
-      birdLv2High: [],
-      birdLv2Low: [],
-      birdLv2Dive: [],
-      birdLv3High: [],
-      birdLv3Low: [],
-      birdLv3Dive: [],
-      birdLv4High: [],
-      birdLv4Low: [],
-      birdLv4Dive: [],
-      env: {},
-    };
-    let assetsLoaded = false;
-
-    function loadImg(src) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.src = src;
-      });
+    function drawMiniPrang(cx, baseY, h, hw, col, rim) {
+      const tiers = Math.max(4, Math.floor(h / 4));
+      for (let i = 0; i < tiers; i++) {
+        const t = i / tiers;
+        const th = Math.ceil(h / tiers) + 1;
+        const y = baseY - Math.round(t * h) - th;
+        const w = Math.max(1, Math.round(hw * Math.pow(1 - t, 0.72)));
+        bctx.fillStyle = col;
+        bctx.fillRect(cx - w, y, w * 2 + 1, th);
+        bctx.fillStyle = rim;
+        bctx.fillRect(cx + w, y, 1, th);
+      }
+      bctx.fillStyle = rim;
+      bctx.fillRect(cx, baseY - h - 3, 1, 3);
     }
 
-    async function loadAssets() {
-      const tasks = [];
-      for (const v of VARIANTS) {
-        imgs.heroes[v] = {};
-        const folder = HERO_FOLDERS[v];
-        for (let i = 0; i < 6; i++) {
-          tasks.push(
-            loadImg(`${folder}/run-${i}.png?v=2`).then((img) => {
-              imgs.heroes[v][`run-${i}`] = img;
-            })
-          );
-        }
-        for (const fn of ["jump-0", "jump-1", "duck-0", "duck-1", "hit-0"]) {
-          tasks.push(
-            loadImg(`${folder}/${fn}.png?v=2`).then((img) => {
-              imgs.heroes[v][fn] = img;
-            })
-          );
-        }
+    let bgLast = performance.now();
+    function renderBg(now) {
+      const dt = Math.min(0.05, (now - bgLast) / 1000);
+      bgLast = now;
+
+      // Pixel sky gradient bands (twilight indigo -> warm plum -> Angkor sunrise amber)
+      const bands = ["#140c24", "#1d1233", "#2b1947", "#452354", "#6e2e57", "#a64a53", "#d4754e", "#ebb052"];
+      const bh = Math.ceil(136 / bands.length);
+      for (let i = 0; i < bands.length; i++) {
+        bctx.fillStyle = bands[i];
+        bctx.fillRect(0, i * bh, BW, bh + 1);
       }
-      for (let i = 0; i < 7; i++) {
-        tasks.push(loadImg(`v2/forge-fx/frames/dust-0${i}.png`).then((img) => { imgs.fx.dust[i] = img; }));
+      bctx.fillStyle = "#160f26";
+      bctx.fillRect(0, 134, BW, BH - 134);
+
+      // Glowing pixel moon/sun
+      bctx.fillStyle = "rgba(255, 227, 115, 0.25)";
+      bctx.fillRect(244, 24, 28, 28);
+      bctx.fillStyle = "#ffe373";
+      bctx.fillRect(248, 28, 20, 20);
+      bctx.fillStyle = "#fff9d6";
+      bctx.fillRect(251, 31, 14, 14);
+
+      // Twinkling pixel stars
+      for (const st of stars) {
+        st.p += dt * 2.4;
+        bctx.fillStyle = Math.sin(st.p) > 0.2 ? "#fff9d6" : "#a892cf";
+        bctx.fillRect(st.x, st.y, 1, 1);
       }
-      for (let i = 0; i < 5; i++) {
-        tasks.push(loadImg(`v2/forge-fx/frames/impact-0${i}.png`).then((img) => { imgs.fx.impact[i] = img; }));
+
+      // Drifting pixel clouds
+      for (const cl of clouds) {
+        cl.x -= cl.s * dt;
+        if (cl.x + cl.w < -4) cl.x = BW + 6;
+        bctx.fillStyle = "rgba(242, 164, 99, 0.28)";
+        bctx.fillRect(Math.round(cl.x), cl.y, cl.w, 4);
+        bctx.fillRect(Math.round(cl.x) + 6, cl.y - 3, cl.w - 14, 3);
       }
-      for (let i = 0; i < 8; i++) {
-        tasks.push(loadImg(`v2/forge-fx/frames/orb-0${i}.png`).then((img) => { imgs.fx.orb[i] = img; }));
-      }
-      for (let i = 0; i < 4; i++) {
-        tasks.push(loadImg(`v2/forge-items/coin-${i}.png`).then((img) => { imgs.items.coin[i] = img; }));
-      }
-      for (let i = 0; i < 3; i++) {
-        tasks.push(loadImg(`v2/forge-items/lotus-${i}.png`).then((img) => { imgs.items.lotus[i] = img; }));
-      }
-      tasks.push(loadImg("v2/forge-items/pu_shield.png").then((img) => { imgs.items.shield = img; }));
-      tasks.push(loadImg("v2/forge-items/pu_aura.png").then((img) => { imgs.items.aura = img; }));
-      tasks.push(loadImg("v2/forge-items/pu_chili.png").then((img) => { imgs.items.chili = img; }));
-      tasks.push(loadImg("v2/forge-items/pu_bamboo.png").then((img) => { imgs.items.bamboo = img; }));
-      for (let i = 0; i < 4; i++) {
-        tasks.push(loadImg(`v2/forge-bird-ai-48-clips/frames/frame-0${i}.png?v=2`).then((img) => { imgs.bird[i] = img; }));
-      }
+
+      // Distant Angkor Wat 5-prang silhouette along horizon
+      bctx.fillStyle = "#1f1433";
+      bctx.fillRect(68, 120, 184, 16);
+      bctx.fillRect(98, 110, 124, 12);
+      drawMiniPrang(90, 120, 22, 6, "#1f1433", "#d4754e");
+      drawMiniPrang(230, 120, 22, 6, "#1f1433", "#d4754e");
+      drawMiniPrang(126, 110, 30, 8, "#1f1433", "#ebb052");
+      drawMiniPrang(194, 110, 30, 8, "#1f1433", "#ebb052");
+      drawMiniPrang(160, 110, 42, 10, "#1f1433", "#ffe373");
+
+      // Reflecting temple pond shimmer + drifting golden fireflies
+      bctx.fillStyle = "rgba(235, 176, 82, 0.14)";
+      const shim = Math.floor(now / 260) % 6;
       for (let i = 0; i < 6; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv2/high-${i}.png`).then((img) => { imgs.birdLv2High[i] = img; }));
+        bctx.fillRect(108 + ((i * 23 + shim * 3) % 104), 144 + i * 5, 18 - i * 2, 1);
       }
-      for (let i = 0; i < 5; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv2/low-${i}.png`).then((img) => { imgs.birdLv2Low[i] = img; }));
+      for (const ff of fireflies) {
+        ff.x -= ff.s * dt;
+        ff.p += dt * 3;
+        if (ff.x < -2) ff.x = BW + 2;
+        const fy = Math.round(ff.y + Math.sin(ff.p) * 3);
+        bctx.fillStyle = Math.sin(ff.p * 1.5) > 0 ? "#ffe373" : "#6fd184";
+        bctx.fillRect(Math.round(ff.x), fy, 2, 2);
       }
-      for (let i = 0; i < 6; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv3/high-${i}.png`).then((img) => { imgs.birdLv3High[i] = img; }));
-      }
-      for (let i = 0; i < 5; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv3/low-${i}.png`).then((img) => { imgs.birdLv3Low[i] = img; }));
-      }
-      for (let i = 0; i < 6; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv4/high-${i}.png`).then((img) => { imgs.birdLv4High[i] = img; }));
-      }
-      for (let i = 0; i < 5; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv4/low-${i}.png`).then((img) => { imgs.birdLv4Low[i] = img; }));
-      }
-      for (let i = 0; i < 5; i++) {
-        tasks.push(loadImg(`v2/forge-bird-lv2/dive-${i}.png`).then((img) => { imgs.birdLv2Dive[i] = img; }));
-        tasks.push(loadImg(`v2/forge-bird-lv3/dive-${i}.png`).then((img) => { imgs.birdLv3Dive[i] = img; }));
-        tasks.push(loadImg(`v2/forge-bird-lv4/dive-${i}.png`).then((img) => { imgs.birdLv4Dive[i] = img; }));
-      }
-      const envPaths = {
-        bg_angkor: "assets/anims/bg_angkor.png",
-        bg_bayon: "assets/anims/bg_bayon.png",
-        bg_preah_vihear: "assets/sprites/bg_preah_vihear_base.png",
-        bg_ta_prohm: "assets/sprites/bg_ta_prohm_base.png",
-        ground_1: "assets/sprites/ground_tile.png",
-        ground_2: "assets/sprites/ground_tile_lv2.png",
-        ground_3: "assets/sprites/ground_tile_lv3.png",
-        ground_4: "assets/sprites/ground_tile_lv4.png",
-        fx_petal: "assets/sprites/petal.png",
-        fx_leaf: "assets/sprites/leaf.png",
-      };
-      for (const list of Object.values(MAP_OBSTACLES)) {
-        for (const item of list) envPaths[item.key] = item.src;
-      }
-      for (const [k, src] of Object.entries(envPaths)) {
-        tasks.push(loadImg(src).then((img) => { imgs.env[k] = img; }));
-      }
-      await Promise.all(tasks);
-      assetsLoaded = true;
-    }
 
-    // Audio-Design Bus + Pitch-Varied SFX + Procedural Khmer Pentatonic BGM
-    let audioCtx = null;
-    let sfxBus = null;
-    let bgmBus = null;
-    let muted = false;
-    let bgmEnabled = localStorage.getItem("angkor_dino_bgm") !== "0";
-    let bgmStep = 0;
-    let bgmAccum = 0;
-    const BGM_SCALES = {
-      1: [261.6, 293.7, 329.6, 392.0, 440.0, 523.3, 587.3], // Angkor warm major pentatonic
-      2: [220.0, 261.6, 293.7, 329.6, 392.0, 440.0, 523.3], // Bayon twilight minor pentatonic
-      3: [293.7, 329.6, 392.0, 440.0, 523.3, 587.3, 659.3], // Preah Vihear soaring sky
-      4: [246.9, 293.7, 329.6, 370.0, 440.0, 493.9, 587.3], // Ta Prohm mysterious jungle
-    };
-    const BGM_MELODY = [0, 2, 4, 5, 4, 2, 3, 1, 0, 4, 5, 6, 5, 4, 2, 0];
+      requestAnimationFrame(renderBg);
+    }
+    requestAnimationFrame(renderBg);
 
-    function ensureAudio() {
-      if (!audioCtx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (AC) {
-          audioCtx = new AC();
-          sfxBus = audioCtx.createGain();
-          sfxBus.gain.value = 0.85;
-          sfxBus.connect(audioCtx.destination);
-          bgmBus = audioCtx.createGain();
-          bgmBus.gain.value = 0.24;
-          bgmBus.connect(audioCtx.destination);
-        }
-      }
-      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-    }
-    function playBgmNote(freq, dur, type = "triangle", vol = 0.14) {
-      if (!bgmEnabled || !audioCtx || !bgmBus) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-      osc.connect(gain);
-      gain.connect(bgmBus);
-      osc.start();
-      osc.stop(audioCtx.currentTime + dur);
-    }
-    function tickBgm(dt) {
-      if (!bgmEnabled || state !== "playing") return;
-      const stepDur = bossRushTimer > 0 ? 0.145 : (chiliTimer > 0 ? 0.15 : 0.195);
-      bgmAccum += dt;
-      if (bgmAccum >= stepDur) {
-        bgmAccum -= stepDur;
-        ensureAudio();
-        const scale = BGM_SCALES[level] || BGM_SCALES[1];
-        const idx = BGM_MELODY[bgmStep % BGM_MELODY.length];
-        playBgmNote(scale[idx], stepDur * 1.15, "triangle", 0.16);
-        if (bgmStep % 4 === 0) playBgmNote(scale[0] * 0.5, stepDur * 2.2, "sine", 0.15);
-        bgmStep++;
-      }
-    }
-    function playTone(freq, endFreq, duration, type = "square", vol = 0.08, jitter = 0.04) {
-      if (muted) return;
-      ensureAudio();
-      if (!audioCtx || !sfxBus) return;
-      const pitchMul = 1 + (Math.random() - 0.5) * 2 * jitter;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq * pitchMul, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(Math.max(40, endFreq * pitchMul), audioCtx.currentTime + duration);
-      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(sfxBus);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }
-    const sfx = {
-      jump: () => playTone(260, 560, 0.11, "square", 0.07),
-      orb: () => {
-        playTone(620, 930, 0.09, "triangle", 0.1);
-        setTimeout(() => playTone(930, 1240, 0.12, "triangle", 0.09), 60);
-      },
-      milestone: () => {
-        playTone(523, 659, 0.1, "square", 0.07);
-        setTimeout(() => playTone(659, 1046, 0.16, "square", 0.07), 90);
-      },
-      hit: () => playTone(180, 55, 0.25, "sawtooth", 0.11),
-    };
+    // Animate featured Krama Dino preview sprite
+    const previewHeroImg = document.getElementById("previewHeroImg");
+    let dinoFrame = 0;
+    setInterval(() => {
+      dinoFrame = (dinoFrame + 1) % 6;
+      previewHeroImg.src = `games/angkor-dino-run/v2/forge-dino/run-${dinoFrame}.png?v=2`;
+    }, 120);
 
-    const keys = { jump: false, duck: false };
-    // state: "home" | "hero_select" | "map_select" | "playing" | "paused" | "gameover"
-    let state = "home";
-    let prevStateBeforeSettings = "home";
-    let score = 0;
-    let highScore = Number(localStorage.getItem("angkor_dino_v2_hi") || 0);
-    let speed = 360;
-    let dist = 0;
-    let spawnTimer = 0.9;
-    let lastMilestone = 0;
-    let flashTimer = 0;
-    let trauma = 0;
-    let shakeTime = 0;
-    let hitStopTimer = 0;
-    let combo = 0;
-
-    let mapMode = localStorage.getItem("angkor_dino_map") || "auto";
-    if (!["auto", "1", "2", "3", "4"].includes(mapMode)) mapMode = "auto";
-    let charMode = localStorage.getItem("angkor_dino_char") || "auto";
-    if (charMode !== "auto" && !VARIANTS.includes(charMode)) charMode = "auto";
+    // === 2. CONSOLE OS STATE & NAVIGATION ===
+    const deviceScreen = document.getElementById("deviceScreen");
+    const hubScreen = document.getElementById("hubScreen");
+    const pickPc = document.getElementById("pickPc");
+    const pickMobile = document.getElementById("pickMobile");
+    const topCoins = document.getElementById("topCoins");
+    const topDeviceText = document.getElementById("topDeviceText");
+    const shelfDeviceNote = document.getElementById("shelfDeviceNote");
+    const hubBestScore = document.getElementById("hubBestScore");
+    const hubMissions = document.getElementById("hubMissions");
 
     const detectedMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 760;
     let deviceMode = localStorage.getItem("angkor_dino_device") || (detectedMobile ? "mobile" : "pc");
     if (!["pc", "mobile"].includes(deviceMode)) deviceMode = "pc";
+    let activeScreen = "device";
 
-    let level = mapMode === "auto" ? 1 : Number(mapMode);
-    let levelBannerTimer = 0;
-    let levelBannerText = "";
-
-    const homeOverlay = document.getElementById("homeOverlay");
-    const deviceOverlay = document.getElementById("deviceOverlay");
-    const heroOverlay = document.getElementById("heroOverlay");
-    const mapOverlay = document.getElementById("mapOverlay");
-    const settingsOverlay = document.getElementById("settingsOverlay");
-    const gameoverOverlay = document.getElementById("gameoverOverlay");
-    const mobileControls = document.getElementById("mobileControls");
-
-    const homeStatus = document.getElementById("homeStatus");
-    const charGrid = document.getElementById("charGrid");
-    const mapGrid = document.getElementById("mapGrid");
-    const mapSub = document.getElementById("mapSub");
-    const gameoverStats = document.getElementById("gameoverStats");
-
-    const pickPcCard = document.getElementById("pickPcCard");
-    const pickMobileCard = document.getElementById("pickMobileCard");
-    const sfxIconImg = document.getElementById("sfxIconImg");
-    const sfxLabel = document.getElementById("sfxLabel");
-    const settingsTitle = document.getElementById("settingsTitle");
-    const resumeBtn = document.getElementById("resumeBtn");
-    const settingsRestartBtn = document.getElementById("settingsRestartBtn");
-    const settingsDoneBtn = document.getElementById("settingsDoneBtn");
-
-    const hero = {
-      x: 112,
-      y: GROUND_Y - 32 * HERO_SCALE,
-      vy: 0,
-      onGround: true,
-      ducking: false,
-      animTime: 0,
-      jumpBuffer: 0,
-      coyote: 0,
-      airJumps: 0,
-      scaleX: 1,
-      scaleY: 1,
-    };
-
-    // Persistent Progression: Coin Bank, Shop Upgrades & Missions
-    const DEFAULT_SAVE = {
-      coins: 0,
-      upgrades: { startShield: 0, powerDur: 0, magnet: 0, goldAura: 0 },
-      stats: { coins: 0, smashes: 0, nearMisses: 0, maxLevel: 1, bestScore: 0 },
-      claimed: {},
-    };
-    let saveData = (() => {
+    function readProgress() {
+      let coins = 0, missionsDone = 0;
       try {
         const raw = JSON.parse(localStorage.getItem("angkor_dino_save_v1") || "{}");
-        return {
-          coins: Number(raw.coins || 0),
-          upgrades: { ...DEFAULT_SAVE.upgrades, ...(raw.upgrades || {}) },
-          stats: { ...DEFAULT_SAVE.stats, ...(raw.stats || {}) },
-          claimed: { ...(raw.claimed || {}) },
-        };
-      } catch { return JSON.parse(JSON.stringify(DEFAULT_SAVE)); }
-    })();
-    function persistSave() {
-      localStorage.setItem("angkor_dino_save_v1", JSON.stringify(saveData));
+        coins = Number(raw.coins || 0);
+        missionsDone = Object.values(raw.claimed || {}).filter(Boolean).length;
+      } catch {}
+      const best = Number(localStorage.getItem("angkor_dino_v2_hi") || 0);
+      return { coins, best, missionsDone };
     }
 
-    const SHOP_ITEMS = [
-      { id: "startShield", name: "STARTING SHIELD", desc: "Begin every run with a Shield", max: 1, costs: [30] },
-      { id: "powerDur", name: "POWER DURATION", desc: "+1.5s Chili & Bamboo per Lv", max: 3, costs: [25, 50, 80] },
-      { id: "magnet", name: "COIN MAGNET", desc: "Pulls nearby Coins & Lotuses", max: 3, costs: [35, 65, 100] },
-      { id: "goldAura", name: "ROYAL GOLD TRAIL", desc: "Golden sparkle trail on hero", max: 1, costs: [120] },
-    ];
-    const MISSIONS = [
-      { id: "m_coins", title: "Treasure Hunter", desc: "Collect 15 Gold Coins", goal: 15, stat: "coins", reward: 20 },
-      { id: "m_smash", title: "Chili Crusher", desc: "Smash 5 obstacles with Fire Chili", goal: 5, stat: "smashes", reward: 30 },
-      { id: "m_close", title: "Close Call Master", desc: "Land 5 Near-Miss jumps", goal: 5, stat: "nearMisses", reward: 25 },
-      { id: "m_realm", title: "Realm Explorer", desc: "Reach Map 3 (Preah Vihear)", goal: 3, stat: "maxLevel", reward: 40 },
-      { id: "m_score", title: "Angkor Legend", desc: "Reach 1,000 pts in one run", goal: 1000, stat: "bestScore", reward: 60 },
-    ];
-
-    const shopOverlay = document.getElementById("shopOverlay");
-    const missionsOverlay = document.getElementById("missionsOverlay");
-    const shopGrid = document.getElementById("shopGrid");
-    const shopCoinsLabel = document.getElementById("shopCoinsLabel");
-    const missionList = document.getElementById("missionList");
-    const toastBanner = document.getElementById("toastBanner");
-    const bgmToggleCard = document.getElementById("bgmToggleCard");
-    const bgmLabel = document.getElementById("bgmLabel");
-    let toastTimer = null;
-
-    function showToast(msg) {
-      toastBanner.textContent = msg;
-      toastBanner.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toastBanner.classList.remove("show"), 2600);
+    function syncUI() {
+      const { coins, best, missionsDone } = readProgress();
+      pickPc.classList.toggle("selected", deviceMode === "pc");
+      pickMobile.classList.toggle("selected", deviceMode === "mobile");
+      topCoins.textContent = `${coins} COINS`;
+      topDeviceText.textContent = `DEVICE: ${deviceMode.toUpperCase()}`;
+      shelfDeviceNote.textContent = `MODE: ${deviceMode.toUpperCase()}`;
+      hubBestScore.textContent = `BEST SCORE: ${best}`;
+      hubMissions.textContent = `MISSIONS: ${missionsDone}/5`;
     }
 
-    function checkMissions() {
-      let updated = false;
-      for (const m of MISSIONS) {
-        if (!saveData.claimed[m.id] && (saveData.stats[m.stat] || 0) >= m.goal) {
-          saveData.claimed[m.id] = true;
-          saveData.coins += m.reward;
-          updated = true;
-          sfx.milestone();
-          showToast(`MISSION COMPLETE: ${m.title}! +${m.reward} GOLD COINS`);
-        }
-      }
-      if (updated) persistSave();
+    function showDeviceSelect() {
+      activeScreen = "device";
+      deviceScreen.classList.add("active");
+      hubScreen.classList.remove("active");
+      syncUI();
     }
 
-    function renderShop() {
-      shopCoinsLabel.textContent = `YOUR GOLD COINS: ${saveData.coins}`;
-      shopGrid.innerHTML = "";
-      for (const item of SHOP_ITEMS) {
-        const lv = saveData.upgrades[item.id] || 0;
-        const maxed = lv >= item.max;
-        const cost = maxed ? 0 : item.costs[lv];
-        const card = document.createElement("div");
-        card.className = "shop-card";
-        card.innerHTML = `<div class="shop-info"><div class="card-name">${item.name} (${lv}/${item.max})</div><div class="card-desc">${item.desc}</div></div><button class="shop-btn" ${maxed || saveData.coins < cost ? "disabled" : ""}>${maxed ? "MAXED" : `${cost} COINS`}</button>`;
-        const btn = card.querySelector("button");
-        btn.addEventListener("click", () => {
-          if (maxed || saveData.coins < cost) return;
-          saveData.coins -= cost;
-          saveData.upgrades[item.id] = lv + 1;
-          persistSave();
-          sfx.milestone();
-          renderShop();
-          syncOverlays();
-        });
-        shopGrid.appendChild(card);
-      }
+    function showHub() {
+      activeScreen = "hub";
+      deviceScreen.classList.remove("active");
+      hubScreen.classList.add("active");
+      syncUI();
     }
 
-    function renderMissions() {
-      missionList.innerHTML = "";
-      for (const m of MISSIONS) {
-        const cur = Math.min(m.goal, saveData.stats[m.stat] || 0);
-        const done = !!saveData.claimed[m.id];
-        const row = document.createElement("div");
-        row.className = "mission-row" + (done ? " done" : "");
-        row.innerHTML = `<div class="shop-info"><div class="card-name">${done ? "&#10003; " : ""}${m.title} (+${m.reward} Coins)</div><div class="card-desc">${m.desc}</div></div><div class="card-name" style="color:${done ? "#7ee081" : "#ffe373"}">${cur} / ${m.goal}</div>`;
-        missionList.appendChild(row);
-      }
-    }
-
-    let obstacles = [];
-    let orbs = [];
-    let powerups = [];
-    let diveWarnings = [];
-    let trailParticles = [];
-    let fxAnims = [];
-    let popups = [];
-    let shieldCharges = 0;
-    let invulnTimer = 0;
-    let chiliTimer = 0;
-    let bambooTimer = 0;
-    let runCoins = 0;
-    let comboForgive = 0;
-    let bossRushTimer = 0;
-    let bossNextLevel = 0;
-    let bossSpawnAccum = 0;
-    let bossTriggered = { 2: false, 3: false, 4: false };
-    const motes = Array.from({ length: 16 }, (_, i) => ({
-      x: (i * 63) % W,
-      y: 60 + ((i * 71) % (GROUND_Y - 100)),
-      speed: 25 + (i % 4) * 14,
-      phase: i * 0.7,
-    }));
-
-    function applyDeviceMode() {
-      document.body.classList.toggle("device-mobile", deviceMode === "mobile");
-      pickPcCard.classList.toggle("selected", deviceMode === "pc");
-      pickMobileCard.classList.toggle("selected", deviceMode === "mobile");
-      homeStatus.textContent = `HERO: ${HERO_LABELS[charMode]}  |  MAP: ${MAP_LABELS[mapMode]}  |  DEVICE: ${deviceMode.toUpperCase()}`;
-    }
-
-    function setDeviceMode(mode) {
+    function selectDevice(mode) {
       deviceMode = mode;
       localStorage.setItem("angkor_dino_device", deviceMode);
-      applyDeviceMode();
+      showHub();
     }
 
-    function syncOverlays() {
-      homeOverlay.classList.toggle("active", state === "home");
-      deviceOverlay.classList.toggle("active", state === "device_select");
-      heroOverlay.classList.toggle("active", state === "hero_select");
-      mapOverlay.classList.toggle("active", state === "map_select");
-      settingsOverlay.classList.toggle("active", state === "paused");
-      gameoverOverlay.classList.toggle("active", state === "gameover");
-      shopOverlay.classList.toggle("active", state === "shop");
-      missionsOverlay.classList.toggle("active", state === "missions");
-      mobileControls.classList.toggle("playing", state === "playing");
-
-      homeStatus.textContent = `HERO: ${HERO_LABELS[charMode]}  |  MAP: ${MAP_LABELS[mapMode]}  |  COINS: ${saveData.coins}`;
-      bgmToggleCard.classList.toggle("selected", bgmEnabled);
-      bgmLabel.textContent = bgmEnabled ? "BGM: ON" : "BGM: OFF";
-      if (state === "map_select") {
-        mapSub.textContent = `Hero: ${HERO_LABELS[charMode]} — Choose a Map or AUTO to progress through all 4 realms`;
-      }
-      if (state === "gameover") {
-        gameoverStats.textContent = `Score: ${Math.floor(score)}  |  Best: ${highScore}  |  +${runCoins} Coins`;
-      }
-      const inRun = prevStateBeforeSettings === "playing";
-      settingsTitle.textContent = inRun ? "PAUSED & SETTINGS" : "SETTINGS";
-      resumeBtn.style.display = inRun ? "inline-flex" : "none";
-      settingsRestartBtn.style.display = inRun ? "inline-flex" : "none";
-      settingsDoneBtn.style.display = inRun ? "none" : "inline-flex";
+    function launchAngkorDino() {
+      window.location.href = `games/angkor-dino-run/index.html?device=${encodeURIComponent(deviceMode)}`;
     }
-
-    function renderCards() {
-      charGrid.innerHTML = "";
-      for (const c of CHAR_OPTIONS) {
-        const el = document.createElement("div");
-        el.className = "card" + (charMode === c.id ? " selected" : "");
-        if (c.preview) {
-          el.innerHTML = `<img class="card-sprite" src="${c.preview}" alt="${c.name}" /><div class="card-name">${c.name}</div><div class="card-desc">${c.desc}</div>`;
-        } else {
-          el.innerHTML = `<div class="card-auto-badge">AUTO</div><div class="card-name">${c.name}</div><div class="card-desc">${c.desc}</div>`;
-        }
-        el.addEventListener("click", () => {
-          charMode = c.id;
-          localStorage.setItem("angkor_dino_char", charMode);
-          renderCards();
-          syncOverlays();
-        });
-        charGrid.appendChild(el);
-      }
-
-      mapGrid.innerHTML = "";
-      for (const m of MAP_OPTIONS) {
-        const el = document.createElement("div");
-        el.className = "card" + (mapMode === m.id ? " selected" : "");
-        if (m.thumb) {
-          const thumbStyle = m.sheet
-            ? `background-image:url('${m.thumb}');background-size:600% 100%;background-position:0 0;`
-            : `background-image:url('${m.thumb}');background-size:cover;background-position:center;`;
-          el.innerHTML = `<div class="card-map-thumb" style="${thumbStyle}"></div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
-        } else {
-          el.innerHTML = `<div class="card-auto-badge" style="width:100%;height:52px;">AUTO</div><div class="card-name">${m.name}</div><div class="card-desc">${m.desc}</div>`;
-        }
-        el.addEventListener("click", () => {
-          mapMode = m.id;
-          localStorage.setItem("angkor_dino_map", mapMode);
-          level = mapMode === "auto" ? 1 : Number(mapMode);
-          renderCards();
-          syncOverlays();
-        });
-        el.addEventListener("dblclick", () => {
-          mapMode = m.id;
-          localStorage.setItem("angkor_dino_map", mapMode);
-          startRun();
-        });
-        mapGrid.appendChild(el);
-      }
+    function launchZombieTsunami() {
+      window.location.href = `games/phnom-penh-zombie-tsunami/index.html?device=${encodeURIComponent(deviceMode)}`;
     }
-
-    function openShop() {
-      state = "shop";
-      renderShop();
-      syncOverlays();
-    }
-    function openMissions() {
-      state = "missions";
-      renderMissions();
-      syncOverlays();
-    }
-
-    function openHome() {
-      state = "home";
-      prevStateBeforeSettings = "home";
-      level = mapMode === "auto" ? 1 : Number(mapMode);
-      obstacles = []; orbs = []; powerups = []; diveWarnings = []; trailParticles = []; fxAnims = []; popups = [];
-      syncOverlays();
-      renderCards();
-    }
-
-    function openDeviceSelect() {
-      state = "device_select";
-      syncOverlays();
-      applyDeviceMode();
-    }
-
-    function openHeroSelect() {
-      state = "hero_select";
-      syncOverlays();
-      renderCards();
-    }
-
-    function openMapSelect() {
-      state = "map_select";
-      level = mapMode === "auto" ? 1 : Number(mapMode);
-      syncOverlays();
-      renderCards();
-    }
-
-    function openSettings() {
-      if (state === "paused") { closeSettings(); return; }
-      prevStateBeforeSettings = state;
-      state = "paused";
-      syncOverlays();
-    }
-
-    function closeSettings() {
-      state = prevStateBeforeSettings === "playing" ? "playing" : "home";
-      syncOverlays();
-    }
-
-    function spawnFx(kind, x, y, scale = 2) {
-      fxAnims.push({ kind, x, y, scale, t: 0, duration: kind === "dust" ? 0.36 : 0.32 });
-    }
-
-    function getLevelBanner(lvl) {
-      return lvl === 4 ? "LEVEL 4: TA PROHM ROOTS!" :
-        lvl === 3 ? "LEVEL 3: PREAH VIHEAR SKY!" :
-        lvl === 2 ? "LEVEL 2: BAYON TWILIGHT!" : "LEVEL 1: ANGKOR WAT!";
-    }
-
-    function startRun() {
-      score = 0;
-      level = mapMode === "auto" ? 1 : Number(mapMode);
-      speed = 360;
-      dist = 0;
-      spawnTimer = 0.95;
-      lastMilestone = 0;
-      flashTimer = 0;
-      trauma = 0;
-      hitStopTimer = 0;
-      combo = 0;
-      levelBannerTimer = 2.0;
-      levelBannerText = getLevelBanner(level);
-      hero.y = GROUND_Y - 32 * HERO_SCALE;
-      hero.vy = 0;
-      hero.onGround = true;
-      hero.ducking = false;
-      hero.animTime = 0;
-      hero.jumpBuffer = 0;
-      hero.scaleX = 1;
-      hero.scaleY = 1;
-      obstacles = [];
-      orbs = [];
-      powerups = [];
-      diveWarnings = [];
-      trailParticles = [];
-      fxAnims = [];
-      popups = [];
-      const startHero = charMode !== "auto" ? charMode : VARIANTS[level - 1];
-      shieldCharges = (saveData.upgrades.startShield || 0) + (startHero === "khmer_elephant" ? 1 : 0);
-      invulnTimer = 0;
-      chiliTimer = 0;
-      bambooTimer = 0;
-      runCoins = 0;
-      comboForgive = 0;
-      bossRushTimer = 0;
-      bossNextLevel = 0;
-      bossSpawnAccum = 0;
-      bossTriggered = { 2: false, 3: false, 4: false };
-      hero.airJumps = startHero === "khmer_hanuman" ? 1 : 0;
-      if (level > saveData.stats.maxLevel) { saveData.stats.maxLevel = level; checkMissions(); }
-      prevStateBeforeSettings = "playing";
-      state = "playing";
-      syncOverlays();
-    }
-
-    let lastObsKey = "";
-    function spawnDiveWarning(targetY) {
-      diveWarnings.push({ y: targetY, t: 0.95, lvl: level });
-      playTone(880, 620, 0.08, "sawtooth", 0.05);
-    }
-
-    function spawnObstacle() {
-      const r = Math.random();
-      if (score > 200 && r < 0.11) {
-        // Diving Attack bird with generous 0.95s "!" warning indicator
-        const targetY = Math.random() < 0.5 ? GROUND_Y - 152 : GROUND_Y - 104;
-        spawnDiveWarning(targetY);
-      } else if (score > 110 && r < 0.25) {
-        const high = Math.random() < 0.6;
-        obstacles.push({
-          type: "garuda",
-          lvl: level,
-          high,
-          dive: false,
-          x: W + 40,
-          y: high ? GROUND_Y - 160 : GROUND_Y - 106,
-          w: 64 * 2,
-          h: 56 * 2,
-          animTime: Math.random() * 0.5,
-        });
-      } else {
-        const pool = MAP_OBSTACLES[level] || MAP_OBSTACLES[1];
-        let pick = pool[Math.floor(Math.random() * pool.length)];
-        if (pool.length > 1 && pick.key === lastObsKey) {
-          pick = pool[(pool.indexOf(pick) + 1 + Math.floor(Math.random() * (pool.length - 1))) % pool.length];
-        }
-        lastObsKey = pick.key;
-        obstacles.push({
-          type: "ground",
-          spriteKey: pick.key,
-          fw: pick.fw || 0,
-          fh: pick.fh || 0,
-          frames: pick.frames || 1,
-          fps: pick.fps || 6,
-          glint: !!pick.glint,
-          x: W + 40,
-          y: GROUND_Y - pick.yOff,
-          w: pick.w,
-          h: pick.h,
-          animTime: Math.random() * 0.6,
-        });
-      }
-      if (Math.random() < 0.68) {
-        const isLotus = Math.random() < 0.30;
-        orbs.push({
-          kind: isLotus ? "lotus" : "coin",
-          x: W + 220 + Math.random() * 120,
-          y: GROUND_Y - (Math.random() < 0.5 ? 88 : 162),
-          size: isLotus ? 54 : 46,
-          t: Math.random(),
-        });
-      }
-      if (score > 20 && Math.random() < 0.24 && powerups.length === 0) {
-        const kinds = ["shield", "chili", "bamboo"];
-        const pKind = kinds[Math.floor(Math.random() * kinds.length)];
-        powerups.push({
-          kind: pKind,
-          x: W + 300 + Math.random() * 110,
-          y: GROUND_Y - (Math.random() < 0.5 ? 105 : 165),
-          size: 52,
-          t: Math.random() * 2,
-        });
-      }
-    }
-
-    function getHeroHitbox() {
-      if (hero.ducking && hero.onGround) {
-        return { x: hero.x + 28, y: GROUND_Y - 36, w: 40, h: 32 };
-      }
-      return { x: hero.x + 32, y: hero.y + 32, w: 32, h: 56 };
-    }
-
-    function boxesOverlap(a, b) {
-      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-    }
-
-    function triggerJump() {
-      if (state === "playing") {
-        hero.jumpBuffer = 0.18;
-      }
-    }
-
-    window.addEventListener("keydown", (e) => {
-      if (e.code === "Escape") {
-        if (state === "playing" || state === "paused") openSettings();
-        else if (state === "hero_select" || state === "map_select") openHome();
-        return;
-      }
-      if (["Space", "ArrowUp", "KeyW", "Enter"].includes(e.code)) {
-        e.preventDefault();
-        if (state === "home") { openDeviceSelect(); return; }
-        if (state === "device_select") { openHeroSelect(); return; }
-        if (state === "hero_select") { openMapSelect(); return; }
-        if (state === "map_select") { startRun(); return; }
-        if (state === "gameover") { startRun(); return; }
-        if (state === "paused") { closeSettings(); return; }
-        if (!keys.jump) triggerJump();
-        keys.jump = true;
-      }
-      if (["ArrowDown", "KeyS"].includes(e.code)) {
-        e.preventDefault();
-        keys.duck = true;
-      }
-    });
-    window.addEventListener("keyup", (e) => {
-      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) keys.jump = false;
-      if (["ArrowDown", "KeyS"].includes(e.code)) keys.duck = false;
-    });
-
-    canvas.addEventListener("pointerdown", () => {
-      if (state === "playing") {
-        triggerJump();
-        keys.jump = true;
-      }
-    });
-    window.addEventListener("pointerup", () => {
-      if (state === "playing") keys.jump = false;
-    });
-
-    // Prevent mobile long-press browser menu
-    window.addEventListener("contextmenu", (e) => e.preventDefault());
 
     function toggleFullscreen() {
       const el = document.documentElement;
@@ -1408,702 +791,26 @@
       }
     }
 
-    // Menu & Modal Listeners
-    document.getElementById("hudSettingsBtn").addEventListener("click", (e) => { e.currentTarget.blur(); openSettings(); });
-    document.getElementById("hudFullscreenBtn").addEventListener("click", (e) => { e.currentTarget.blur(); toggleFullscreen(); });
-    document.getElementById("menuPlayBtn").addEventListener("click", openDeviceSelect);
-    document.getElementById("menuSettingsBtn").addEventListener("click", openSettings);
-    document.getElementById("menuShopBtn").addEventListener("click", openShop);
-    document.getElementById("menuMissionsBtn").addEventListener("click", openMissions);
-    document.getElementById("shopCloseBtn").addEventListener("click", openHome);
-    document.getElementById("shopDoneBtn").addEventListener("click", openHome);
-    document.getElementById("missionsCloseBtn").addEventListener("click", openHome);
-    document.getElementById("missionsDoneBtn").addEventListener("click", openHome);
+    pickPc.addEventListener("click", () => selectDevice("pc"));
+    pickMobile.addEventListener("click", () => selectDevice("mobile"));
+    document.getElementById("topDevicePill").addEventListener("click", showDeviceSelect);
+    document.getElementById("topFullscreenBtn").addEventListener("click", toggleFullscreen);
+    document.getElementById("launchAngkorBtn").addEventListener("click", launchAngkorDino);
+    document.getElementById("cartSlot1").addEventListener("click", launchAngkorDino);
+    document.getElementById("cartSlot2").addEventListener("click", launchZombieTsunami);
 
-    document.getElementById("deviceBackBtn").addEventListener("click", openHome);
-    document.getElementById("deviceCloseBtn").addEventListener("click", openHome);
-    document.getElementById("flowPcCard").addEventListener("click", () => { setDeviceMode("pc"); openHeroSelect(); });
-    document.getElementById("flowMobileCard").addEventListener("click", () => { setDeviceMode("mobile"); openHeroSelect(); });
-
-    document.getElementById("heroBackBtn").addEventListener("click", openDeviceSelect);
-    document.getElementById("heroCloseBtn").addEventListener("click", openHome);
-    document.getElementById("heroNextBtn").addEventListener("click", openMapSelect);
-    document.getElementById("mapBackBtn").addEventListener("click", openHeroSelect);
-    document.getElementById("mapCloseBtn").addEventListener("click", openHome);
-    document.getElementById("startRunBtn").addEventListener("click", startRun);
-
-    document.getElementById("settingsCloseBtn").addEventListener("click", closeSettings);
-    document.getElementById("settingsDoneBtn").addEventListener("click", closeSettings);
-    resumeBtn.addEventListener("click", closeSettings);
-    settingsRestartBtn.addEventListener("click", startRun);
-    document.getElementById("settingsHomeBtn").addEventListener("click", openHome);
-
-    document.getElementById("retryBtn").addEventListener("click", startRun);
-    document.getElementById("goMapBtn").addEventListener("click", openMapSelect);
-    document.getElementById("goHomeBtn").addEventListener("click", openHome);
-
-    pickPcCard.addEventListener("click", () => setDeviceMode("pc"));
-    pickMobileCard.addEventListener("click", () => setDeviceMode("mobile"));
-    document.getElementById("sfxToggleCard").addEventListener("click", () => {
-      muted = !muted;
-      sfxIconImg.src = muted ? "v2/forge-gui/icon_sfx_off.png" : "v2/forge-gui/icon_sfx_on.png";
-      sfxLabel.textContent = muted ? "SFX: OFF" : "SFX: ON";
-    });
-    bgmToggleCard.addEventListener("click", () => {
-      bgmEnabled = !bgmEnabled;
-      localStorage.setItem("angkor_dino_bgm", bgmEnabled ? "1" : "0");
-      syncOverlays();
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "KeyF") toggleFullscreen();
+      else if (e.code === "Enter" || e.code === "Space") {
+        e.preventDefault();
+        if (activeScreen === "device") showHub();
+        else launchAngkorDino();
+      }
     });
 
-    const touchJump = document.getElementById("touchJump");
-    const touchDuck = document.getElementById("touchDuck");
-    touchJump.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      triggerJump();
-      keys.jump = true;
-    });
-    touchJump.addEventListener("pointerup", () => { keys.jump = false; });
-    touchJump.addEventListener("pointercancel", () => { keys.jump = false; });
-
-    touchDuck.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      keys.duck = true;
-    });
-    touchDuck.addEventListener("pointerup", () => { keys.duck = false; });
-    touchDuck.addEventListener("pointercancel", () => { keys.duck = false; });
-
-    function update(dt) {
-      if (state === "paused") return;
-
-      if (flashTimer > 0) flashTimer -= dt;
-      if (trauma > 0) {
-        trauma = Math.max(0, trauma - 1.6 * dt);
-        shakeTime += dt * 32;
-      }
-      if (levelBannerTimer > 0) levelBannerTimer -= dt;
-      if (hitStopTimer > 0) { hitStopTimer -= dt; return; }
-
-      hero.scaleX += (1 - hero.scaleX) * Math.min(1, dt * 16);
-      hero.scaleY += (1 - hero.scaleY) * Math.min(1, dt * 16);
-
-      for (const m of motes) {
-        m.x -= (m.speed + (state === "playing" ? speed * 0.15 : 0)) * dt;
-        m.phase += dt * 3;
-        if (m.x < -8) m.x = W + 8;
-      }
-
-      if (state !== "playing") {
-        hero.animTime += dt;
-        return;
-      }
-
-      const activeHeroId = charMode !== "auto" ? charMode : VARIANTS[level - 1];
-      tickBgm(dt);
-
-      const baseSpeed = Math.min(620, 310 + score * 0.22);
-      if (invulnTimer > 0) invulnTimer = Math.max(0, invulnTimer - dt);
-      if (chiliTimer > 0) chiliTimer = Math.max(0, chiliTimer - dt);
-      if (bambooTimer > 0) bambooTimer = Math.max(0, bambooTimer - dt);
-
-      speed = chiliTimer > 0 ? Math.min(760, baseSpeed * 1.28) : (bossRushTimer > 0 ? Math.min(640, baseSpeed * 1.05) : baseSpeed);
-      dist += speed * dt;
-      score += dt * 14 * (chiliTimer > 0 || bambooTimer > 0 || combo >= 4 ? 2 : 1);
-
-      if (Math.floor(score) > saveData.stats.bestScore) {
-        saveData.stats.bestScore = Math.floor(score);
-        if (saveData.stats.bestScore >= 1000) checkMissions();
-      }
-
-      // Temple Boss Rush -> Realm Transition in AUTO mode (fair 5.5s wave, pauses ground spawns!)
-      if (mapMode === "auto" && bossRushTimer <= 0) {
-        if (level === 1 && !bossTriggered[2] && score >= 280) {
-          bossTriggered[2] = true; bossRushTimer = 5.5; bossNextLevel = 2; bossSpawnAccum = 0.6;
-          levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR BAYON!";
-          trauma = Math.min(1, trauma + 0.25); sfx.milestone();
-        } else if (level === 2 && !bossTriggered[3] && score >= 580) {
-          bossTriggered[3] = true; bossRushTimer = 5.5; bossNextLevel = 3; bossSpawnAccum = 0.6;
-          levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR PREAH VIHEAR!";
-          trauma = Math.min(1, trauma + 0.3); sfx.milestone();
-        } else if (level === 3 && !bossTriggered[4] && score >= 880) {
-          bossTriggered[4] = true; bossRushTimer = 5.5; bossNextLevel = 4; bossSpawnAccum = 0.6;
-          levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR TA PROHM!";
-          trauma = Math.min(1, trauma + 0.35); sfx.milestone();
-        }
-      }
-      if (bossRushTimer > 0) {
-        bossRushTimer -= dt;
-        bossSpawnAccum += dt;
-        if (bossSpawnAccum >= 2.0) {
-          bossSpawnAccum = 0;
-          spawnDiveWarning(Math.random() < 0.5 ? GROUND_Y - 156 : GROUND_Y - 104);
-          orbs.push({ kind: "coin", x: W + 60, y: GROUND_Y - 130, size: 46, t: Math.random() });
-        }
-        if (bossRushTimer <= 0) {
-          bossRushTimer = 0;
-          level = bossNextLevel;
-          score += 250;
-          levelBannerTimer = 2.6;
-          levelBannerText = `REALM CLEAR +250! ${getLevelBanner(level)}`;
-          flashTimer = 0.28; trauma = Math.min(1, trauma + 0.45); sfx.milestone();
-          if (level > saveData.stats.maxLevel) { saveData.stats.maxLevel = level; checkMissions(); }
-        }
-      }
-
-      const curMilestone = Math.floor(score / 100);
-      if (curMilestone > lastMilestone && curMilestone > 0) {
-        lastMilestone = curMilestone;
-        sfx.milestone();
-      }
-
-      hero.ducking = keys.duck;
-      if (hero.onGround) hero.coyote = 0.15;
-      else hero.coyote = Math.max(0, hero.coyote - dt);
-      if (hero.jumpBuffer > 0) hero.jumpBuffer -= dt;
-
-      if (hero.jumpBuffer > 0 && (hero.coyote > 0 || hero.airJumps > 0)) {
-        const isAirJump = hero.coyote <= 0;
-        if (isAirJump) hero.airJumps--;
-        hero.vy = bambooTimer > 0 ? -1060 : (isAirJump ? -860 : -940);
-        hero.onGround = false;
-        hero.coyote = 0;
-        hero.jumpBuffer = 0;
-        hero.scaleX = 0.84;
-        hero.scaleY = 1.18;
-        sfx.jump();
-        spawnFx("dust", hero.x + 12, isAirJump ? hero.y + 42 : GROUND_Y - 76, isAirJump ? 1.6 : 2);
-        if (isAirJump) popups.push({ x: hero.x + 48, y: hero.y, text: "DOUBLE JUMP!", life: 0.65 });
-      }
-
-      let grav = bambooTimer > 0 ? 1750 : 2050;
-      if (hero.vy < 0 && !keys.jump) grav = 3400;
-      if (keys.duck && !hero.onGround) grav = 5200;
-      hero.vy += grav * dt;
-      hero.y += hero.vy * dt;
-
-      if (hero.y >= GROUND_Y - 32 * HERO_SCALE) {
-        if (!hero.onGround) {
-          hero.scaleX = 1.2;
-          hero.scaleY = 0.82;
-          spawnFx("dust", hero.x + 14, GROUND_Y - 76, 2);
-        }
-        hero.y = GROUND_Y - 32 * HERO_SCALE;
-        hero.vy = 0;
-        hero.onGround = true;
-        hero.airJumps = activeHeroId === "khmer_hanuman" ? 1 : 0;
-      }
-
-      // Fever / Gold Aura trail particles
-      if (combo >= 4 || saveData.upgrades.goldAura > 0 || chiliTimer > 0) {
-        if (Math.random() < 0.55) {
-          trailParticles.push({
-            x: hero.x + 14 + Math.random() * 16,
-            y: hero.y + 24 + Math.random() * 52,
-            life: 0.35,
-            col: chiliTimer > 0 ? "#ff5e3a" : "#ffe373",
-          });
-        }
-      }
-      for (let i = trailParticles.length - 1; i >= 0; i--) {
-        trailParticles[i].x -= speed * 0.55 * dt;
-        trailParticles[i].life -= dt;
-        if (trailParticles[i].life <= 0) trailParticles.splice(i, 1);
-      }
-
-      // Update Diving Bird Warnings ("!")
-      for (let i = diveWarnings.length - 1; i >= 0; i--) {
-        diveWarnings[i].t -= dt;
-        if (diveWarnings[i].t <= 0) {
-          const dw = diveWarnings[i];
-          obstacles.push({
-            type: "garuda",
-            lvl: dw.lvl,
-            high: false,
-            dive: true,
-            x: W + 24,
-            y: dw.y,
-            w: 64 * 2,
-            h: 56 * 2,
-            animTime: 0,
-          });
-          diveWarnings.splice(i, 1);
-        }
-      }
-
-      hero.animTime += dt * (speed / 340);
-
-      if (bossRushTimer <= 0) {
-        spawnTimer -= dt;
-        if (spawnTimer <= 0) {
-          spawnObstacle();
-          const minGap = Math.max(1.25, 1.95 - (speed - 310) / 850);
-          spawnTimer = minGap + Math.random() * 0.65;
-        }
-      }
-
-      const hBox = getHeroHitbox();
-      for (let i = obstacles.length - 1; i >= 0; i--) {
-        const o = obstacles[i];
-        const moveMul = o.type === "garuda" ? (o.dive ? 1.22 : 1.04) : 1.0;
-        o.x -= speed * moveMul * dt;
-        if (o.animTime !== undefined) o.animTime += dt;
-        const oBox = { x: o.x + 22, y: o.y + 18, w: Math.max(18, o.w - 44), h: Math.max(20, o.h - 24) };
-        if (boxesOverlap(hBox, oBox)) {
-          if (chiliTimer > 0) {
-            const smashPts = activeHeroId === "khmer_tiger" ? 100 : 75;
-            score += smashPts;
-            saveData.stats.smashes++;
-            checkMissions();
-            trauma = Math.min(1, trauma + 0.35);
-            sfx.orb();
-            spawnFx("impact", o.x + o.w * 0.3, o.y + o.h * 0.3, 2.2);
-            popups.push({ x: o.x + o.w / 2, y: o.y, text: `+${smashPts} SMASH!`, life: 0.85 });
-            obstacles.splice(i, 1);
-            continue;
-          } else if (invulnTimer > 0) {
-            continue;
-          } else if (shieldCharges > 0) {
-            shieldCharges--;
-            invulnTimer = 0.9;
-            flashTimer = 0.18;
-            trauma = 0.55;
-            hitStopTimer = 0.05;
-            sfx.milestone();
-            spawnFx("impact", hBox.x + 10, hBox.y + 10, 2.4);
-            popups.push({ x: hero.x + 48, y: hero.y - 10, text: "SHIELD SAVED!", life: 1.0 });
-            obstacles.splice(i, 1);
-            continue;
-          } else {
-            state = "gameover";
-            flashTimer = 0.25;
-            trauma = 0.85;
-            hitStopTimer = 0.08;
-            sfx.hit();
-            spawnFx("impact", hBox.x + 10, hBox.y + 10, 2);
-            if (Math.floor(score) > highScore) {
-              highScore = Math.floor(score);
-              localStorage.setItem("angkor_dino_v2_hi", String(highScore));
-            }
-            persistSave();
-            syncOverlays();
-            break;
-          }
-        }
-        // Near-Miss Detection ("CLOSE CALL!") when jumping closely over an obstacle
-        if (!o.nearMissed && o.x + o.w < hBox.x && o.x + o.w > hBox.x - 40 && !hero.onGround && Math.abs((hBox.y + hBox.h) - oBox.y) < 34) {
-          o.nearMissed = true;
-          score += 25;
-          saveData.stats.nearMisses++;
-          checkMissions();
-          popups.push({ x: hero.x + 56, y: hero.y - 8, text: "+25 CLOSE CALL!", life: 0.8 });
-        }
-        if (o.x + o.w < -40) obstacles.splice(i, 1);
-      }
-
-      const magnetRange = (saveData.upgrades.magnet || 0) * 85;
-      for (let i = orbs.length - 1; i >= 0; i--) {
-        const ob = orbs[i];
-        ob.x -= speed * dt;
-        ob.t += dt;
-        if (magnetRange > 0) {
-          const dx = (hero.x + 48) - (ob.x + ob.size / 2);
-          const dy = (hero.y + 48) - (ob.y + ob.size / 2);
-          const d = Math.hypot(dx, dy);
-          if (d < magnetRange && d > 4) {
-            ob.x += (dx / d) * 420 * dt;
-            ob.y += (dy / d) * 420 * dt;
-          }
-        }
-        if (boxesOverlap(hBox, { x: ob.x + 6, y: ob.y + 6, w: ob.size - 12, h: ob.size - 12 })) {
-          combo = Math.min(4, combo + 1);
-          comboForgive = activeHeroId === "krama_dino" ? 1 : 0;
-          const basePts = ob.kind === "lotus" ? 100 : 50;
-          const dinoBonus = activeHeroId === "krama_dino" ? 1.25 : 1.0;
-          const pts = Math.round(basePts * combo * dinoBonus);
-          score += pts;
-          const coinGain = ob.kind === "lotus" ? 3 : 1;
-          runCoins += coinGain;
-          saveData.coins += coinGain;
-          saveData.stats.coins += coinGain;
-          checkMissions();
-          trauma = Math.min(1, trauma + 0.18);
-          sfx.orb();
-          spawnFx("impact", ob.x, ob.y, 1.6);
-          popups.push({ x: ob.x + ob.size / 2, y: ob.y, text: combo >= 4 ? `FEVER +${pts}!` : (combo > 1 ? `+${pts} x${combo}` : `+${pts}`), life: 0.85 });
-          orbs.splice(i, 1);
-          continue;
-        }
-        if (ob.x + ob.size < -40) {
-          if (comboForgive > 0) comboForgive--;
-          else combo = 0;
-          orbs.splice(i, 1);
-        }
-      }
-
-      const durBonus = (saveData.upgrades.powerDur || 0) * 1.5;
-      for (let i = powerups.length - 1; i >= 0; i--) {
-        const pu = powerups[i];
-        pu.x -= speed * dt;
-        pu.t += dt;
-        if (boxesOverlap(hBox, { x: pu.x + 6, y: pu.y + 6, w: pu.size - 12, h: pu.size - 12 })) {
-          sfx.milestone();
-          spawnFx("impact", pu.x, pu.y, 2.0);
-          if (pu.kind === "shield") {
-            shieldCharges = Math.min(2, shieldCharges + 1);
-            popups.push({ x: pu.x + 26, y: pu.y, text: "SHIELD ON!", life: 1.0 });
-          } else if (pu.kind === "chili") {
-            chiliTimer = 4.5 + durBonus + (activeHeroId === "khmer_tiger" ? 1.5 : 0);
-            popups.push({ x: pu.x + 26, y: pu.y, text: "FIRE DASH!", life: 1.0 });
-          } else if (pu.kind === "bamboo") {
-            bambooTimer = 6.0 + durBonus;
-            popups.push({ x: pu.x + 26, y: pu.y, text: "SUPER JUMP 2x!", life: 1.0 });
-          }
-          powerups.splice(i, 1);
-          continue;
-        }
-        if (pu.x + pu.size < -40) powerups.splice(i, 1);
-      }
-
-      for (let i = fxAnims.length - 1; i >= 0; i--) {
-        fxAnims[i].t += dt;
-        if (fxAnims[i].t >= fxAnims[i].duration) fxAnims.splice(i, 1);
-      }
-      for (let i = popups.length - 1; i >= 0; i--) {
-        popups[i].y -= 48 * dt;
-        popups[i].life -= dt;
-        if (popups[i].life <= 0) popups.splice(i, 1);
-      }
-    }
-
-    function render() {
-      if (!assetsLoaded) {
-        ctx.fillStyle = "#141020";
-        ctx.fillRect(0, 0, W, H);
-        ctx.fillStyle = "#ffe373";
-        ctx.font = "bold 24px Courier New";
-        ctx.textAlign = "center";
-        ctx.fillText("Loading Angkor Dino Run...", W / 2, H / 2);
-        return;
-      }
-
-      ctx.save();
-      if (trauma > 0) {
-        const shake = trauma * trauma;
-        ctx.translate(Math.round(14 * shake * Math.sin(shakeTime * 1.7)), Math.round(10 * shake * Math.sin(shakeTime * 2.3)));
-      }
-
-      // 1. Background
-      const bgFrame = Math.floor(performance.now() / 167) % 6;
-      if (level === 4) ctx.drawImage(imgs.env.bg_ta_prohm, 0, 0, W, H);
-      else if (level === 3) ctx.drawImage(imgs.env.bg_preah_vihear, 0, 0, W, H);
-      else if (level === 2) ctx.drawImage(imgs.env.bg_bayon, bgFrame * 480, 0, 480, 270, 0, 0, W, H);
-      else ctx.drawImage(imgs.env.bg_angkor, bgFrame * 480, 0, 480, 270, 0, 0, W, H);
-
-      ctx.fillStyle = level === 2 ? "rgba(10, 8, 22, 0.16)" : "rgba(20, 14, 30, 0.08)";
-      ctx.fillRect(0, 0, W, GROUND_Y);
-
-      // Multi-Layer Parallax Weather & Per-Map Atmosphere
-      ctx.save();
-      const atmOff = (dist * 0.18) % W;
-      if (level === 1) {
-        // Golden Angkor diagonal sunbeams
-        ctx.fillStyle = "rgba(255, 227, 115, 0.07)";
-        for (let i = 0; i < 4; i++) {
-          const bx = ((i * 290 - atmOff * 0.5) % (W + 240) + W + 240) % (W + 240) - 120;
-          ctx.beginPath(); ctx.moveTo(bx, 0); ctx.lineTo(bx + 70, 0); ctx.lineTo(bx - 60, GROUND_Y); ctx.lineTo(bx - 130, GROUND_Y); ctx.fill();
-        }
-      } else if (level === 2) {
-        // Drifting Bayon twilight mist bands
-        ctx.fillStyle = "rgba(150, 130, 210, 0.10)";
-        for (let i = 0; i < 3; i++) {
-          const mx = ((i * 380 - atmOff) % (W + 300) + W + 300) % (W + 300) - 150;
-          ctx.fillRect(mx, GROUND_Y - 58 - i * 18, 240, 22);
-        }
-      } else if (level === 3) {
-        // Preah Vihear cliff wind streaks
-        ctx.fillStyle = "rgba(255, 220, 200, 0.22)";
-        for (let i = 0; i < 6; i++) {
-          const wx = ((i * 190 - dist * 0.9) % (W + 120) + W + 120) % (W + 120) - 60;
-          ctx.fillRect(wx, 70 + i * 56, 64, 2);
-        }
-      } else {
-        // Ta Prohm emerald jungle light shafts
-        ctx.fillStyle = "rgba(168, 255, 120, 0.06)";
-        for (let i = 0; i < 4; i++) {
-          const gx = ((i * 270 - atmOff * 0.4) % (W + 200) + W + 200) % (W + 200) - 100;
-          ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx + 55, 0); ctx.lineTo(gx - 35, GROUND_Y); ctx.lineTo(gx - 90, GROUND_Y); ctx.fill();
-        }
-      }
-      ctx.restore();
-
-      for (let i = 0; i < motes.length; i++) {
-        const m = motes[i];
-        const my = m.y + Math.sin(m.phase) * 8;
-        if (level === 4) ctx.drawImage(imgs.env.fx_leaf, Math.round(m.x), Math.round(my), 12, 12);
-        else if (level === 3) ctx.drawImage(imgs.env.fx_petal, Math.round(m.x), Math.round(my), 12, 12);
-        else {
-          ctx.fillStyle = "#ffe373";
-          ctx.fillRect(Math.round(m.x), Math.round(my), 3, 3);
-        }
-      }
-
-      // 2. Ground
-      const gTileW = 128;
-      const gOff = Math.floor(dist) % gTileW;
-      const gImg = imgs.env["ground_" + level];
-      for (let x = -gOff; x < W; x += gTileW) ctx.drawImage(gImg, x, GROUND_Y, gTileW, 96);
-
-      // 3. Collectibles (Spinning Gold Coins & Blooming Golden Lotus) + Power-Ups
-      for (const ob of orbs) {
-        const bobY = Math.round(Math.sin(ob.t * 5) * 4);
-        if (ob.kind === "lotus") {
-          const seq = [0, 1, 2, 1];
-          const f = seq[Math.floor(ob.t * 5) % seq.length];
-          ctx.drawImage(imgs.items.lotus[f], Math.round(ob.x), Math.round(ob.y + bobY), ob.size, ob.size);
-        } else {
-          const f = Math.floor(ob.t * 10) % 4;
-          ctx.drawImage(imgs.items.coin[f], Math.round(ob.x), Math.round(ob.y + bobY), ob.size, ob.size);
-        }
-      }
-      for (const pu of powerups) {
-        const bobY = Math.round(Math.sin(pu.t * 6) * 5);
-        const pImg = imgs.items[pu.kind];
-        if (pImg) {
-          ctx.save();
-          ctx.globalAlpha = 0.28 + 0.15 * Math.sin(pu.t * 8);
-          ctx.fillStyle = pu.kind === "chili" ? "#ff5e3a" : pu.kind === "bamboo" ? "#7ee081" : "#ffe373";
-          ctx.beginPath();
-          ctx.arc(pu.x + pu.size / 2, pu.y + pu.size / 2 + bobY, pu.size * 0.56, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-          ctx.drawImage(pImg, Math.round(pu.x), Math.round(pu.y + bobY), pu.size, pu.size);
-        }
-      }
-
-      // 4. Obstacles (Animated per-map ground obstacles + map-themed flying enemies)
-      for (const o of obstacles) {
-        if (o.type === "ground") {
-          const img = imgs.env[o.spriteKey];
-          if (o.frames > 1 && o.fw && o.fh) {
-            const f = Math.floor((o.animTime || 0) * (o.fps || 6)) % o.frames;
-            ctx.drawImage(img, f * o.fw, 0, o.fw, o.fh, Math.round(o.x), Math.round(o.y), o.w, o.h);
-          } else {
-            ctx.drawImage(img, Math.round(o.x), Math.round(o.y), o.w, o.h);
-            // Subtle living spirit glint/firefly animation on carved Sema & Naga stones
-            if (o.glint) {
-              const t = (o.animTime || 0) * 4;
-              const gx = Math.round(o.x + o.w * (0.25 + 0.5 * (0.5 + 0.5 * Math.sin(t))));
-              const gy = Math.round(o.y + 8 + Math.cos(t * 1.4) * 10);
-              ctx.fillStyle = "#ffe373";
-              ctx.fillRect(gx, gy, 4, 4);
-              ctx.fillStyle = "#fff9d6";
-              ctx.fillRect(gx + 1, gy + 1, 2, 2);
-            }
-          }
-        } else {
-          const frames = (o.lvl === 2)
-            ? (o.dive ? imgs.birdLv2Dive : (o.high ? imgs.birdLv2High : imgs.birdLv2Low))
-            : (o.lvl === 3)
-            ? (o.dive ? imgs.birdLv3Dive : (o.high ? imgs.birdLv3High : imgs.birdLv3Low))
-            : (o.lvl === 4)
-            ? (o.dive ? imgs.birdLv4Dive : (o.high ? imgs.birdLv4High : imgs.birdLv4Low))
-            : imgs.bird;
-          const f = Math.floor(o.animTime * (o.dive ? 13 : 9)) % frames.length;
-          ctx.drawImage(frames[f], Math.round(o.x), Math.round(o.y), o.w, o.h);
-        }
-      }
-
-      // Diving Bird Warning "!" Badges on Right Edge
-      for (const dw of diveWarnings) {
-        const blink = Math.floor(dw.t * 16) % 2 === 0;
-        ctx.save();
-        ctx.fillStyle = blink ? "#ff3b3b" : "#ffe373";
-        ctx.fillRect(W - 54, Math.round(dw.y + 24), 38, 38);
-        ctx.strokeStyle = "#140e24";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(W - 54, Math.round(dw.y + 24), 38, 38);
-        ctx.fillStyle = "#140e24";
-        ctx.font = "bold 26px Courier New";
-        ctx.textAlign = "center";
-        ctx.fillText("!", W - 35, Math.round(dw.y + 52));
-        ctx.restore();
-      }
-
-      // Giant Shadow Boss Bird Hovering during Temple Rush
-      if (bossRushTimer > 0) {
-        const bossFrames = level === 2 ? imgs.birdLv2High : level === 3 ? imgs.birdLv3High : level === 4 ? imgs.birdLv4High : imgs.bird;
-        const bf = Math.floor(performance.now() / 110) % bossFrames.length;
-        const bossY = 120 + Math.sin(performance.now() / 220) * 28;
-        ctx.save();
-        ctx.globalAlpha = 0.85;
-        ctx.drawImage(bossFrames[bf], W - 210, Math.round(bossY), 192, 168);
-        ctx.restore();
-        // Boss Rush Progress Bar
-        ctx.fillStyle = "rgba(20, 14, 30, 0.8)";
-        ctx.fillRect(W / 2 - 140, 14, 280, 16);
-        ctx.fillStyle = "#ff5e3a";
-        ctx.fillRect(W / 2 - 138, 16, Math.round((bossRushTimer / 5.5) * 276), 12);
-        ctx.strokeStyle = "#ffe373";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(W / 2 - 140, 14, 280, 16);
-      }
-
-      // Fever / Gold Aura Trail Particles behind Hero
-      for (const tp of trailParticles) {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, tp.life / 0.35);
-        ctx.fillStyle = tp.col;
-        ctx.fillRect(Math.round(tp.x), Math.round(tp.y), 6, 6);
-        ctx.restore();
-      }
-
-      // 5. Hero (64x48 Krama Dino/Tiger/Hanuman/Elephant @2x = 128x96)
-      const activeVariant = charMode !== "auto" ? charMode : VARIANTS[level - 1];
-      let frameKey = "run-0";
-      if (state === "gameover" && imgs.heroes[activeVariant]["hit-0"]) frameKey = "hit-0";
-      else if (!hero.onGround) frameKey = hero.vy < 0 ? "jump-0" : "jump-1";
-      else if (hero.ducking && state === "playing") frameKey = "duck-" + (Math.floor(hero.animTime * 10) % 2);
-      else frameKey = "run-" + (Math.floor(hero.animTime * 10) % 6);
-
-      const hImg = imgs.heroes[activeVariant][frameKey];
-      const drawW = 64 * SPRITE_SCALE;
-      const drawH = 48 * SPRITE_SCALE;
-      const drawX = hero.x - 14;
-      ctx.save();
-      const px = drawX + drawW / 2;
-      const py = GROUND_Y;
-      ctx.translate(px, py);
-      ctx.scale(hero.scaleX, hero.scaleY);
-      ctx.translate(-px, -py);
-      ctx.drawImage(hImg, Math.round(drawX), Math.round(hero.y), drawW, drawH);
-      ctx.restore();
-
-      // Active Power-Up Auras around Hero (Fire Chili / Bamboo / Shield Bubble)
-      if (chiliTimer > 0) {
-        ctx.save();
-        ctx.globalAlpha = 0.25 + 0.15 * Math.sin(performance.now() / 60);
-        ctx.fillStyle = "#ff5e3a";
-        ctx.beginPath();
-        ctx.arc(drawX + drawW * 0.5, hero.y + drawH * 0.55, 56, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      } else if (bambooTimer > 0) {
-        ctx.save();
-        ctx.globalAlpha = 0.22 + 0.12 * Math.sin(performance.now() / 90);
-        ctx.fillStyle = "#7ee081";
-        ctx.beginPath();
-        ctx.arc(drawX + drawW * 0.5, hero.y + drawH * 0.55, 54, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-      if (shieldCharges > 0 && imgs.items.aura) {
-        ctx.save();
-        ctx.globalAlpha = 0.55 + 0.15 * Math.sin(performance.now() / 130);
-        ctx.drawImage(imgs.items.aura, Math.round(drawX - 4), Math.round(hero.y - 12), 132, 132);
-        ctx.restore();
-      }
-
-      // 6. FX Clips (dust & impact)
-      for (const fx of fxAnims) {
-        const arr = imgs.fx[fx.kind];
-        const idx = Math.min(arr.length - 1, Math.floor((fx.t / fx.duration) * arr.length));
-        ctx.drawImage(arr[idx], Math.round(fx.x), Math.round(fx.y), 48 * fx.scale, 48 * fx.scale);
-      }
-
-      // 7. Popups & HUD
-      ctx.textAlign = "center";
-      ctx.font = "bold 20px Courier New";
-      for (const pop of popups) {
-        ctx.fillStyle = "#141020";
-        ctx.fillText(pop.text, Math.round(pop.x) + 2, Math.round(pop.y) + 2);
-        ctx.fillStyle = "#ffe373";
-        ctx.fillText(pop.text, Math.round(pop.x), Math.round(pop.y));
-      }
-
-      ctx.textAlign = "left";
-      ctx.font = "bold 15px Courier New";
-      ctx.fillStyle = "#141020";
-      ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 106, 34);
-      ctx.fillStyle = "#ffe373";
-      ctx.fillText(`${MAP_LABELS[level]} · ${HERO_LABELS[activeVariant]}`, 104, 32);
-
-      // Active Power-Up HUD Badges + Coin Counter + Fever Badge
-      let badgeX = 104;
-      if (imgs.items.coin[0]) {
-        ctx.drawImage(imgs.items.coin[0], badgeX, 42, 22, 22);
-        ctx.fillStyle = "#ffe373";
-        ctx.font = "bold 14px Courier New";
-        ctx.fillText(`${saveData.coins}`, badgeX + 26, 58);
-        badgeX += 74;
-      }
-      if (shieldCharges > 0 && imgs.items.shield) {
-        ctx.drawImage(imgs.items.shield, badgeX, 40, 26, 26);
-        if (shieldCharges > 1) { ctx.fillStyle = "#fff6d6"; ctx.fillText(`x${shieldCharges}`, badgeX + 26, 58); badgeX += 20; }
-        badgeX += 32;
-      }
-      if (chiliTimer > 0 && imgs.items.chili) {
-        const maxChili = 4.5 + (saveData.upgrades.powerDur || 0) * 1.5 + (activeVariant === "khmer_tiger" ? 1.5 : 0);
-        ctx.drawImage(imgs.items.chili, badgeX, 40, 26, 26);
-        ctx.fillStyle = "#ff5e3a";
-        ctx.fillRect(badgeX + 28, 50, Math.round((chiliTimer / maxChili) * 48), 8);
-        badgeX += 84;
-      }
-      if (bambooTimer > 0 && imgs.items.bamboo) {
-        const maxBam = 6.0 + (saveData.upgrades.powerDur || 0) * 1.5;
-        ctx.drawImage(imgs.items.bamboo, badgeX, 40, 26, 26);
-        ctx.fillStyle = "#7ee081";
-        ctx.fillRect(badgeX + 28, 50, Math.round((bambooTimer / maxBam) * 48), 8);
-        badgeX += 84;
-      }
-      if (combo >= 4) {
-        ctx.fillStyle = "#ffe373";
-        ctx.font = "bold 14px Courier New";
-        ctx.fillText("FEVER x4!", badgeX, 58);
-      }
-
-      ctx.textAlign = "right";
-      ctx.font = "bold 26px Courier New";
-      ctx.fillStyle = "#141020";
-      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 24, 38);
-      ctx.fillStyle = "#fff6d6";
-      ctx.fillText(`HI ${String(highScore).padStart(5, "0")}  ${String(Math.floor(score)).padStart(5, "0")}`, W - 26, 36);
-
-      if (levelBannerTimer > 0 && state === "playing") {
-        ctx.fillStyle = "rgba(20, 16, 32, 0.78)";
-        ctx.fillRect(W / 2 - 240, 56, 480, 48);
-        ctx.strokeStyle = "#ffe373";
-        ctx.lineWidth = 3;
-        ctx.strokeRect(W / 2 - 240, 56, 480, 48);
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#ffe373";
-        ctx.font = "bold 22px Courier New";
-        ctx.fillText(levelBannerText, W / 2, 87);
-      }
-
-      if (flashTimer > 0) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${flashTimer * 2})`;
-        ctx.fillRect(0, 0, W, H);
-      }
-      ctx.restore();
-    }
-
-    let last = performance.now();
-    function loop(now) {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      update(dt);
-      render();
-      requestAnimationFrame(loop);
-    }
-
-    applyDeviceMode();
-    renderCards();
-    syncOverlays();
-    loadAssets().then(() => {
-      render();
-      requestAnimationFrame(loop);
-    });
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("hub") === "1") showHub();
+    else showDeviceSelect();
   </script>
 </body>
 </html>

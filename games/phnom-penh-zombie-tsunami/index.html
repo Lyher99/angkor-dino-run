@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Phnom Penh Zombie Tsunami — CamboPixel Game</title>
+  <link rel="icon" type="image/png" href="../../icon-512.png" />
+  <link rel="apple-touch-icon" href="../../icon-512.png" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top, #1f2e24 0%, #100c1a 75%);
+      color: #fff6d6;
+      font-family: "Courier New", Courier, monospace;
+      touch-action: none;
+      overscroll-behavior: none;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 10px;
+    }
+    body.device-mobile { padding: 0; }
+    .game-wrap {
+      position: relative;
+      width: min(960px, 100%);
+      aspect-ratio: 16 / 9;
+      border: 4px solid #78d968;
+      box-shadow: 0 0 0 2px #120c1c, 0 16px 46px rgba(0, 0, 0, 0.85);
+      background: #140e24;
+      overflow: hidden;
+    }
+    body.device-mobile .game-wrap {
+      width: 100vw;
+      height: 100dvh;
+      max-width: 100vw;
+      aspect-ratio: auto;
+      border: none;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .hud-controls {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+      z-index: 15;
+    }
+    .hud-btn {
+      background: rgba(24, 17, 40, 0.88);
+      border: 2px solid #ebb03d;
+      color: #ffe373;
+      font-family: inherit;
+      font-weight: bold;
+      font-size: 14px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+    .hud-btn:hover { background: #3b2a5e; }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: rgba(12, 9, 22, 0.68);
+      z-index: 20;
+    }
+    .overlay.active { display: flex; }
+    .panel {
+      width: min(580px, 95%);
+      max-height: 94%;
+      overflow-y: auto;
+      background: linear-gradient(180deg, #271c3d 0%, #171026 100%);
+      border: 4px solid #78d968;
+      box-shadow: inset 0 0 0 3px #ebb03d, 0 18px 48px rgba(0, 0, 0, 0.9);
+      padding: 18px 20px;
+      text-align: center;
+    }
+    .title {
+      font-size: clamp(20px, 3.4vw, 30px);
+      font-weight: bold;
+      color: #78d968;
+      text-shadow: 3px 3px 0 #120c1c, -1px -1px 0 #c7263e;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+    .sub {
+      font-size: 12px;
+      color: #ffe373;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+    .pill {
+      display: inline-block;
+      background: rgba(18, 12, 28, 0.85);
+      border: 2px solid #ebb03d;
+      padding: 5px 12px;
+      font-size: 12px;
+      margin-bottom: 14px;
+      color: #fff6d6;
+    }
+    .btn-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .px-btn {
+      background: linear-gradient(180deg, #98f07f 0%, #45964a 100%);
+      color: #120c1c;
+      border: 3px solid #d4ffba;
+      box-shadow: 0 4px 0 #1e4d26;
+      padding: 9px 18px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .px-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e4d26; }
+    .px-btn.gold {
+      background: linear-gradient(180deg, #ffe373 0%, #e09619 100%);
+      border-color: #fff9d6;
+      box-shadow: 0 4px 0 #7a4504;
+    }
+    .px-btn.sec {
+      background: linear-gradient(180deg, #3f2f61 0%, #261b3d 100%);
+      color: #ffe373;
+      border-color: #ebb03d;
+      box-shadow: 0 4px 0 #120c1c;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    @media (max-width: 540px) { .grid-2 { grid-template-columns: 1fr; } }
+    .item-card {
+      background: #231838;
+      border: 2px solid #5c4685;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .item-card.done { border-color: #78d968; background: #1a3326; }
+    .item-name { font-size: 12px; font-weight: bold; color: #ffe373; }
+    .item-desc { font-size: 10px; color: #d3c5e8; margin-top: 2px; }
+    .buy-btn {
+      background: linear-gradient(180deg, #ffe373 0%, #e09619 100%);
+      color: #120c1c;
+      border: 2px solid #fff9d6;
+      padding: 5px 8px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .buy-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .mobile-jump {
+      display: none;
+      position: absolute;
+      bottom: 18px;
+      right: 18px;
+      z-index: 16;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #98f07f 0%, #45964a 100%);
+      border: 4px solid #fff9d6;
+      box-shadow: 0 6px 0 #1e4d26, 0 8px 20px rgba(0, 0, 0, 0.7);
+      color: #120c1c;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    body.device-mobile .mobile-jump.playing { display: block; }
+    .toast {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 12, 30, 0.94);
+      border: 2px solid #78d968;
+      color: #ffe373;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 30;
+      display: none;
+    }
+    .toast.show { display: block; }
+    .footer {
+      width: min(960px, 100%);
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #c4b5d9;
+    }
+    body.device-mobile .footer { display: none; }
+  </style>
+</head>
+<body>
+  <div class="game-wrap">
+    <canvas id="game" width="960" height="540"></canvas>
+
+    <div class="hud-controls">
+      <button id="hudPauseBtn" class="hud-btn">&#10074;&#10074; PAUSE</button>
+      <button id="hudFsBtn" class="hud-btn">&#9974;</button>
+    </div>
+
+    <!-- 1. GAME HOME MENU -->
+    <div id="homeOverlay" class="overlay active">
+      <div class="panel">
+        <div class="title">PHNOM PENH ZOMBIE TSUNAMI</div>
+        <div class="sub">EAT SURVIVORS · GROW YOUR HORDE · SMASH TUK-TUKS!</div>
+        <div id="homeStatus" class="pill"></div>
+        <div class="btn-row">
+          <button id="playBtn" class="px-btn" style="font-size:16px;padding:11px 28px;">&#9654; START TSUNAMI</button>
+        </div>
+        <div class="btn-row">
+          <button id="shopBtn" class="px-btn gold">ZOMBIE LAB</button>
+          <button id="missionsBtn" class="px-btn sec">MISSIONS</button>
+          <button id="settingsBtn" class="px-btn sec">SETTINGS</button>
+          <button id="emuBackBtn" class="px-btn sec">&#9664; CAMBOPIXEL GAME</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. ZOMBIE LAB SHOP -->
+    <div id="shopOverlay" class="overlay">
+      <div class="panel">
+        <div class="title" style="color:#ffe373;">ZOMBIE LAB</div>
+        <div id="shopCoins" class="sub">SHARED CAMBOPIXEL COINS: 0</div>
+        <div id="shopGrid" class="grid-2"></div>
+        <div class="btn-row"><button id="shopBackBtn" class="px-btn sec">BACK</button></div>
+      </div>
+    </div>
+
+    <!-- 3. MISSIONS -->
+    <div id="missionsOverlay" class="overlay">
+      <div class="panel">
+        <div class="title" style="color:#ffe373;">PHNOM PENH MISSIONS</div>
+        <div class="sub">Complete goals to earn shared Gold Coins!</div>
+        <div id="missionList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;text-align:left;"></div>
+        <div class="btn-row"><button id="missionsBackBtn" class="px-btn sec">BACK</button></div>
+      </div>
+    </div>
+
+    <!-- 4. PAUSE / SETTINGS -->
+    <div id="settingsOverlay" class="overlay">
+      <div class="panel" style="width:min(460px,94%);">
+        <div id="settingsTitle" class="title" style="color:#ffe373;">SETTINGS</div>
+        <div class="sub">Device Controls &amp; Audio</div>
+        <div class="btn-row" style="margin-bottom:14px;">
+          <button id="toggleDeviceBtn" class="px-btn sec">DEVICE: PC</button>
+          <button id="toggleSfxBtn" class="px-btn sec">SFX: ON</button>
+          <button id="toggleBgmBtn" class="px-btn sec">BGM: ON</button>
+        </div>
+        <div class="btn-row">
+          <button id="resumeBtn" class="px-btn" style="display:none;">RESUME &#9654;</button>
+          <button id="restartBtn" class="px-btn gold" style="display:none;">RESTART</button>
+          <button id="settingsHomeBtn" class="px-btn sec">GAME HOME</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. GAME OVER -->
+    <div id="gameoverOverlay" class="overlay">
+      <div class="panel" style="width:min(460px,92%);">
+        <div class="title" style="color:#ff5c6c;">HORDE WIPED OUT!</div>
+        <div id="goStats" class="pill" style="font-size:13px;line-height:1.6;"></div>
+        <div class="btn-row">
+          <button id="retryBtn" class="px-btn">PLAY AGAIN &#9654;</button>
+          <button id="goHomeBtn" class="px-btn sec">GAME HOME</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="mobileJumpBtn" class="mobile-jump">JUMP</button>
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <div class="footer">
+    <span><b>SPACE / UP / CLICK</b>: Tap = Hop · Hold = High Jump (Double Jump in Kun Khmer!)</span>
+    <span>Flip Moto (2+) · Tuk-Tuk (4+) · Bus (8+) · Truck (12+)</span>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = false;
+
+    const W = 960, H = 540, ROAD_Y = 436;
+
+    // === SHARED CAMBOPIXEL COIN WALLET + ZOMBIE TSUNAMI SAVE ===
+    const urlDevice = new URLSearchParams(window.location.search).get("device");
+    const detectedMobile = window.matchMedia("(pointer: coarse)").matches || window.innerWidth <= 760;
+    let deviceMode = (urlDevice === "pc" || urlDevice === "mobile")
+      ? urlDevice
+      : (localStorage.getItem("angkor_dino_device") || (detectedMobile ? "mobile" : "pc"));
+    if (!["pc", "mobile"].includes(deviceMode)) deviceMode = "pc";
+    localStorage.setItem("angkor_dino_device", deviceMode);
+
+    function getSharedCoins() {
+      try { return Number(JSON.parse(localStorage.getItem("angkor_dino_save_v1") || "{}").coins || 0); }
+      catch { return 0; }
+    }
+    function addSharedCoins(delta) {
+      try {
+        const raw = JSON.parse(localStorage.getItem("angkor_dino_save_v1") || "{}");
+        raw.coins = Math.max(0, Number(raw.coins || 0) + delta);
+        localStorage.setItem("angkor_dino_save_v1", JSON.stringify(raw));
+      } catch {}
+    }
+
+    const Z_DEFAULT = {
+      bestDist: 0,
+      upgrades: { startZombies: 0, powerDur: 0, smashBonus: 0, magnet: 0 },
+      stats: { brains: 0, tuktuks: 0, maxHorde: 1, maxZone: 1, vehicles: 0 },
+      claimed: {},
+    };
+    let zSave = (() => {
+      try {
+        const r = JSON.parse(localStorage.getItem("pp_zombie_save_v1") || "{}");
+        return {
+          bestDist: Number(r.bestDist || 0),
+          upgrades: { ...Z_DEFAULT.upgrades, ...(r.upgrades || {}) },
+          stats: { ...Z_DEFAULT.stats, ...(r.stats || {}) },
+          claimed: { ...(r.claimed || {}) },
+        };
+      } catch { return JSON.parse(JSON.stringify(Z_DEFAULT)); }
+    })();
+    function persistZSave() { localStorage.setItem("pp_zombie_save_v1", JSON.stringify(zSave)); }
+
+    const SHOP_ITEMS = [
+      { id: "startZombies", name: "EXTRA ZOMBIES", desc: "Start run with +1 Zombie per Lv", max: 3, costs: [25, 60, 110] },
+      { id: "powerDur", name: "MYSTERY DURATION", desc: "+2s on ? Transformations", max: 3, costs: [30, 65, 100] },
+      { id: "smashBonus", name: "VEHICLE LOOT", desc: "+2 extra Coins per vehicle flip", max: 2, costs: [40, 85] },
+      { id: "magnet", name: "COIN MAGNET", desc: "Pulls nearby Gold Coins", max: 2, costs: [35, 75] },
+    ];
+    const MISSIONS = [
+      { id: "zm_brains", title: "Phnom Penh Feast", desc: "Infect 20 Survivors", goal: 20, stat: "brains", reward: 25 },
+      { id: "zm_tuktuk", title: "Tuk-Tuk Flipper", desc: "Flip 5 Tuk-Tuks", goal: 5, stat: "tuktuks", reward: 35 },
+      { id: "zm_horde", title: "Tsunami Pack", desc: "Reach a Horde of 12 Zombies", goal: 12, stat: "maxHorde", reward: 40 },
+      { id: "zm_veh", title: "Traffic Chaos", desc: "Smash 15 Vehicles total", goal: 15, stat: "vehicles", reward: 45 },
+      { id: "zm_zone3", title: "Phsar Thmei Night", desc: "Reach Zone 3 (Central Market)", goal: 3, stat: "maxZone", reward: 55 },
+    ];
+
+    // === SPRITE LOADER ===
+    // All 6 full multi-frame animated Phnom Penh zombies (zero static/frozen-leg zombies!)
+    const ZOMBIE_POOL = ["krama", "kunkhmer", "student", "office", "steav", "motoRider"];
+    let lastZombieKind = "";
+    const imgs = {
+      coin: [], krud: [],
+      zkRun: [], zkkRun: [], survOffice: [], survVendor: [], vehMoto: [], vehMotoFast: [], vehCyclo: [],
+      survSets: {
+        student: [], steav: [], motoRider: [], kunkhmer: [],
+      },
+      zSets: {
+        student: { run: [], jump: null, chomp: null },
+        office: { run: [], jump: null, chomp: null },
+        steav: { run: [], jump: null, chomp: null },
+        motoRider: { run: [], jump: null, chomp: null },
+      },
+      zSingle: {},
+    };
+    let assetsLoaded = false;
+    function loadImg(src) {
+      return new Promise((res) => {
+        const img = new Image();
+        img.onload = () => res(img);
+        img.onerror = () => res(null);
+        img.src = src;
+      });
+    }
+    async function loadAssets() {
+      const map = {
+        zk_jump: "assets/pro/zk_jump.png",
+        zk_chomp: "assets/pro/zk_chomp.png",
+        zkk_jump: "assets/pro/zkk_jump.png",
+        zkk_kick: "assets/pro/zkk_kick.png",
+        veh_tuktuk: "assets/pro/veh_tuktuk.png",
+        veh_cyclo_empty: "assets/pro/veh_cyclo_empty.png",
+        veh_bus: "assets/pro/veh_bus.png",
+        veh_truck: "assets/pro/veh_truck.png",
+        veh_moto_fast: "assets/pro/veh_moto_fast.png",
+        bg_1: "assets/pro/bg_riverside.png",
+        bg_2: "assets/pro/bg_independence.png",
+        bg_3: "assets/pro/bg_central_market.png",
+        obs_bomb: "assets/anims/obs_bomb.png",
+        item_mystery: "assets/anims/item_mystery.png",
+      };
+      const tasks = Object.entries(map).map(([k, s]) => loadImg(s).then((im) => { imgs[k] = im; }));
+      for (let i = 0; i < 5; i++) {
+        tasks.push(loadImg(`assets/pro/zk_run-${i}.png`).then((im) => { imgs.zkRun[i] = im; }));
+        tasks.push(loadImg(`assets/pro/zkk_run-${i}.png`).then((im) => { imgs.zkkRun[i] = im; }));
+      }
+      for (let i = 0; i < 4; i++) {
+        tasks.push(loadImg(`assets/pro/surv_office-${i}.png`).then((im) => { imgs.survOffice[i] = im; }));
+        tasks.push(loadImg(`../angkor-dino-run/v2/forge-items/coin-${i}.png`).then((im) => { imgs.coin[i] = im; }));
+      }
+      for (let i = 0; i < 3; i++) {
+        tasks.push(loadImg(`assets/pro/surv_vendor-${i}.png`).then((im) => { imgs.survVendor[i] = im; }));
+      }
+      for (let i = 0; i < 4; i++) {
+        tasks.push(loadImg(`assets/pro/veh_moto-${i}.png`).then((im) => { imgs.vehMoto[i] = im; }));
+        tasks.push(loadImg(`assets/pro/veh_moto_fast-${i}.png`).then((im) => { imgs.vehMotoFast[i] = im; }));
+        tasks.push(loadImg(`assets/pro/veh_cyclo-${i}.png`).then((im) => { imgs.vehCyclo[i] = im; }));
+      }
+      for (let i = 0; i < 6; i++) {
+        tasks.push(loadImg(`../angkor-dino-run/v2/forge-bird-lv3/high-${i}.png`).then((im) => { imgs.krud[i] = im; }));
+      }
+      // Load 4 new full-action Phnom Penh zombie sets (Student, Office, Steav, Moto Rider)
+      const setPrefixes = { student: "zst", office: "zof", steav: "zsv", motoRider: "zmr" };
+      for (const [key, pref] of Object.entries(setPrefixes)) {
+        for (let i = 0; i < 4; i++) {
+          tasks.push(loadImg(`assets/pro/${pref}_run-${i}.png`).then((im) => { imgs.zSets[key].run[i] = im; }));
+        }
+        tasks.push(loadImg(`assets/pro/${pref}_jump.png`).then((im) => { imgs.zSets[key].jump = im; }));
+        tasks.push(loadImg(`assets/pro/${pref}_chomp.png`).then((im) => { imgs.zSets[key].chomp = im; }));
+      }
+      // Load 4 extra Phnom Penh street zombie characters (Ranger, Chef, Cyclo Driver, Footballer)
+      const singlePrefixes = { ranger: "zrn", chef: "zch", cycloDriver: "zcd", footballer: "zfb" };
+      for (const [key, pref] of Object.entries(singlePrefixes)) {
+        tasks.push(loadImg(`assets/pro/${pref}_base.png`).then((im) => { imgs.zSingle[key] = im; }));
+      }
+      // Load 4 new matching Human Survivor sprite sets (Student, Steav, Moto Rider, Kun Khmer)
+      const humanMeta = { student: ["surv_student", 4], steav: ["surv_steav", 4], motoRider: ["surv_moto_rider", 4], kunkhmer: ["surv_kunkhmer", 5] };
+      for (const [key, [pref, cnt]] of Object.entries(humanMeta)) {
+        for (let i = 0; i < cnt; i++) {
+          tasks.push(loadImg(`assets/pro/${pref}-${i}.png`).then((im) => { imgs.survSets[key][i] = im; }));
+        }
+      }
+      await Promise.all(tasks);
+      assetsLoaded = true;
+    }
+
+    // === WEB AUDIO SFX & FUNKY PHNOM PENH ARCADE BGM ===
+    let audioCtx = null, sfxBus = null, bgmBus = null;
+    let sfxOn = true, bgmOn = localStorage.getItem("angkor_dino_bgm") !== "0";
+    let bgmStep = 0, bgmAccum = 0;
+    const BGM_NOTES = [220, 261.6, 293.7, 329.6, 392, 440, 523.3];
+    const BGM_PAT = [0, 3, 4, 2, 0, 5, 4, 3, 1, 4, 5, 6, 4, 3, 2, 0];
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) {
+          audioCtx = new AC();
+          sfxBus = audioCtx.createGain(); sfxBus.gain.value = 0.75; sfxBus.connect(audioCtx.destination);
+          bgmBus = audioCtx.createGain(); bgmBus.gain.value = 0.22; bgmBus.connect(audioCtx.destination);
+        }
+      }
+      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+    }
+    function playTone(f0, f1, dur, type = "square", vol = 0.08) {
+      if (!sfxOn) return;
+      ensureAudio();
+      if (!audioCtx || !sfxBus) return;
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(f0, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(Math.max(40, f1), audioCtx.currentTime + dur);
+      g.gain.setValueAtTime(vol, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(sfxBus);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    }
+    const sfx = {
+      jump: () => playTone(240, 540, 0.10, "square", 0.07),
+      chomp: () => { playTone(420, 740, 0.08, "triangle", 0.11); setTimeout(() => playTone(680, 920, 0.07, "triangle", 0.09), 50); },
+      smash: () => playTone(180, 55, 0.22, "sawtooth", 0.13),
+      coin: () => playTone(760, 1180, 0.08, "triangle", 0.09),
+      power: () => { playTone(380, 620, 0.10, "square", 0.09); setTimeout(() => playTone(620, 980, 0.16, "square", 0.09), 80); },
+      hurt: () => playTone(160, 60, 0.18, "sawtooth", 0.10),
+    };
+    function tickBgm(dt) {
+      if (!bgmOn || state !== "playing") return;
+      const stepDur = activePower ? 0.14 : 0.175;
+      bgmAccum += dt;
+      if (bgmAccum >= stepDur) {
+        bgmAccum -= stepDur;
+        ensureAudio();
+        if (!audioCtx || !bgmBus) return;
+        const f = BGM_NOTES[BGM_PAT[bgmStep % BGM_PAT.length]];
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = "triangle"; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.14, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + stepDur * 1.1);
+        o.connect(g); g.connect(bgmBus); o.start(); o.stop(audioCtx.currentTime + stepDur * 1.1);
+        if (bgmStep % 4 === 0) {
+          const b = audioCtx.createOscillator(), bg = audioCtx.createGain();
+          b.type = "sine"; b.frequency.setValueAtTime(f * 0.5, audioCtx.currentTime);
+          bg.gain.setValueAtTime(0.16, audioCtx.currentTime);
+          bg.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + stepDur * 2);
+          b.connect(bg); bg.connect(bgmBus); b.start(); b.stop(audioCtx.currentTime + stepDur * 2);
+        }
+        bgmStep++;
+      }
+    }
+
+    // === GAME STATE ===
+    let state = "home";
+    let prevState = "home";
+    let dist = 0, runBrains = 0, runCoins = 0, runVehicles = 0;
+    let speed = 290, trauma = 0, shakeT = 0, flashT = 0;
+    let zone = 1, bannerT = 0, bannerText = "";
+    let activePower = null; // "TSUNAMI" | "KUN_KHMER" | "KRUD" | "GOLD_RUSH"
+    let powerTimer = 0, powerMax = 7;
+
+    let horde = [];
+    let platforms = [];
+    let entities = []; // survivors, vehicles, bombs, mystery, coins, fastMoto
+    let debris = [];   // flipped spinning vehicles & particles
+    let popups = [];
+    let jumpHeld = false;
+    let nextEntityX = 520;
+    let motoWarn = null;
+
+    // Living Background & Parallax Animation State
+    let bgTime = 0;
+    let bgScroll = 0;
+    let midScroll = 0;
+    let cloudScroll = 0;
+    let prevZone = 1;
+    let zoneFade = 0;
+    const skyBirds = Array.from({ length: 6 }, (_, i) => ({
+      x: 90 + i * 165,
+      y: 52 + (i % 3) * 34,
+      spd: 26 + (i % 3) * 10,
+      phase: i * 1.4,
+    }));
+    const skyStars = Array.from({ length: 28 }, (_, i) => ({
+      x: (i * 97 + 31) % W,
+      y: 16 + ((i * 53) % 145),
+      phase: i * 0.9,
+      size: i % 4 === 0 ? 3 : 2,
+    }));
+    const ambientMotes = Array.from({ length: 18 }, (_, i) => ({
+      x: (i * 73) % W,
+      y: 190 + ((i * 41) % 210),
+      vx: 14 + (i % 4) * 7,
+      phase: i * 1.1,
+    }));
+
+    const ZONE_NAMES = {
+      1: "ZONE 1: RIVERSIDE · SISOWATH QUAY",
+      2: "ZONE 2: INDEPENDENCE MONUMENT",
+      3: "ZONE 3: CENTRAL MARKET · PHSAR THMEI",
+    };
+
+    const toastEl = document.getElementById("toast");
+    let toastTimeout = null;
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toastEl.classList.remove("show"), 2500);
+    }
+
+    function checkMissions() {
+      let changed = false;
+      for (const m of MISSIONS) {
+        if (!zSave.claimed[m.id] && (zSave.stats[m.stat] || 0) >= m.goal) {
+          zSave.claimed[m.id] = true;
+          addSharedCoins(m.reward);
+          changed = true;
+          sfx.power();
+          showToast(`MISSION COMPLETE: ${m.title}! +${m.reward} GOLD COINS`);
+        }
+      }
+      if (changed) persistZSave();
+    }
+
+    function pickRandomZombieKind() {
+      let pick = ZOMBIE_POOL[Math.floor(Math.random() * ZOMBIE_POOL.length)];
+      if (pick === lastZombieKind) pick = ZOMBIE_POOL[(ZOMBIE_POOL.indexOf(pick) + 1 + Math.floor(Math.random() * (ZOMBIE_POOL.length - 1))) % ZOMBIE_POOL.length];
+      lastZombieKind = pick;
+      return pick;
+    }
+
+    function addZombie(startX, startY, forcedKind) {
+      if (horde.length >= 26) return;
+      horde.push({
+        idx: horde.length,
+        kind: forcedKind || pickRandomZombieKind(),
+        x: startX !== undefined ? startX : 210 - horde.length * 16,
+        y: startY !== undefined ? startY : ROAD_Y - 64,
+        vy: 0,
+        onGround: true,
+        airJumps: activePower === "KUN_KHMER" ? 1 : 0,
+        jumpQueue: 0,
+        chompT: 0,
+        anim: Math.random() * 2,
+      });
+      if (horde.length > zSave.stats.maxHorde) {
+        zSave.stats.maxHorde = horde.length;
+        checkMissions();
+      }
+    }
+
+    function hasRoadUnder(cx) {
+      for (const p of platforms) {
+        if (cx >= p.x && cx <= p.x + p.w) return true;
+      }
+      return false;
+    }
+
+    function ensurePlatforms() {
+      let rightEdge = platforms.length ? platforms[platforms.length - 1].x + platforms[platforms.length - 1].w : 0;
+      while (rightEdge < W + 700) {
+        const allowGap = dist > 90 && Math.random() < 0.34;
+        const gap = allowGap ? (95 + Math.random() * 55) : 0;
+        const pw = 420 + Math.random() * 440;
+        platforms.push({ x: rightEdge + gap, w: pw });
+        rightEdge += gap + pw;
+      }
+    }
+
+    function spawnStreetPack() {
+      const x = Math.max(W + 80, nextEntityX);
+      if (!hasRoadUnder(x + 40)) { nextEntityX = x + 160; return; }
+
+      const roll = Math.random();
+      if (roll < 0.32) {
+        // Group of 1-2 fleeing Phnom Penh Humans — eating them turns them into their EXACT matching Zombie!
+        const SURV_TYPES = ["office", "vendor", "student", "steav", "motoRider", "kunkhmer"];
+        const cnt = Math.random() < 0.48 ? 2 : 1;
+        for (let i = 0; i < cnt; i++) {
+          const sKind = SURV_TYPES[Math.floor(Math.random() * SURV_TYPES.length)];
+          entities.push({ kind: "survivor", sKind, x: x + i * 48, y: ROAD_Y - 64, w: 64, h: 64, t: Math.random() });
+        }
+        nextEntityX = x + 280 + Math.random() * 140;
+      } else if (roll < 0.68) {
+        // Phnom Penh Vehicle (scaled by horde size & distance so it's always exciting & fair!)
+        const hLen = horde.length;
+        let vType = "moto";
+        const vr = Math.random();
+        if (dist > 320 && hLen >= 9 && vr < 0.20) vType = "truck";
+        else if (dist > 160 && hLen >= 6 && vr < 0.42) vType = "bus";
+        else if (vr < 0.62) vType = "tuktuk";
+        else if (vr < 0.78) vType = "cyclo";
+        else if (vr < 0.89) vType = "cycloEmpty";
+
+        const cfg = {
+          moto:       { sprite: "veh_moto",        need: 2,  w: 84,  h: 58,  bonusZ: 1, coins: 2,  name: "MOTO!" },
+          cycloEmpty: { sprite: "veh_cyclo_empty", need: 2,  w: 108, h: 74,  bonusZ: 1, coins: 3,  name: "EMPTY CYCLO!" },
+          cyclo:      { sprite: "veh_cyclo",       need: 3,  w: 112, h: 82,  bonusZ: 2, coins: 4,  name: "CYCLO!" },
+          tuktuk:     { sprite: "veh_tuktuk",      need: 4,  w: 146, h: 78,  bonusZ: 2, coins: 5,  name: "TUK-TUK!" },
+          bus:        { sprite: "veh_bus",         need: 8,  w: 220, h: 84,  bonusZ: 3, coins: 10, name: "CITY BUS!" },
+          truck:      { sprite: "veh_truck",       need: 12, w: 196, h: 102, bonusZ: 4, coins: 15, name: "HEAVY TRUCK!" },
+        }[vType];
+        entities.push({
+          kind: "vehicle", vType, ...cfg,
+          x, y: ROAD_Y - cfg.h, t: 0,
+        });
+        nextEntityX = x + cfg.w + 260 + Math.random() * 160;
+      } else if (roll < 0.84) {
+        // Road Bomb (with coin arc above to reward jumping!)
+        entities.push({ kind: "bomb", x, y: ROAD_Y - 48, w: 48, h: 48, t: Math.random() });
+        for (let i = 0; i < 3; i++) {
+          entities.push({ kind: "coin", x: x - 20 + i * 36, y: ROAD_Y - 125 - (i === 1 ? 20 : 0), w: 36, h: 36, t: i * 0.2 });
+        }
+        nextEntityX = x + 280 + Math.random() * 140;
+      } else if (roll < 0.94 && !activePower) {
+        // Floating Mystery "?" Transformation Box!
+        entities.push({ kind: "mystery", x, y: ROAD_Y - 128, w: 52, h: 52, t: 0 });
+        nextEntityX = x + 320;
+      } else {
+        // Speeding incoming Moto warning!
+        if (!motoWarn && dist > 120) {
+          motoWarn = { t: 0.85 };
+          playTone(820, 560, 0.08, "sawtooth", 0.05);
+        }
+        nextEntityX = x + 300;
+      }
+
+      // Bonus coin line
+      if (Math.random() < 0.5) {
+        for (let i = 0; i < 4; i++) {
+          entities.push({ kind: "coin", x: x + 130 + i * 36, y: ROAD_Y - 62, w: 36, h: 36, t: i * 0.2 });
+        }
+      }
+    }
+
+    function triggerHordeJump() {
+      if (state !== "playing" || horde.length === 0) return;
+      let jumped = false;
+      for (let i = 0; i < horde.length; i++) {
+        const z = horde[i];
+        if (z.onGround || z.airJumps > 0) {
+          z.jumpQueue = 0.001 + i * 0.045; // lead zombie jumps immediately, trailing horde cascades!
+          jumped = true;
+        }
+      }
+      if (jumped) sfx.jump();
+    }
+
+    function activateMystery() {
+      const pool = ["TSUNAMI", "KUN_KHMER", "KRUD", "GOLD_RUSH"];
+      activePower = pool[Math.floor(Math.random() * pool.length)];
+      powerMax = 7.0 + (zSave.upgrades.powerDur || 0) * 2.0;
+      powerTimer = powerMax;
+      flashT = 0.24;
+      trauma = 0.45;
+      sfx.power();
+      const labels = {
+        TSUNAMI: "MEKONG TSUNAMI WAVE!",
+        KUN_KHMER: "KUN KHMER NINJA HORDE!",
+        KRUD: "GIANT GOLDEN KRUD!",
+        GOLD_RUSH: "GOLD RUSH MAGNET!",
+      };
+      bannerT = 2.0;
+      bannerText = labels[activePower];
+      if (activePower === "KUN_KHMER") {
+        for (const z of horde) z.airJumps = 1;
+      }
+      if (activePower === "GOLD_RUSH") {
+        for (const e of entities) {
+          if (e.kind === "vehicle" || e.kind === "bomb" || e.kind === "fastMoto") {
+            e.kind = "coin"; e.w = 36; e.h = 36; e.y = ROAD_Y - 72;
+          }
+        }
+      }
+    }
+
+    function startRun() {
+      dist = 0; runBrains = 0; runCoins = 0; runVehicles = 0;
+      speed = 290; trauma = 0; flashT = 0;
+      zone = 1; prevZone = 1; zoneFade = 0;
+      bannerT = 2.2; bannerText = ZONE_NAMES[1];
+      activePower = null; powerTimer = 0;
+      horde = []; platforms = [{ x: -100, w: 1300 }];
+      entities = []; debris = []; popups = [];
+      nextEntityX = 480; motoWarn = null;
+
+      const startCount = 1 + (zSave.upgrades.startZombies || 0);
+      for (let i = 0; i < startCount; i++) addZombie(220 - i * 22, ROAD_Y - 56);
+
+      prevState = "playing";
+      state = "playing";
+      syncUI();
+    }
+
+    // === UI SYNC & MODALS ===
+    const homeOverlay = document.getElementById("homeOverlay");
+    const shopOverlay = document.getElementById("shopOverlay");
+    const missionsOverlay = document.getElementById("missionsOverlay");
+    const settingsOverlay = document.getElementById("settingsOverlay");
+    const gameoverOverlay = document.getElementById("gameoverOverlay");
+    const mobileJumpBtn = document.getElementById("mobileJumpBtn");
+
+    function syncUI() {
+      document.body.classList.toggle("device-mobile", deviceMode === "mobile");
+      homeOverlay.classList.toggle("active", state === "home");
+      shopOverlay.classList.toggle("active", state === "shop");
+      missionsOverlay.classList.toggle("active", state === "missions");
+      settingsOverlay.classList.toggle("active", state === "paused");
+      gameoverOverlay.classList.toggle("active", state === "gameover");
+      mobileJumpBtn.classList.toggle("playing", state === "playing");
+
+      document.getElementById("homeStatus").textContent =
+        `BEST: ${Math.floor(zSave.bestDist)}m  |  SHARED COINS: ${getSharedCoins()}  |  START HORDE: ${1 + (zSave.upgrades.startZombies || 0)}`;
+      document.getElementById("toggleDeviceBtn").textContent = `DEVICE: ${deviceMode.toUpperCase()}`;
+      document.getElementById("toggleSfxBtn").textContent = `SFX: ${sfxOn ? "ON" : "OFF"}`;
+      document.getElementById("toggleBgmBtn").textContent = `BGM: ${bgmOn ? "ON" : "OFF"}`;
+
+      const inRun = prevState === "playing";
+      document.getElementById("settingsTitle").textContent = inRun ? "PAUSED" : "SETTINGS";
+      document.getElementById("resumeBtn").style.display = inRun ? "inline-block" : "none";
+      document.getElementById("restartBtn").style.display = inRun ? "inline-block" : "none";
+      if (state === "gameover") {
+        document.getElementById("goStats").innerHTML =
+          `Distance: <b>${Math.floor(dist)}m</b> (Best: ${Math.floor(zSave.bestDist)}m)<br>` +
+          `Survivors Eaten: <b>${runBrains}</b> · Vehicles Flipped: <b>${runVehicles}</b> · +<b>${runCoins}</b> Coins`;
+      }
+    }
+
+    function renderShop() {
+      const coins = getSharedCoins();
+      document.getElementById("shopCoins").textContent = `SHARED CAMBOPIXEL COINS: ${coins}`;
+      const grid = document.getElementById("shopGrid");
+      grid.innerHTML = "";
+      for (const it of SHOP_ITEMS) {
+        const lv = zSave.upgrades[it.id] || 0;
+        const max = lv >= it.max;
+        const cost = max ? 0 : it.costs[lv];
+        const card = document.createElement("div");
+        card.className = "item-card";
+        card.innerHTML = `<div><div class="item-name">${it.name} (${lv}/${it.max})</div><div class="item-desc">${it.desc}</div></div>` +
+          `<button class="buy-btn" ${max || coins < cost ? "disabled" : ""}>${max ? "MAXED" : cost + " C"}</button>`;
+        card.querySelector("button").addEventListener("click", () => {
+          if (max || getSharedCoins() < cost) return;
+          addSharedCoins(-cost);
+          zSave.upgrades[it.id] = lv + 1;
+          persistZSave();
+          sfx.power();
+          renderShop();
+          syncUI();
+        });
+        grid.appendChild(card);
+      }
+    }
+
+    function renderMissions() {
+      const list = document.getElementById("missionList");
+      list.innerHTML = "";
+      for (const m of MISSIONS) {
+        const cur = Math.min(m.goal, zSave.stats[m.stat] || 0);
+        const done = !!zSave.claimed[m.id];
+        const row = document.createElement("div");
+        row.className = "item-card" + (done ? " done" : "");
+        row.innerHTML = `<div><div class="item-name">${done ? "&#10003; " : ""}${m.title} (+${m.reward} Coins)</div><div class="item-desc">${m.desc}</div></div>` +
+          `<div class="item-name" style="color:${done ? "#78d968" : "#ffe373"}">${cur}/${m.goal}</div>`;
+        list.appendChild(row);
+      }
+    }
+
+    // === INPUT & BUTTONS ===
+    document.getElementById("playBtn").addEventListener("click", startRun);
+    document.getElementById("retryBtn").addEventListener("click", startRun);
+    document.getElementById("restartBtn").addEventListener("click", startRun);
+    document.getElementById("shopBtn").addEventListener("click", () => { state = "shop"; renderShop(); syncUI(); });
+    document.getElementById("shopBackBtn").addEventListener("click", () => { state = "home"; syncUI(); });
+    document.getElementById("missionsBtn").addEventListener("click", () => { state = "missions"; renderMissions(); syncUI(); });
+    document.getElementById("missionsBackBtn").addEventListener("click", () => { state = "home"; syncUI(); });
+    document.getElementById("settingsBtn").addEventListener("click", () => { prevState = "home"; state = "paused"; syncUI(); });
+    document.getElementById("hudPauseBtn").addEventListener("click", (e) => {
+      e.currentTarget.blur();
+      if (state === "paused") { state = prevState; syncUI(); }
+      else { prevState = state; state = "paused"; syncUI(); }
+    });
+    document.getElementById("resumeBtn").addEventListener("click", () => { state = "playing"; syncUI(); });
+    document.getElementById("settingsHomeBtn").addEventListener("click", () => { prevState = "home"; state = "home"; syncUI(); });
+    document.getElementById("goHomeBtn").addEventListener("click", () => { prevState = "home"; state = "home"; syncUI(); });
+    document.getElementById("emuBackBtn").addEventListener("click", () => { window.location.href = "../../index.html?hub=1"; });
+    document.getElementById("toggleDeviceBtn").addEventListener("click", () => {
+      deviceMode = deviceMode === "pc" ? "mobile" : "pc";
+      localStorage.setItem("angkor_dino_device", deviceMode);
+      syncUI();
+    });
+    document.getElementById("toggleSfxBtn").addEventListener("click", () => { sfxOn = !sfxOn; syncUI(); });
+    document.getElementById("toggleBgmBtn").addEventListener("click", () => {
+      bgmOn = !bgmOn; localStorage.setItem("angkor_dino_bgm", bgmOn ? "1" : "0"); syncUI();
+    });
+    document.getElementById("hudFsBtn").addEventListener("click", () => {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.().catch(() => {});
+      else document.exitFullscreen?.().catch(() => {});
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Escape") {
+        if (state === "playing") { prevState = "playing"; state = "paused"; syncUI(); }
+        else if (state === "paused") { state = prevState; syncUI(); }
+        else if (state === "shop" || state === "missions") { state = "home"; syncUI(); }
+        return;
+      }
+      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) {
+        e.preventDefault();
+        if (state === "home" || state === "gameover") { startRun(); return; }
+        if (!jumpHeld) triggerHordeJump();
+        jumpHeld = true;
+      }
+    });
+    window.addEventListener("keyup", (e) => {
+      if (["Space", "ArrowUp", "KeyW"].includes(e.code)) jumpHeld = false;
+    });
+    canvas.addEventListener("pointerdown", () => {
+      if (state === "playing") { triggerHordeJump(); jumpHeld = true; }
+    });
+    window.addEventListener("pointerup", () => { jumpHeld = false; });
+    mobileJumpBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); e.stopPropagation();
+      triggerHordeJump(); jumpHeld = true;
+    });
+    mobileJumpBtn.addEventListener("pointerup", () => { jumpHeld = false; });
+    mobileJumpBtn.addEventListener("pointercancel", () => { jumpHeld = false; });
+
+    // === UPDATE LOOP ===
+    function update(dt) {
+      if (state !== "playing") return;
+      tickBgm(dt);
+
+      if (flashT > 0) flashT -= dt;
+      if (bannerT > 0) bannerT -= dt;
+      if (trauma > 0) { trauma = Math.max(0, trauma - 1.8 * dt); shakeT += dt * 36; }
+
+      if (activePower) {
+        powerTimer -= dt;
+        if (powerTimer <= 0) { activePower = null; powerTimer = 0; }
+      }
+
+      const baseSpd = Math.min(520, 290 + dist * 0.14);
+      speed = (activePower === "TSUNAMI" || activePower === "KRUD") ? baseSpd * 1.25 : baseSpd;
+      dist += (speed * dt) / 14;
+
+      // Zone Progression (Riverside -> Independence Monument -> Phsar Thmei) with smooth cross-fade
+      if (zone === 1 && dist >= 400) {
+        prevZone = 1; zone = 2; zoneFade = 1.0;
+        bannerT = 2.6; bannerText = ZONE_NAMES[2]; sfx.power(); flashT = 0.2;
+        if (zone > zSave.stats.maxZone) { zSave.stats.maxZone = zone; checkMissions(); }
+      } else if (zone === 2 && dist >= 850) {
+        prevZone = 2; zone = 3; zoneFade = 1.0;
+        bannerT = 2.6; bannerText = ZONE_NAMES[3]; sfx.power(); flashT = 0.2;
+        if (zone > zSave.stats.maxZone) { zSave.stats.maxZone = zone; checkMissions(); }
+      }
+
+      // Scroll road platforms
+      for (let i = platforms.length - 1; i >= 0; i--) {
+        platforms[i].x -= speed * dt;
+        if (platforms[i].x + platforms[i].w < -200) platforms.splice(i, 1);
+      }
+      ensurePlatforms();
+
+      // Spawn street packs
+      nextEntityX -= speed * dt;
+      if (nextEntityX < W + 200) spawnStreetPack();
+
+      // Incoming fast moto warning
+      if (motoWarn) {
+        motoWarn.t -= dt;
+        if (motoWarn.t <= 0) {
+          entities.push({ kind: "fastMoto", x: W + 40, y: ROAD_Y - 72, w: 98, h: 72, t: 0 });
+          motoWarn = null;
+        }
+      }
+
+      // Update Zombie Horde (cascading jumps + tight pack spacing + road gap falls!)
+      const isWaveOrKrud = activePower === "TSUNAMI" || activePower === "KRUD";
+      for (let i = horde.length - 1; i >= 0; i--) {
+        const z = horde[i];
+        z.anim += dt * (speed / 280);
+        if (z.chompT > 0) z.chompT -= dt;
+        const targetX = 230 - Math.min(i, 14) * 14 - Math.floor(i / 14) * 8;
+        z.x += (targetX - z.x) * Math.min(1, dt * 6);
+
+        if (z.jumpQueue > 0) {
+          z.jumpQueue -= dt;
+          if (z.jumpQueue <= 0) {
+            if (z.onGround) {
+              z.vy = -780;
+              z.onGround = false;
+            } else if (z.airJumps > 0) {
+              z.airJumps--;
+              z.vy = -700;
+            }
+          }
+        }
+
+        if (activePower === "KRUD") {
+          const targetY = jumpHeld ? 160 : 290;
+          z.y += (targetY - z.y) * Math.min(1, dt * 7);
+          z.vy = 0; z.onGround = true;
+        } else {
+          let grav = (!jumpHeld && z.vy < 0) ? 2900 : 1850;
+          z.vy += grav * dt;
+          z.y += z.vy * dt;
+
+          const overRoad = isWaveOrKrud || hasRoadUnder(z.x + 28);
+          if (overRoad && z.y >= ROAD_Y - 64 && z.vy >= 0 && z.y <= ROAD_Y - 12) {
+            z.y = ROAD_Y - 64;
+            z.vy = 0;
+            z.onGround = true;
+            z.airJumps = activePower === "KUN_KHMER" ? 1 : 0;
+          } else if (!overRoad) {
+            z.onGround = false;
+          }
+        }
+
+        if (z.y > H + 40) {
+          horde.splice(i, 1);
+          sfx.hurt();
+          popups.push({ x: z.x + 20, y: ROAD_Y - 20, text: "-1 FALL!", col: "#ff5c6c", life: 0.7 });
+        }
+      }
+
+      if (horde.length === 0) {
+        state = "gameover";
+        if (dist > zSave.bestDist) zSave.bestDist = dist;
+        persistZSave();
+        sfx.hurt();
+        syncUI();
+        return;
+      }
+
+      // Compute horde bounding box for clean pack interactions
+      const lead = horde[0];
+      const packX0 = Math.min(...horde.map(z => z.x)) + 6;
+      const packX1 = Math.max(...horde.map(z => z.x)) + 42;
+      const magRange = (activePower === "GOLD_RUSH" ? 280 : (zSave.upgrades.magnet || 0) * 110);
+
+      for (let i = entities.length - 1; i >= 0; i--) {
+        const e = entities[i];
+        e.t += dt;
+        const spdMul = e.kind === "fastMoto"
+          ? 1.46
+          : (e.kind === "vehicle" && e.vType === "cyclo"
+            ? 1.20
+            : (e.kind === "survivor" ? 0.85 : 1.0));
+        e.x -= speed * spdMul * dt;
+
+        if (e.kind === "coin" && magRange > 0) {
+          const dx = (lead.x + 24) - (e.x + 18), dy = (lead.y + 24) - (e.y + 18);
+          const d = Math.hypot(dx, dy);
+          if (d < magRange && d > 4) { e.x += (dx / d) * 460 * dt; e.y += (dy / d) * 460 * dt; }
+        }
+
+        // Check collision against any zombie in the horde
+        let hitIdx = -1;
+        for (let zi = 0; zi < horde.length; zi++) {
+          const z = horde[zi];
+          if (z.x + 8 < e.x + e.w - 6 && z.x + 40 > e.x + 6 && z.y + 8 < e.y + e.h - 4 && z.y + 52 > e.y + 6) {
+            hitIdx = zi; break;
+          }
+        }
+
+        if (hitIdx >= 0) {
+          if (e.kind === "survivor") {
+            runBrains++;
+            zSave.stats.brains++;
+            if (horde[hitIdx]) horde[hitIdx].chompT = 0.28;
+            const zMap = { office: "office", vendor: "krama", student: "student", steav: "steav", motoRider: "motoRider", kunkhmer: "kunkhmer" };
+            const zLabels = { office: "OFFICE ZOMBIE!", krama: "KRAMA ZOMBIE!", student: "STUDENT ZOMBIE!", steav: "STEAV ZOMBIE!", motoRider: "MOTO ZOMBIE!", kunkhmer: "KUN KHMER ZOMBIE!" };
+            const zKind = zMap[e.sKind] || pickRandomZombieKind();
+            addZombie(e.x, e.y, zKind);
+            sfx.chomp();
+            popups.push({ x: e.x + 24, y: e.y - 12, text: "+1 " + (zLabels[zKind] || "ZOMBIE!"), col: "#78d968", life: 0.9 });
+            checkMissions();
+            entities.splice(i, 1); continue;
+          } else if (e.kind === "coin") {
+            runCoins++;
+            addSharedCoins(1);
+            sfx.coin();
+            popups.push({ x: e.x + 18, y: e.y, text: "+1", col: "#ffe373", life: 0.6 });
+            entities.splice(i, 1); continue;
+          } else if (e.kind === "mystery") {
+            activateMystery();
+            entities.splice(i, 1); continue;
+          } else if (e.kind === "vehicle") {
+            const canSmash = activePower || horde.length >= e.need;
+            if (canSmash) {
+              runVehicles++;
+              zSave.stats.vehicles++;
+              if (e.vType === "tuktuk") zSave.stats.tuktuks++;
+              const cGain = e.coins + (zSave.upgrades.smashBonus || 0) * 2;
+              runCoins += cGain;
+              addSharedCoins(cGain);
+              for (let b = 0; b < e.bonusZ; b++) {
+                const themed = b === 0 ? (e.vType === "moto" ? "motoRider" : undefined) : undefined;
+                addZombie(e.x + b * 14, ROAD_Y - 64, themed);
+              }
+              const debrisSprite = e.sprite === "veh_cyclo" ? "veh_cyclo_empty" : e.sprite;
+              debris.push({ sprite: debrisSprite, x: e.x, y: e.y, w: e.w, h: e.h, vx: 260, vy: -460, rot: 0, vrot: 7, life: 1.2 });
+              trauma = Math.min(1, trauma + 0.42);
+              sfx.smash();
+              popups.push({ x: e.x + e.w / 2, y: e.y - 14, text: `FLIPPED ${e.name} +${e.bonusZ}Z`, col: "#ffe373", life: 1.0 });
+              checkMissions();
+              entities.splice(i, 1); continue;
+            } else {
+              // Not enough zombies! Lose 1 zombie & knock vehicle away so it doesn't wipe the whole pack
+              horde.splice(hitIdx, 1);
+              trauma = 0.35; sfx.hurt();
+              popups.push({ x: e.x + 20, y: e.y - 10, text: `NEED ${e.need} ZOMBIES!`, col: "#ff5c6c", life: 0.9 });
+              entities.splice(i, 1); continue;
+            }
+          } else if (e.kind === "bomb" || e.kind === "fastMoto") {
+            if (activePower) {
+              runCoins += 3; addSharedCoins(3); sfx.smash();
+              popups.push({ x: e.x + 20, y: e.y, text: "SMASH +3C!", col: "#ffe373", life: 0.8 });
+            } else {
+              horde.splice(hitIdx, 1);
+              if (e.kind === "bomb" && horde.length > 0) horde.splice(0, 1);
+              trauma = 0.55; flashT = 0.14; sfx.smash();
+              popups.push({ x: e.x + 20, y: e.y - 10, text: e.kind === "bomb" ? "BOOM!" : "CRASH!", col: "#ff5c6c", life: 0.85 });
+            }
+            entities.splice(i, 1); continue;
+          }
+        }
+        if (e.x + e.w < -140) entities.splice(i, 1);
+      }
+
+      for (let i = debris.length - 1; i >= 0; i--) {
+        const d = debris[i];
+        d.x += d.vx * dt; d.vy += 1200 * dt; d.y += d.vy * dt;
+        d.rot += d.vrot * dt; d.life -= dt;
+        if (d.life <= 0) debris.splice(i, 1);
+      }
+      for (let i = popups.length - 1; i >= 0; i--) {
+        popups[i].y -= 52 * dt; popups[i].life -= dt;
+        if (popups[i].life <= 0) popups.splice(i, 1);
+      }
+    }
+
+    // === RENDER PHNOM PENH LIVING PARALLAX WORLD ===
+    function drawSeamlessPanorama(img, scrollX) {
+      if (!img) return;
+      // Crop source above painted asphalt (0..222 of 270) so the sidewalk curb aligns cleanly with ROAD_Y!
+      const srcW = img.naturalWidth || 480;
+      const srcH = Math.round((img.naturalHeight || 270) * 0.822);
+      const dstH = ROAD_Y + 4;
+      const cycle = W * 2;
+      const off = ((scrollX % cycle) + cycle) % cycle;
+      const startTile = Math.floor(off / W);
+      const localOff = off % W;
+
+      for (let t = 0; t <= 1; t++) {
+        const tileIdx = startTile + t;
+        const dx = Math.round(t * W - localOff);
+        const flipped = (tileIdx % 2) === 1;
+        ctx.save();
+        if (flipped) {
+          // Horizontally mirror alternate tiles so left/right edges match pixel-for-pixel (zero cut seam!)
+          ctx.translate(dx + W + 1, 0);
+          ctx.scale(-1, 1);
+          ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, W + 2, dstH);
+        } else {
+          ctx.drawImage(img, 0, 0, srcW, srcH, dx - 1, 0, W + 2, dstH);
+        }
+        ctx.restore();
+      }
+    }
+
+    function drawPhnomPenhBg() {
+      const bgImg = imgs["bg_" + zone] || imgs.bg_1;
+      if (bgImg) {
+        drawSeamlessPanorama(bgImg, bgScroll);
+
+        // Smooth cross-fade when entering a new Phnom Penh zone
+        if (zoneFade > 0.01 && prevZone !== zone && imgs["bg_" + prevZone]) {
+          ctx.save();
+          ctx.globalAlpha = zoneFade;
+          drawSeamlessPanorama(imgs["bg_" + prevZone], bgScroll);
+          ctx.restore();
+        }
+
+        // 1. Drifting Pixel Clouds (independent slow sky layer — clearly visible!)
+        ctx.save();
+        const cloudCol = zone === 1 ? "rgba(255, 208, 148, 0.34)" : (zone === 2 ? "rgba(196, 152, 238, 0.26)" : "rgba(128, 162, 232, 0.24)");
+        ctx.fillStyle = cloudCol;
+        for (let i = 0; i < 6; i++) {
+          const cx = W - (((cloudScroll * (0.65 + (i % 3) * 0.22) + i * 195) % (W + 240)) - 120);
+          const cy = 24 + (i % 3) * 34;
+          const cw = 96 + (i % 3) * 34;
+          ctx.fillRect(Math.round(cx), cy, cw, 12);
+          ctx.fillRect(Math.round(cx + 16), cy - 7, cw - 32, 7);
+          ctx.fillRect(Math.round(cx + 30), cy - 12, cw - 62, 5);
+        }
+        ctx.restore();
+
+        // 2. Twinkling Stars + Occasional Shooting Star (Zones 2 & 3 twilight/night sky)
+        if (zone >= 2) {
+          ctx.save();
+          for (const st of skyStars) {
+            const tw = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(bgTime * 3.4 + st.phase));
+            ctx.fillStyle = `rgba(255, 248, 210, ${(tw * (zone === 3 ? 0.92 : 0.65)).toFixed(2)})`;
+            ctx.fillRect(st.x, st.y, st.size, st.size);
+          }
+          // Animated shooting star streaking across the night sky every ~5s
+          const shootCycle = bgTime % 5.2;
+          if (shootCycle < 0.7) {
+            const stx = W - 120 - shootCycle * 520;
+            const sty = 32 + shootCycle * 110;
+            ctx.strokeStyle = `rgba(255, 248, 210, ${(1 - shootCycle / 0.7).toFixed(2)})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(stx, sty);
+            ctx.lineTo(stx + 42, sty - 10);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // 3. Flapping Sky Birds / Twilight Swallows (bigger & clearly animated!)
+        ctx.save();
+        ctx.fillStyle = zone === 1 ? "rgba(38, 14, 36, 0.82)" : "rgba(18, 12, 34, 0.72)";
+        for (const b of skyBirds) {
+          const bx = W - (((b.x + bgTime * (b.spd + 16)) % (W + 140)) - 70);
+          const by = Math.round(b.y + Math.sin(bgTime * 2.8 + b.phase) * 8);
+          const flap = Math.sin(bgTime * 12 + b.phase) > 0 ? -4 : 3;
+          ctx.fillRect(Math.round(bx), by, 6, 3);
+          ctx.fillRect(Math.round(bx - 6), by + flap, 6, 3);
+          ctx.fillRect(Math.round(bx + 6), by + flap, 6, 3);
+        }
+        ctx.restore();
+
+        // 4. Zone-Specific Live Background Animations!
+        if (zone === 1) {
+          // Bright animated golden sun-path ripples on the Mekong / Tonle Sap river
+          ctx.save();
+          for (let i = 0; i < 28; i++) {
+            const rx = W - (((bgScroll * 1.15 + bgTime * 26 + i * 54 + Math.sin(bgTime * 2.5 + i) * 12) % (W + 40)) - 20);
+            const ry = 300 + (i % 6) * 11;
+            const rw = 18 + (i % 4) * 10;
+            const a = 0.38 + 0.42 * (0.5 + 0.5 * Math.sin(bgTime * 5.2 + i * 1.3));
+            ctx.fillStyle = `rgba(255, 240, 165, ${a.toFixed(2)})`;
+            ctx.fillRect(Math.round(rx), ry, rw, 3);
+          }
+          // Animated Cambodian Wooden Mekong Boats gliding across the sunset river!
+          for (let bi = 0; bi < 2; bi++) {
+            const boatX = bi === 0
+              ? ((bgTime * 34 + 140) % (W + 160)) - 80
+              : W - (((bgTime * 26 + 420) % (W + 160)) - 80);
+            const boatY = (bi === 0 ? 320 : 344) + Math.round(Math.sin(bgTime * 3.5 + bi * 2) * 2);
+            const dir = bi === 0 ? 1 : -1;
+            // Water wake behind boat
+            ctx.fillStyle = "rgba(255, 245, 200, 0.55)";
+            ctx.fillRect(Math.round(boatX - dir * 24), boatY + 9, 26, 2);
+            // Wooden hull + curved Khmer prow
+            ctx.fillStyle = "#3b1f1a";
+            ctx.fillRect(Math.round(boatX - 20), boatY + 4, 40, 6);
+            ctx.fillRect(Math.round(boatX + dir * 18), boatY, 6, 6);
+            // Canopy + glowing warm lantern on the boat
+            ctx.fillStyle = "#a6382e";
+            ctx.fillRect(Math.round(boatX - 10), boatY - 3, 20, 7);
+            ctx.fillStyle = "#ffe680";
+            ctx.fillRect(Math.round(boatX + dir * 12), boatY - 2, 4, 4);
+          }
+          ctx.restore();
+        } else if (zone === 2) {
+          // Sweeping Phnom Penh Festival Searchlight Beams in the Twilight Sky!
+          ctx.save();
+          for (let si = 0; si < 3; si++) {
+            const baseX = 180 + si * 300;
+            const angle = -0.35 + Math.sin(bgTime * (0.9 + si * 0.25) + si * 2) * 0.42;
+            ctx.save();
+            ctx.translate(baseX, ROAD_Y - 20);
+            ctx.rotate(angle);
+            const beamGrad = ctx.createLinearGradient(0, 0, 0, -380);
+            beamGrad.addColorStop(0, si === 1 ? "rgba(255, 214, 102, 0.24)" : "rgba(232, 128, 255, 0.18)");
+            beamGrad.addColorStop(1, "rgba(255, 214, 102, 0)");
+            ctx.fillStyle = beamGrad;
+            ctx.beginPath();
+            ctx.moveTo(-10, 0); ctx.lineTo(-56, -380); ctx.lineTo(56, -380); ctx.lineTo(10, 0);
+            ctx.closePath(); ctx.fill();
+            ctx.restore();
+          }
+          // Animated Sparkling Fountain Water Jets around Independence Monument Plaza!
+          for (let fi = 0; fi < 16; fi++) {
+            const fx = W - (((bgScroll + 260 + (fi % 4) * 180) % (W + 80)) - 40);
+            const phase = (bgTime * 2.6 + fi * 0.4) % 1;
+            const arcX = fx + (fi % 2 === 0 ? 1 : -1) * phase * 22;
+            const arcY = ROAD_Y - 38 - Math.sin(phase * Math.PI) * 34;
+            ctx.fillStyle = `rgba(170, 244, 255, ${(0.85 - phase * 0.6).toFixed(2)})`;
+            ctx.fillRect(Math.round(arcX), Math.round(arcY), 4, 4);
+          }
+          ctx.restore();
+        } else if (zone === 3) {
+          // Floating Glowing Khom Loy Sky Lanterns drifting upward across Phsar Thmei night sky!
+          ctx.save();
+          for (let ki = 0; ki < 10; ki++) {
+            const lx = ((ki * 113 + Math.sin(bgTime * 0.9 + ki) * 24 - bgScroll * 0.15) % (W + 40) + W + 40) % (W + 40) - 20;
+            const ly = 260 - ((bgTime * (14 + (ki % 3) * 5) + ki * 37) % 270);
+            const glow = 0.22 + 0.12 * Math.sin(bgTime * 4.5 + ki);
+            ctx.fillStyle = `rgba(255, 190, 75, ${glow.toFixed(2)})`;
+            ctx.beginPath(); ctx.arc(lx, ly, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "#ffcb5c";
+            ctx.fillRect(Math.round(lx - 3), Math.round(ly - 4), 6, 8);
+            ctx.fillStyle = "#fff8d6";
+            ctx.fillRect(Math.round(lx - 1), Math.round(ly - 2), 2, 4);
+          }
+          // Warm pulsing night-market stall lantern glow halos
+          for (let i = 0; i < 10; i++) {
+            const lx = W - (((bgScroll + i * 110) % (W + 80)) - 40);
+            const ly = 324 + (i % 2) * 16;
+            const pulse = 0.18 + 0.14 * Math.sin(bgTime * 4.6 + i * 1.7);
+            ctx.fillStyle = `rgba(255, 195, 80, ${pulse.toFixed(2)})`;
+            ctx.beginPath(); ctx.arc(lx, ly, 30, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // 5. Floating Fireflies / Sunset Dust Motes / Night Embers
+        ctx.save();
+        for (const m of ambientMotes) {
+          const mx = W - (((m.x + bgScroll * 0.7 + bgTime * m.vx) % (W + 40)) - 20);
+          const my = m.y + Math.sin(bgTime * 2.4 + m.phase) * 12;
+          const a = 0.25 + 0.45 * (0.5 + 0.5 * Math.sin(bgTime * 5 + m.phase));
+          ctx.fillStyle = zone === 1 ? `rgba(255, 224, 130, ${a.toFixed(2)})` : (zone === 2 ? `rgba(255, 178, 220, ${a.toFixed(2)})` : `rgba(255, 210, 96, ${a.toFixed(2)})`);
+          ctx.fillRect(Math.round(mx), Math.round(my), 3, 3);
+        }
+        ctx.restore();
+
+        // 6. Mid-Near Parallax Phnom Penh Streetlamps & Overhead Festival Wires (0.56x road speed -> real depth!)
+        ctx.save();
+        const postSpacing = 320;
+        const postOff = ((midScroll % postSpacing) + postSpacing) % postSpacing;
+        const lampTopY = ROAD_Y - 122;
+        // Overhead swaying power/lantern cable connecting posts
+        ctx.strokeStyle = "rgba(24, 16, 36, 0.52)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let px = -postOff - postSpacing; px < W + postSpacing; px += postSpacing) {
+          const x1 = px + 8, x2 = px + postSpacing + 8;
+          const sag = 18 + Math.sin(bgTime * 2.2 + px * 0.01) * 2;
+          ctx.moveTo(x1, lampTopY + 12);
+          ctx.quadraticCurveTo((x1 + x2) / 2, lampTopY + 12 + sag, x2, lampTopY + 12);
+        }
+        ctx.stroke();
+
+        // Streetlamp posts + warm pulsing light cones + Khmer bunting pennants
+        for (let px = -postOff; px < W + postSpacing; px += postSpacing) {
+          const x = Math.round(px);
+          // Warm radial light cone
+          const glow = 0.14 + 0.05 * Math.sin(bgTime * 4 + x * 0.03);
+          ctx.fillStyle = `rgba(255, 215, 110, ${glow.toFixed(2)})`;
+          ctx.beginPath();
+          ctx.moveTo(x + 6, lampTopY + 8);
+          ctx.lineTo(x - 36, ROAD_Y);
+          ctx.lineTo(x + 48, ROAD_Y);
+          ctx.closePath();
+          ctx.fill();
+
+          // Vintage Khmer streetlamp post
+          ctx.fillStyle = "#1b1426";
+          ctx.fillRect(x + 3, lampTopY + 8, 6, ROAD_Y - lampTopY - 8);
+          ctx.fillRect(x, ROAD_Y - 16, 12, 16);
+          ctx.fillRect(x - 6, lampTopY + 6, 24, 4);
+          // Glowing lantern bulb
+          ctx.fillStyle = "#ffe680";
+          ctx.fillRect(x + 1, lampTopY - 2, 10, 9);
+          ctx.fillStyle = "#fff9dc";
+          ctx.fillRect(x + 3, lampTopY, 6, 5);
+
+          // Tiny swaying red/gold Khmer temple flags along the wire
+          for (let f = 1; f <= 3; f++) {
+            const fx = x + Math.round((postSpacing / 4) * f);
+            const fy = lampTopY + 20 + (f === 2 ? 7 : 3) + Math.round(Math.sin(bgTime * 4.5 + f) * 1.5);
+            ctx.fillStyle = f % 2 === 0 ? "#e63946" : "#ffbe0b";
+            ctx.fillRect(fx, fy, 7, 5);
+          }
+        }
+        ctx.restore();
+
+        // Subtle atmospheric haze & grounded curb shadow right above ROAD_Y so sprites pop cleanly
+        ctx.fillStyle = zone === 3 ? "rgba(10, 8, 24, 0.14)" : "rgba(18, 12, 28, 0.06)";
+        ctx.fillRect(0, 0, W, ROAD_Y);
+        const curbGrad = ctx.createLinearGradient(0, ROAD_Y - 18, 0, ROAD_Y + 2);
+        curbGrad.addColorStop(0, "rgba(12, 8, 22, 0)");
+        curbGrad.addColorStop(1, "rgba(12, 8, 22, 0.42)");
+        ctx.fillStyle = curbGrad;
+        ctx.fillRect(0, ROAD_Y - 18, W, 20);
+      } else {
+        ctx.fillStyle = "#1b122b";
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    function render() {
+      if (!assetsLoaded) {
+        ctx.fillStyle = "#140e24"; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = "#78d968"; ctx.font = "bold 22px Courier New"; ctx.textAlign = "center";
+        ctx.fillText("Loading Phnom Penh Zombie Tsunami...", W / 2, H / 2);
+        return;
+      }
+
+      ctx.save();
+      if (trauma > 0) {
+        const s = trauma * trauma;
+        ctx.translate(Math.round(12 * s * Math.sin(shakeT * 1.8)), Math.round(9 * s * Math.sin(shakeT * 2.5)));
+      }
+
+      drawPhnomPenhBg();
+
+      // === HIGH-VISIBILITY ANIMATED MEKONG WATER (fills all road gaps clearly!) ===
+      const waterY = ROAD_Y + 12;
+      const waterGrad = ctx.createLinearGradient(0, waterY, 0, H);
+      waterGrad.addColorStop(0, "#24a8c9");
+      waterGrad.addColorStop(0.35, "#157496");
+      waterGrad.addColorStop(1, "#0b3b54");
+      ctx.fillStyle = waterGrad;
+      ctx.fillRect(0, waterY, W, H - waterY);
+
+      // Bright animated foam crest right at the water surface so gaps pop instantly!
+      const waveOff = Math.floor(bgTime * 95 + midScroll * 1.2) % 32;
+      ctx.fillStyle = "#b8f7ff";
+      for (let wx = -waveOff; wx < W + 32; wx += 16) {
+        const wy = waterY + Math.round(Math.sin(bgTime * 7 + wx * 0.08) * 2.5);
+        ctx.fillRect(wx, wy, 12, 4);
+      }
+      ctx.fillStyle = "#5ee2f5";
+      for (let wx = -waveOff; wx < W + 32; wx += 24) {
+        const wy = waterY + 6 + Math.round(Math.cos(bgTime * 6 + wx * 0.07) * 2);
+        ctx.fillRect(wx + 4, wy, 16, 3);
+      }
+      // Sparkling mid-depth water ripples
+      ctx.fillStyle = "rgba(184, 247, 255, 0.36)";
+      const riverOff = Math.floor(midScroll * 1.5 + bgTime * 55) % 64;
+      for (let rx = -riverOff; rx < W + 64; rx += 64) {
+        const wy = waterY + 26 + Math.round(Math.sin(bgTime * 4.5 + rx * 0.05) * 3);
+        ctx.fillRect(rx, wy, 34, 4);
+        ctx.fillRect(rx + 22, wy + 22, 26, 3);
+        ctx.fillRect(rx + 8, wy + 44, 30, 3);
+      }
+
+      // === UPGRADED 16-BIT PHNOM PENH ROAD & BRIDGE DECK ===
+      for (let pi = 0; pi < platforms.length; pi++) {
+        const p = platforms[pi];
+        const px = Math.round(p.x), pw = Math.round(p.w);
+        const hasRightGap = pi < platforms.length - 1 && (platforms[pi + 1].x - (p.x + p.w)) > 20;
+        const hasLeftGap = pi > 0 && (p.x - (platforms[pi - 1].x + platforms[pi - 1].w)) > 20;
+
+        // 1. Concrete Bridge Support Pillars extending into the Mekong water
+        ctx.fillStyle = "#4d485c";
+        ctx.fillRect(px + 10, ROAD_Y + 62, 24, H - ROAD_Y - 62);
+        ctx.fillRect(px + pw - 34, ROAD_Y + 62, 24, H - ROAD_Y - 62);
+        ctx.fillStyle = "#2d2838";
+        ctx.fillRect(px + 28, ROAD_Y + 62, 6, H - ROAD_Y - 62);
+        ctx.fillRect(px + pw - 16, ROAD_Y + 62, 6, H - ROAD_Y - 62);
+        // Water foam splashing against bridge pillars
+        ctx.fillStyle = "#ccfaff";
+        ctx.fillRect(px + 6, waterY + 62, 32, 3);
+        ctx.fillRect(px + pw - 38, waterY + 62, 32, 3);
+
+        // 2. Main Road Asphalt Deck + Concrete Under-Slab
+        ctx.fillStyle = "#3a3548";
+        ctx.fillRect(px, ROAD_Y, pw, 60);
+        ctx.fillStyle = "#2b2736";
+        ctx.fillRect(px, ROAD_Y + 46, pw, 14);
+        // Concrete underside girder lip
+        ctx.fillStyle = "#7a738c";
+        ctx.fillRect(px, ROAD_Y + 60, pw, 8);
+        ctx.fillStyle = "#4a4459";
+        ctx.fillRect(px, ROAD_Y + 68, pw, 5);
+        // Solid earth/pier shadow under the rest of long roads (leaving visible water under edges)
+        ctx.fillStyle = "#242030";
+        ctx.fillRect(px + 6, ROAD_Y + 73, Math.max(0, pw - 12), H - ROAD_Y - 73);
+
+        // 3. Phnom Penh Sidewalk Curb (Classic Alternating Red & White Curb Blocks!)
+        const blockW = 24;
+        for (let bx = 0; bx < pw; bx += blockW) {
+          const bw = Math.min(blockW, pw - bx);
+          const isRed = (Math.floor(bx / blockW) % 2) === 0;
+          // Top curb highlight
+          ctx.fillStyle = isRed ? "#d93b48" : "#f2ead8";
+          ctx.fillRect(px + bx, ROAD_Y, bw, 7);
+          // Curb shadow lip
+          ctx.fillStyle = isRed ? "#8f222d" : "#a89f8c";
+          ctx.fillRect(px + bx, ROAD_Y + 7, bw, 4);
+        }
+
+        // 4. Crisp White Shoulder Line + Textured Pixel Asphalt + Golden-Yellow Dashed Lane Lines
+        ctx.fillStyle = "rgba(245, 240, 228, 0.42)";
+        ctx.fillRect(px, ROAD_Y + 13, pw, 2);
+
+        // Subtle pixel asphalt pebbles & storm grates
+        for (let dx = 22; dx < pw - 24; dx += 48) {
+          ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+          ctx.fillRect(px + dx, ROAD_Y + 20 + ((dx / 48) % 2) * 18, 6, 2);
+          ctx.fillStyle = "rgba(14, 10, 24, 0.35)";
+          ctx.fillRect(px + dx + 14, ROAD_Y + 38, 8, 2);
+        }
+
+        // Bright Phnom Penh Golden-Yellow Center Dashes
+        for (let dx = 18; dx < pw - 34; dx += 58) {
+          ctx.fillStyle = "#1f1b29";
+          ctx.fillRect(px + dx + 2, ROAD_Y + 31, 30, 6);
+          ctx.fillStyle = "#ffd24c";
+          ctx.fillRect(px + dx, ROAD_Y + 29, 30, 6);
+          ctx.fillStyle = "#fff3b0";
+          ctx.fillRect(px + dx + 2, ROAD_Y + 29, 26, 2);
+        }
+
+        // 5. High-Visibility Yellow/Black Hazard Stripes on Gap Takeoff & Landing Edges!
+        if (hasRightGap) {
+          const ex = px + pw - 22;
+          for (let sy = 0; sy < 56; sy += 12) {
+            ctx.fillStyle = (sy / 12) % 2 === 0 ? "#ffd24c" : "#1a1426";
+            ctx.fillRect(ex + 10, ROAD_Y + sy, 12, Math.min(12, 60 - sy));
+          }
+          // Bright caution post on cliff edge so you spot the water gap early!
+          ctx.fillStyle = "#1a1426";
+          ctx.fillRect(ex + 12, ROAD_Y - 22, 6, 22);
+          ctx.fillStyle = "#ffd24c";
+          ctx.fillRect(ex + 8, ROAD_Y - 26, 14, 10);
+          ctx.fillStyle = "#d93b48";
+          ctx.fillRect(ex + 11, ROAD_Y - 23, 8, 4);
+        }
+        if (hasLeftGap) {
+          for (let sy = 0; sy < 56; sy += 12) {
+            ctx.fillStyle = (sy / 12) % 2 === 0 ? "#ffd24c" : "#1a1426";
+            ctx.fillRect(px, ROAD_Y + sy, 12, Math.min(12, 60 - sy));
+          }
+        }
+      }
+
+      // Mekong Tsunami Wave Effect under Horde!
+      if (activePower === "TSUNAMI") {
+        ctx.save();
+        ctx.fillStyle = "rgba(56, 201, 180, 0.72)";
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        for (let x = 0; x <= 340; x += 20) {
+          const wy = ROAD_Y - 22 - Math.sin((x + performance.now() * 0.4) * 0.04) * 14;
+          ctx.lineTo(x, wy);
+        }
+        ctx.lineTo(340, H); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+
+      // Entities (Survivors, Vehicles with Threshold Badges, Bombs, Mystery "?", Coins)
+      for (const e of entities) {
+        if (e.kind === "survivor") {
+          const arr = e.sKind === "vendor"
+            ? imgs.survVendor
+            : (e.sKind === "office"
+              ? imgs.survOffice
+              : (imgs.survSets[e.sKind] && imgs.survSets[e.sKind].length ? imgs.survSets[e.sKind] : imgs.survOffice));
+          const f = Math.floor(e.t * 10) % arr.length;
+          if (arr[f]) ctx.drawImage(arr[f], Math.round(e.x), Math.round(e.y), e.w, e.h);
+        } else if (e.kind === "vehicle") {
+          const isPedalCyclo = e.sprite === "veh_cyclo";
+          const vImg = e.sprite === "veh_moto"
+            ? imgs.vehMoto[0]
+            : (isPedalCyclo
+              ? imgs.vehCyclo[Math.floor(e.t * 11) % imgs.vehCyclo.length]
+              : imgs[e.sprite]);
+          const bobY = isPedalCyclo ? Math.round(Math.sin(e.t * 11) * 1.5) : 0;
+          if (vImg) ctx.drawImage(vImg, Math.round(e.x), Math.round(e.y + bobY), e.w, e.h);
+          if (isPedalCyclo) {
+            // Subtle rolling dust pips behind pedaling cyclo tire
+            const dustOff = (e.t * 48) % 18;
+            ctx.fillStyle = "rgba(220, 210, 195, 0.45)";
+            ctx.fillRect(Math.round(e.x + e.w - 6 + dustOff), Math.round(e.y + e.h - 6), 5, 3);
+            ctx.fillRect(Math.round(e.x + e.w + 4 + dustOff * 0.7), Math.round(e.y + e.h - 10), 3, 3);
+          }
+          const ok = activePower || horde.length >= e.need;
+          const bx = Math.round(e.x + e.w / 2 - 22), by = Math.round(e.y - 28 + bobY);
+          ctx.fillStyle = ok ? "#45964a" : "#c7263e";
+          ctx.fillRect(bx, by, 44, 22);
+          ctx.strokeStyle = "#fff9d6"; ctx.lineWidth = 2; ctx.strokeRect(bx, by, 44, 22);
+          ctx.fillStyle = "#fff9d6"; ctx.font = "bold 14px Courier New"; ctx.textAlign = "center";
+          ctx.fillText(`${e.need}Z`, bx + 22, by + 16);
+        } else if (e.kind === "fastMoto") {
+          const mf = imgs.vehMotoFast.length
+            ? imgs.vehMotoFast[Math.floor(e.t * 14) % imgs.vehMotoFast.length]
+            : imgs.veh_moto_fast;
+          const vibY = Math.round(Math.sin(e.t * 36) * 1.5);
+          if (mf) ctx.drawImage(mf, Math.round(e.x), Math.round(e.y + vibY), e.w, e.h);
+          // Crisp speed lines trailing behind the speeding Honda Dream
+          ctx.fillStyle = "rgba(255, 248, 220, 0.55)";
+          const sl = (e.t * 120) % 24;
+          ctx.fillRect(Math.round(e.x + e.w - 4 + sl * 0.5), Math.round(e.y + 18), 22, 2);
+          ctx.fillRect(Math.round(e.x + e.w + 6 + sl * 0.8), Math.round(e.y + 34), 16, 2);
+        } else if (e.kind === "bomb") {
+          const f = Math.floor(e.t * 10) % 4;
+          ctx.drawImage(imgs.obs_bomb, f * 24, 0, 24, 24, Math.round(e.x), Math.round(e.y), e.w, e.h);
+        } else if (e.kind === "mystery") {
+          const f = Math.floor(e.t * 6) % 4;
+          const bob = Math.round(Math.sin(e.t * 6) * 5);
+          ctx.drawImage(imgs.item_mystery, f * 26, 0, 26, 26, Math.round(e.x), Math.round(e.y + bob), e.w, e.h);
+        } else if (e.kind === "coin") {
+          const f = Math.floor(e.t * 10) % 4;
+          if (imgs.coin[f]) ctx.drawImage(imgs.coin[f], Math.round(e.x), Math.round(e.y), e.w, e.h);
+        }
+      }
+
+      // Flipped Flying Vehicle Debris
+      for (const d of debris) {
+        const dImg = d.sprite === "veh_moto" ? imgs.vehMoto[0] : imgs[d.sprite];
+        if (!dImg) continue;
+        ctx.save();
+        ctx.translate(d.x + d.w / 2, d.y + d.h / 2);
+        ctx.rotate(d.rot);
+        ctx.drawImage(dImg, -d.w / 2, -d.h / 2, d.w, d.h);
+        ctx.restore();
+      }
+
+      // Zombie Horde (or Giant Golden Krud during KRUD power-up!)
+      if (activePower === "KRUD" && horde.length > 0 && imgs.krud[0]) {
+        const f = Math.floor(performance.now() / 90) % 6;
+        const kz = horde[0];
+        ctx.save();
+        ctx.translate(Math.round(kz.x + 80), Math.round(kz.y - 30));
+        ctx.scale(-1, 1);
+        ctx.drawImage(imgs.krud[f], -84, 0, 168, 148);
+        ctx.restore();
+      } else {
+        for (let i = horde.length - 1; i >= 0; i--) {
+          const z = horde[i];
+          let zImg = null;
+          if (activePower === "KUN_KHMER" || z.kind === "kunkhmer") {
+            zImg = !z.onGround
+              ? (activePower === "KUN_KHMER" ? imgs.zkk_kick : imgs.zkk_jump)
+              : (z.chompT > 0 ? imgs.zkk_kick : imgs.zkkRun[Math.floor(z.anim * 12) % 5]);
+          } else if (z.kind && imgs.zSets[z.kind] && imgs.zSets[z.kind].run.length) {
+            const zs = imgs.zSets[z.kind];
+            if (z.chompT > 0 && zs.chomp) zImg = zs.chomp;
+            else if (!z.onGround && zs.jump) zImg = zs.jump;
+            else zImg = zs.run[Math.floor(z.anim * 11) % zs.run.length];
+          } else {
+            if (z.chompT > 0) zImg = imgs.zk_chomp;
+            else if (!z.onGround) zImg = imgs.zk_jump;
+            else zImg = imgs.zkRun[Math.floor(z.anim * 11) % 5];
+          }
+          if (zImg) ctx.drawImage(zImg, Math.round(z.x), Math.round(z.y), 64, 64);
+        }
+      }
+
+      // Incoming Fast Moto "!" Warning
+      if (motoWarn) {
+        const blink = Math.floor(motoWarn.t * 14) % 2 === 0;
+        ctx.fillStyle = blink ? "#ff3b3b" : "#ffe373";
+        ctx.fillRect(W - 56, ROAD_Y - 76, 38, 38);
+        ctx.strokeStyle = "#120c1c"; ctx.lineWidth = 3; ctx.strokeRect(W - 56, ROAD_Y - 76, 38, 38);
+        ctx.fillStyle = "#120c1c"; ctx.font = "bold 26px Courier New"; ctx.textAlign = "center";
+        ctx.fillText("!", W - 37, ROAD_Y - 48);
+      }
+
+      // Popups
+      ctx.textAlign = "center"; ctx.font = "bold 18px Courier New";
+      for (const p of popups) {
+        ctx.fillStyle = "#120c1c"; ctx.fillText(p.text, Math.round(p.x) + 2, Math.round(p.y) + 2);
+        ctx.fillStyle = p.col; ctx.fillText(p.text, Math.round(p.x), Math.round(p.y));
+      }
+
+      // HUD (Top-Left Horde Count + Coins, Top-Right Distance)
+      ctx.textAlign = "left"; ctx.font = "bold 18px Courier New";
+      ctx.fillStyle = "#120c1c"; ctx.fillText(`HORDE: ${horde.length}   COINS: ${getSharedCoins()}`, 144, 31);
+      ctx.fillStyle = "#78d968"; ctx.fillText(`HORDE: ${horde.length}   COINS: ${getSharedCoins()}`, 142, 29);
+
+      if (activePower) {
+        ctx.fillStyle = "rgba(18, 12, 28, 0.8)"; ctx.fillRect(142, 38, 180, 14);
+        ctx.fillStyle = "#ffe373"; ctx.fillRect(144, 40, Math.round((powerTimer / powerMax) * 176), 10);
+      }
+
+      ctx.textAlign = "right"; ctx.font = "bold 24px Courier New";
+      ctx.fillStyle = "#120c1c"; ctx.fillText(`${Math.floor(dist)}m  (HI ${Math.floor(zSave.bestDist)}m)`, W - 20, 34);
+      ctx.fillStyle = "#fff6d6"; ctx.fillText(`${Math.floor(dist)}m  (HI ${Math.floor(zSave.bestDist)}m)`, W - 22, 32);
+
+      if (bannerT > 0 && state === "playing") {
+        ctx.fillStyle = "rgba(18, 12, 28, 0.84)"; ctx.fillRect(W / 2 - 250, 56, 500, 44);
+        ctx.strokeStyle = "#78d968"; ctx.lineWidth = 3; ctx.strokeRect(W / 2 - 250, 56, 500, 44);
+        ctx.textAlign = "center"; ctx.fillStyle = "#ffe373"; ctx.font = "bold 20px Courier New";
+        ctx.fillText(bannerText, W / 2, 85);
+      }
+
+      if (flashT > 0) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${flashT * 2})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+      ctx.restore();
+    }
+
+    let last = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      if (state !== "paused") {
+        bgTime += dt;
+        if (zoneFade > 0) zoneFade = Math.max(0, zoneFade - dt / 2.4);
+        if (state === "playing") {
+          bgScroll += speed * 0.22 * dt;
+          midScroll += speed * 0.56 * dt;
+          cloudScroll += (18 + speed * 0.05) * dt;
+        } else {
+          // Keep Phnom Penh alive with gentle atmospheric motion even on Home/Shop screens
+          bgScroll += 18 * dt;
+          midScroll += 40 * dt;
+          cloudScroll += 14 * dt;
+        }
+      }
+      update(dt);
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    syncUI();
+    loadAssets().then(() => {
+      render();
+      requestAnimationFrame(loop);
+    });
+  </script>
+</body>
+</html>
