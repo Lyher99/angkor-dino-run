@@ -1272,17 +1272,17 @@
 
     let lastObsKey = "";
     function spawnDiveWarning(targetY) {
-      diveWarnings.push({ y: targetY, t: 0.65, lvl: level });
-      playTone(880, 620, 0.08, "sawtooth", 0.06);
+      diveWarnings.push({ y: targetY, t: 0.95, lvl: level });
+      playTone(880, 620, 0.08, "sawtooth", 0.05);
     }
 
     function spawnObstacle() {
       const r = Math.random();
-      if (score > 140 && r < 0.14) {
-        // Fast Diving Attack bird with "!" warning indicator!
-        const targetY = Math.random() < 0.5 ? GROUND_Y - 146 : GROUND_Y - 98;
+      if (score > 200 && r < 0.11) {
+        // Diving Attack bird with generous 0.95s "!" warning indicator
+        const targetY = Math.random() < 0.5 ? GROUND_Y - 152 : GROUND_Y - 104;
         spawnDiveWarning(targetY);
-      } else if (score > 80 && r < 0.30) {
+      } else if (score > 110 && r < 0.25) {
         const high = Math.random() < 0.6;
         obstacles.push({
           type: "garuda",
@@ -1290,7 +1290,7 @@
           high,
           dive: false,
           x: W + 40,
-          y: high ? GROUND_Y - 156 : GROUND_Y - 102,
+          y: high ? GROUND_Y - 160 : GROUND_Y - 106,
           w: 64 * 2,
           h: 56 * 2,
           animTime: Math.random() * 0.5,
@@ -1317,23 +1317,23 @@
           animTime: Math.random() * 0.6,
         });
       }
-      if (Math.random() < 0.62) {
-        const isLotus = Math.random() < 0.28;
+      if (Math.random() < 0.68) {
+        const isLotus = Math.random() < 0.30;
         orbs.push({
           kind: isLotus ? "lotus" : "coin",
           x: W + 220 + Math.random() * 120,
-          y: GROUND_Y - (Math.random() < 0.5 ? 88 : 168),
+          y: GROUND_Y - (Math.random() < 0.5 ? 88 : 162),
           size: isLotus ? 54 : 46,
           t: Math.random(),
         });
       }
-      if (score > 40 && Math.random() < 0.14 && powerups.length === 0) {
+      if (score > 20 && Math.random() < 0.24 && powerups.length === 0) {
         const kinds = ["shield", "chili", "bamboo"];
         const pKind = kinds[Math.floor(Math.random() * kinds.length)];
         powerups.push({
           kind: pKind,
-          x: W + 320 + Math.random() * 120,
-          y: GROUND_Y - (Math.random() < 0.5 ? 110 : 175),
+          x: W + 300 + Math.random() * 110,
+          y: GROUND_Y - (Math.random() < 0.5 ? 105 : 165),
           size: 52,
           t: Math.random() * 2,
         });
@@ -1342,9 +1342,9 @@
 
     function getHeroHitbox() {
       if (hero.ducking && hero.onGround) {
-        return { x: hero.x + 24, y: GROUND_Y - 42, w: 48, h: 38 };
+        return { x: hero.x + 28, y: GROUND_Y - 36, w: 40, h: 32 };
       }
-      return { x: hero.x + 28, y: hero.y + 26, w: 40, h: 64 };
+      return { x: hero.x + 32, y: hero.y + 32, w: 32, h: 56 };
     }
 
     function boxesOverlap(a, b) {
@@ -1353,7 +1353,7 @@
 
     function triggerJump() {
       if (state === "playing") {
-        hero.jumpBuffer = 0.15;
+        hero.jumpBuffer = 0.18;
       }
     }
 
@@ -1502,12 +1502,12 @@
       const activeHeroId = charMode !== "auto" ? charMode : VARIANTS[level - 1];
       tickBgm(dt);
 
-      const baseSpeed = Math.min(820, 360 + score * 0.36);
+      const baseSpeed = Math.min(620, 310 + score * 0.22);
       if (invulnTimer > 0) invulnTimer = Math.max(0, invulnTimer - dt);
       if (chiliTimer > 0) chiliTimer = Math.max(0, chiliTimer - dt);
       if (bambooTimer > 0) bambooTimer = Math.max(0, bambooTimer - dt);
 
-      speed = chiliTimer > 0 ? Math.min(980, baseSpeed * 1.38) : (bossRushTimer > 0 ? Math.min(860, baseSpeed * 1.12) : baseSpeed);
+      speed = chiliTimer > 0 ? Math.min(760, baseSpeed * 1.28) : (bossRushTimer > 0 ? Math.min(640, baseSpeed * 1.05) : baseSpeed);
       dist += speed * dt;
       score += dt * 14 * (chiliTimer > 0 || bambooTimer > 0 || combo >= 4 ? 2 : 1);
 
@@ -1516,28 +1516,28 @@
         if (saveData.stats.bestScore >= 1000) checkMissions();
       }
 
-      // Temple Boss Rush -> Realm Transition in AUTO mode
+      // Temple Boss Rush -> Realm Transition in AUTO mode (fair 5.5s wave, pauses ground spawns!)
       if (mapMode === "auto" && bossRushTimer <= 0) {
         if (level === 1 && !bossTriggered[2] && score >= 280) {
-          bossTriggered[2] = true; bossRushTimer = 7.5; bossNextLevel = 2;
+          bossTriggered[2] = true; bossRushTimer = 5.5; bossNextLevel = 2; bossSpawnAccum = 0.6;
           levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR BAYON!";
-          trauma = Math.min(1, trauma + 0.3); sfx.milestone();
+          trauma = Math.min(1, trauma + 0.25); sfx.milestone();
         } else if (level === 2 && !bossTriggered[3] && score >= 580) {
-          bossTriggered[3] = true; bossRushTimer = 7.5; bossNextLevel = 3;
+          bossTriggered[3] = true; bossRushTimer = 5.5; bossNextLevel = 3; bossSpawnAccum = 0.6;
           levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR PREAH VIHEAR!";
-          trauma = Math.min(1, trauma + 0.35); sfx.milestone();
+          trauma = Math.min(1, trauma + 0.3); sfx.milestone();
         } else if (level === 3 && !bossTriggered[4] && score >= 880) {
-          bossTriggered[4] = true; bossRushTimer = 7.5; bossNextLevel = 4;
+          bossTriggered[4] = true; bossRushTimer = 5.5; bossNextLevel = 4; bossSpawnAccum = 0.6;
           levelBannerTimer = 2.2; levelBannerText = "TEMPLE RUSH! SURVIVE FOR TA PROHM!";
-          trauma = Math.min(1, trauma + 0.4); sfx.milestone();
+          trauma = Math.min(1, trauma + 0.35); sfx.milestone();
         }
       }
       if (bossRushTimer > 0) {
         bossRushTimer -= dt;
         bossSpawnAccum += dt;
-        if (bossSpawnAccum >= 1.55) {
+        if (bossSpawnAccum >= 2.0) {
           bossSpawnAccum = 0;
-          spawnDiveWarning(Math.random() < 0.5 ? GROUND_Y - 148 : GROUND_Y - 100);
+          spawnDiveWarning(Math.random() < 0.5 ? GROUND_Y - 156 : GROUND_Y - 104);
           orbs.push({ kind: "coin", x: W + 60, y: GROUND_Y - 130, size: 46, t: Math.random() });
         }
         if (bossRushTimer <= 0) {
@@ -1558,14 +1558,14 @@
       }
 
       hero.ducking = keys.duck;
-      if (hero.onGround) hero.coyote = 0.12;
+      if (hero.onGround) hero.coyote = 0.15;
       else hero.coyote = Math.max(0, hero.coyote - dt);
       if (hero.jumpBuffer > 0) hero.jumpBuffer -= dt;
 
       if (hero.jumpBuffer > 0 && (hero.coyote > 0 || hero.airJumps > 0)) {
         const isAirJump = hero.coyote <= 0;
         if (isAirJump) hero.airJumps--;
-        hero.vy = bambooTimer > 0 ? -1040 : (isAirJump ? -820 : -900);
+        hero.vy = bambooTimer > 0 ? -1060 : (isAirJump ? -860 : -940);
         hero.onGround = false;
         hero.coyote = 0;
         hero.jumpBuffer = 0;
@@ -1576,7 +1576,7 @@
         if (isAirJump) popups.push({ x: hero.x + 48, y: hero.y, text: "DOUBLE JUMP!", life: 0.65 });
       }
 
-      let grav = bambooTimer > 0 ? 1850 : 2150;
+      let grav = bambooTimer > 0 ? 1750 : 2050;
       if (hero.vy < 0 && !keys.jump) grav = 3400;
       if (keys.duck && !hero.onGround) grav = 5200;
       hero.vy += grav * dt;
@@ -1631,22 +1631,24 @@
         }
       }
 
-      hero.animTime += dt * (speed / 360);
+      hero.animTime += dt * (speed / 340);
 
-      spawnTimer -= dt;
-      if (spawnTimer <= 0) {
-        spawnObstacle();
-        const minGap = Math.max(0.85, 1.55 - (speed - 360) / 760);
-        spawnTimer = minGap + Math.random() * 0.65;
+      if (bossRushTimer <= 0) {
+        spawnTimer -= dt;
+        if (spawnTimer <= 0) {
+          spawnObstacle();
+          const minGap = Math.max(1.25, 1.95 - (speed - 310) / 850);
+          spawnTimer = minGap + Math.random() * 0.65;
+        }
       }
 
       const hBox = getHeroHitbox();
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const o = obstacles[i];
-        const moveMul = o.type === "garuda" ? (o.dive ? 1.45 : 1.12) : 1.0;
+        const moveMul = o.type === "garuda" ? (o.dive ? 1.22 : 1.04) : 1.0;
         o.x -= speed * moveMul * dt;
         if (o.animTime !== undefined) o.animTime += dt;
-        const oBox = { x: o.x + 18, y: o.y + 12, w: o.w - 36, h: o.h - 18 };
+        const oBox = { x: o.x + 22, y: o.y + 18, w: Math.max(18, o.w - 44), h: Math.max(20, o.h - 24) };
         if (boxesOverlap(hBox, oBox)) {
           if (chiliTimer > 0) {
             const smashPts = activeHeroId === "khmer_tiger" ? 100 : 75;
@@ -1941,7 +1943,7 @@
         ctx.fillStyle = "rgba(20, 14, 30, 0.8)";
         ctx.fillRect(W / 2 - 140, 14, 280, 16);
         ctx.fillStyle = "#ff5e3a";
-        ctx.fillRect(W / 2 - 138, 16, Math.round((bossRushTimer / 7.5) * 276), 12);
+        ctx.fillRect(W / 2 - 138, 16, Math.round((bossRushTimer / 5.5) * 276), 12);
         ctx.strokeStyle = "#ffe373";
         ctx.lineWidth = 2;
         ctx.strokeRect(W / 2 - 140, 14, 280, 16);
